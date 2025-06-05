@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_error">Error</string>
+    <string name="initial_layout_text">Configure this widget in the app</string>
+</resources>

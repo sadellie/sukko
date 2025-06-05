@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/system_surface_container"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="1"
+        android:background="@drawable/rounded_corner"
+        android:backgroundTint="@color/system_surface_bright">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeTextType="uniform"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center"
+            android:text="su"
+            android:textAlignment="center"
+            android:textColor="@color/system_on_surface"
+            tools:ignore="HardcodedText" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_corner"
+            android:backgroundTint="@color/system_surface_bright">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autoSizeTextType="uniform"
+                android:fontFamily="casual"
+                android:gravity="center"
+                android:text="k"
+                android:textAlignment="center"
+                android:textColor="@color/system_on_surface"
+                tools:ignore="HardcodedText" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_corner"
+            android:backgroundTint="@color/system_surface_bright">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autoSizeTextType="uniform"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:text="ko"
+                android:textAlignment="center"
+                android:textColor="@color/system_on_surface"
+                tools:ignore="HardcodedText" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

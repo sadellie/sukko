@@ -1,0 +1,135 @@
+[versions]
+# https://developer.android.com/reference/tools/gradle-api
+androidGradlePlugin = "8.11.0"
+# https://kotlinlang.org/docs/releases.html
+kotlin = "2.2.20"
+# https://developer.android.com/jetpack/androidx/releases/core
+androidxCoreCoreKts = "1.17.0"
+# https://developer.android.com/jetpack/androidx/releases/activity
+androidxActivityActivityCompose = "1.11.0"
+# https://developer.android.com/jetpack/androidx/releases/compose
+# https://github.com/JetBrains/compose-multiplatform/releases
+compose = "1.9.1"
+# https://mvnrepository.com/artifact/org.jetbrains.compose.material3/material3
+material3 = "1.10.0-alpha02"
+# https://developer.android.com/jetpack/androidx/releases/appcompat
+androidxAppCompatAppCompat = "1.7.1"
+# https://github.com/Kotlin/kotlinx.serialization/releases
+kotlinxSerialization = "1.9.0"
+# https://developer.android.com/jetpack/androidx/releases/room
+androidxRoom = "2.8.2"
+# https://github.com/google/ksp/releases
+ksp = "2.2.20-2.0.4"
+# https://developer.android.com/jetpack/androidx/releases/navigation3
+# do not upgrade, wait for multiplatform compose
+navigation3 = "1.0.0-alpha11"
+# https://github.com/InsertKoinIO/koin/releases
+koin = "4.1.1"
+# https://developer.android.com/jetpack/androidx/releases/lifecycle
+# update with nav3
+lifecycleProcess = "2.10.0-alpha05"
+# https://github.com/Kotlin/kotlinx-datetime/releases
+kotlinxDateTime = "0.7.1"
+# https://github.com/touchlab/Kermit/releases
+kermit = "2.0.8"
+# https://github.com/jordond/MaterialKolor/releases
+materialKolor = "3.0.1"
+# https://developer.android.com/jetpack/androidx/releases/work
+workRuntimeKtx = "2.10.5"
+# https://developer.android.com/jetpack/androidx/releases/concurrent
+concurentFuturesKtx = "1.3.0"
+# https://github.com/Kotlin/kotlinx.coroutines/releases
+kotlinxCoroutines = "1.10.2"
+# https://github.com/coil-kt/coil/releases
+coil = "3.3.0"
+# https://github.com/Calvin-LL/Reorderable/releases
+reorderable = "3.0.0"
+# https://github.com/vinceglb/FileKit/releases
+fileKit = "0.12.0"
+# https://developer.android.com/jetpack/androidx/releases/test
+androidxTest = "1.7.0"
+# https://github.com/composablehorizons/compose-unstyled/releases
+# https://mvnrepository.com/artifact/com.composables/core
+composables = "1.46.0"
+# https://github.com/ktorio/ktor/releases
+ktor = "3.3.1"
+# https://square.github.io/okio/changelog/
+okio = "3.16.2"
+# https://github.com/iurysza/module-graph/releases
+devIurysouzaModulegraph = "0.13.0"
+# https://github.com/detekt/detekt/releases
+detekt = "1.23.8"
+# https://github.com/jordond/kmpalette/releases
+kmpalette = "3.1.0"
+# https://developer.android.com/jetpack/androidx/releases/test
+junitKtx = "1.3.0"
+# https://github.com/robolectric/robolectric/releases
+robolectric = "4.16"
+# https://mvnrepository.com/artifact/junit/junit
+junit = "4.13.2"
+
+[libraries]
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCoreCoreKts" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityActivityCompose" }
+androidx-lifecycle-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleProcess" }
+androidx-appcompat-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppCompatAppCompat" }
+org-jetbrains-kotlinx-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+org-jetbrains-kotlinx-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDateTime" }
+org-jetbrains-compose-material3-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+org-jetbrains-compose-material3-material3-window-size = { module = "org.jetbrains.compose.material3:material3-window-size-class", version.ref = "material3" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "androidxRoom" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidxRoom" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidxRoom" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "androidxRoom" }
+androidx-navigation3-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
+androidx-navigation3-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+io-insert-koin-koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+io-insert-koin-koin-core = { module = "io.insert-koin:koin-core" }
+io-insert-koin-koin-core-coroutines = { module = "io.insert-koin:koin-core-coroutines" }
+io-insert-koin-koin-compose = { module = "io.insert-koin:koin-compose" }
+io-insert-koin-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel" }
+io-insert-koin-koin-androidx-startup = { module = "io.insert-koin:koin-androidx-startup" }
+androidx-lifecycle-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
+co-touchlab-kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+com-materialkolor-material-color-utilities = { module = "com.materialkolor:material-color-utilities", version.ref = "materialKolor" }
+androidx-work-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-concurrent-concurrent-futures-ktx = { module = "androidx.concurrent:concurrent-futures-ktx", version.ref = "concurentFuturesKtx" }
+org-jetbrains-kotlinx-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+io-coil-kt-coil3-coil-core = { module = "io.coil-kt.coil3:coil-core", version.ref = "coil" }
+io-coil-kt-coil3-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+io-coil-kt-coil3-coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
+sh-calvin-reorderable-reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
+io-github-vinceglb-filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "fileKit" }
+io-github-vinceglb-filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "fileKit" }
+io-github-vinceglb-filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "fileKit" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTest" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTest" }
+com-composables-core = { module = "com.composables:core", version.ref = "composables" }
+io-ktor-ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+io-ktor-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+com-squareup-okio-okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+org-jetbrains-kotlinx-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+com-kmpalette-kmpalette-core = { module = "com.kmpalette:kmpalette-core", version.ref = "kmpalette" }
+androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "junitKtx" }
+junit-junit = { module = "junit:junit", version.ref = "junit" }
+org-robolectric-robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+
+# build-logic
+android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+ksp-gradlePlugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+room = { id = "androidx.room", version.ref = "androidxRoom" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+dev-iurysouza-modulegraph = { id = "dev.iurysouza.modulegraph", version.ref = "devIurysouzaModulegraph" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

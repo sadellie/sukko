@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LoopWithTooManyJumpStatements:ProcessRenderResult.kt$for</ID>
+    <ID>ReturnCount:MediaListenerImpl.kt$MediaListenerImpl$private fun MediaMetadata.extractCoverUri(): String?</ID>
+    <ID>ReturnCount:WidgetSubscriptionInfoGenerator.kt$private fun isMediaSubscriber(layer: Layer.Cold, allScriptTokens: Set&lt;Token3&gt;): Boolean</ID>
+  </CurrentIssues>
+</SmellBaseline>

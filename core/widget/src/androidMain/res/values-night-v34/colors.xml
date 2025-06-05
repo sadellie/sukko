@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="system_background">@android:color/system_background_dark</color>
+    <color name="system_on_background">@android:color/system_on_background_dark</color>
+    <color name="system_surface_container">@android:color/system_surface_container_dark</color>
+    <color name="system_surface_bright">@android:color/system_surface_bright_dark</color>
+    <color name="system_on_surface">@android:color/system_on_surface_dark</color>
+</resources>

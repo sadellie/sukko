@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="system_background">#121318</color>
+    <color name="system_on_background">#E2E2E9</color>
+    <color name="system_surface_container">#1E1F25</color>
+    <color name="system_surface_bright">#38393F</color>
+    <color name="system_on_surface">#E2E2E9</color>
+</resources>

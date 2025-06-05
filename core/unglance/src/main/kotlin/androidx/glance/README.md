@@ -1,0 +1,1 @@
+Modifier source code of Compose Glance (part of Android Jetpack). Licence included.

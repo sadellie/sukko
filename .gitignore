@@ -1,0 +1,15 @@
+*.iml
+.gradle
+local.properties
+/.idea
+.DS_Store
+/build/
+/material-symbols/build/
+/build-logic/convention/build
+*.lock
+/app/build
+/app/*.log
+.kotlin
+/tools
+/fake/public
+/detekt/report.*

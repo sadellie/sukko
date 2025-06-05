@@ -1,0 +1,31 @@
+site_name: Sukko docs
+site_url: https://io.github.sadellie/sukko/
+docs_dir: ./docs
+repo_url: https://github.com/sadellie/sukko/
+repo_name: sukko
+theme:
+  palette:
+    scheme: slate
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  logo:
+    logo2.svg
+  favicon:
+    logo2.svg
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.instant.prefetch
+    - navigation.top
+extra_css:
+  - stylesheets/extra.css
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+nav:
+  - Home: index.md
+  - Scripting: scripting.md
+  - Press kit: press.md
+  - Privacy policy: privacy.md

@@ -1,0 +1,108 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "f8c57eb20b0eeac950ad188093c4ef8a",
+    "entities": [
+      {
+        "tableName": "widget_data",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`appWidgetId` INTEGER NOT NULL, `name` TEXT, `layers` TEXT NOT NULL, `globals` TEXT NOT NULL, PRIMARY KEY(`appWidgetId`))",
+        "fields": [
+          {
+            "fieldPath": "appWidgetId",
+            "columnName": "appWidgetId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "layers",
+            "columnName": "layers",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "globals",
+            "columnName": "globals",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "appWidgetId"
+          ]
+        }
+      },
+      {
+        "tableName": "widget_data_preset",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`presetId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `layers` TEXT NOT NULL, `globals` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "presetId",
+            "columnName": "presetId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "layers",
+            "columnName": "layers",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "globals",
+            "columnName": "globals",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "presetId"
+          ]
+        }
+      },
+      {
+        "tableName": "icon_pack",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`iconPackId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "iconPackId",
+            "columnName": "iconPackId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "iconPackId"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f8c57eb20b0eeac950ad188093c4ef8a')"
+    ]
+  }
+}
