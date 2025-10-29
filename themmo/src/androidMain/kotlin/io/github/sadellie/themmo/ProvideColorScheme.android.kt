@@ -7,6 +7,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import io.github.sadellie.themmo.core.MonetMode
 
 @Composable
 actual fun provideDynamicColorScheme(isDark: Boolean): ColorScheme {

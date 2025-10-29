@@ -15,6 +15,7 @@ import com.materialkolor.scheme.SchemeNeutral
 import com.materialkolor.scheme.SchemeRainbow
 import com.materialkolor.scheme.SchemeTonalSpot
 import com.materialkolor.scheme.SchemeVibrant
+import io.github.sadellie.themmo.core.MonetMode
 
 internal fun generateColorScheme(
   keyColor: Color,

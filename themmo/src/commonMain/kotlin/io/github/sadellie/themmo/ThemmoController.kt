@@ -11,6 +11,8 @@ import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import io.github.sadellie.themmo.core.MonetMode
+import io.github.sadellie.themmo.core.ThemingMode
 
 // Constants for Saver
 private const val AMOLED_ENABLED = "AMOLED_ENABLED"
@@ -24,7 +26,7 @@ private const val MONET_MODE = "MONET_MODE"
  *
  * @param lightColorScheme Scheme as default light color scheme.
  * @param darkColorScheme Scheme as default dark color scheme.
- * @param themingMode Current [ThemingMode].
+ * @param themingMode Current [io.github.sadellie.themmo.core.ThemingMode].
  * @param dynamicThemeEnabled When true will use dynamic theming (Monet).
  * @param amoledThemeEnabled When true will change background color to black. Only for dark theme.
  * @param customColor Color from which color scheme will be generated from.

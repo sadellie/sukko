@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.isSpecified
+import io.github.sadellie.themmo.core.MonetMode
+import io.github.sadellie.themmo.core.ThemingMode
 
 @Composable
 fun commonProvideColorScheme(

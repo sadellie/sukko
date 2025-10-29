@@ -1,4 +1,4 @@
-package io.github.sadellie.themmo
+package io.github.sadellie.themmo.core
 
 enum class ThemingMode {
   /** Will ask system which theme to use. */
