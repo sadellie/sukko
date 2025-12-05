@@ -10,6 +10,6 @@ local.properties
 /app/build
 /app/*.log
 .kotlin
-/tools
+/internals
 /fake/public
 /detekt/report.*
