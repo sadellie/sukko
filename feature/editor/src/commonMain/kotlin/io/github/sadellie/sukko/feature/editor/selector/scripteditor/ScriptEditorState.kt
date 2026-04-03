@@ -50,10 +50,10 @@ internal fun <T> produceScriptEditorState(
       try {
         ScriptEditorState.Success(block().evaluateUnsafe(layerContext).value, autoReload)
       } catch (e: ScriptException) {
-        Logger.e("ScriptEditor", e) { "Script exception" }
+        Logger.e(throwable = e, tag = "ScriptEditor") { "Script exception" }
         ScriptEditorState.ScriptError(e, autoReload)
       } catch (e: Exception) {
-        Logger.e("ScriptEditor", e) { "Generic exception" }
+        Logger.e(throwable = e, tag = "ScriptEditor") { "Generic exception" }
         ScriptEditorState.GenericError(e, autoReload)
       }
   }

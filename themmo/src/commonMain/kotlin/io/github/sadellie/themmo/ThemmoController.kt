@@ -1,6 +1,7 @@
 package io.github.sadellie.themmo
 
 import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.runtime.Composable
@@ -13,13 +14,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import io.github.sadellie.themmo.core.MonetMode
 import io.github.sadellie.themmo.core.ThemingMode
-
-// Constants for Saver
-private const val AMOLED_ENABLED = "AMOLED_ENABLED"
-private const val THEMING_MODE = "THEMING_MODE"
-private const val DYNAMIC_ENABLED = "DYNAMIC_ENABLED"
-private const val CUSTOM_COLOR = "CUSTOM_COLOR"
-private const val MONET_MODE = "MONET_MODE"
 
 /**
  * Controller that holds current theming options and provides methods to manipulate them.
@@ -107,6 +101,7 @@ class ThemmoController(
  * @return [ThemmoController] with applied parameters.
  * @see [ThemmoController]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun rememberThemmoController(
   lightColorScheme: ColorScheme = expressiveLightColorScheme(),
@@ -170,3 +165,10 @@ private fun restoreThemmoState(
     monetMode = map[MONET_MODE] as MonetMode,
   )
 }
+
+// Constants for Saver
+private const val AMOLED_ENABLED = "AMOLED_ENABLED"
+private const val THEMING_MODE = "THEMING_MODE"
+private const val DYNAMIC_ENABLED = "DYNAMIC_ENABLED"
+private const val CUSTOM_COLOR = "CUSTOM_COLOR"
+private const val MONET_MODE = "MONET_MODE"

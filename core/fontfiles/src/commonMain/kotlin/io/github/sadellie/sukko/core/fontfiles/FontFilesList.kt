@@ -1,29 +1,28 @@
 package io.github.sadellie.sukko.core.fontfiles
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.ui.ListHeader
 import io.github.sadellie.sukko.core.ui.ListItem2
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.font_files_list_custom
 import io.github.sadellie.sukko.resources.font_files_list_preview
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun FontFilesList(
@@ -42,12 +41,13 @@ fun FontFilesList(
   ) {
     itemsIndexed(builtIn, { _, font -> font.id }) { index, fontFile ->
       FontFileListItem(
-        modifier = Modifier.clickable { onClick(fontFile) },
+        modifier = Modifier,
+        onClick = { onClick(fontFile) },
         fontFile = fontFile,
         fontName = stringResource(fontFile.displayName),
         fontFamilyLoader = fontFamilyLoader,
         isSelected = selectedFontFile?.let { it == fontFile },
-        shape = ListItemDefaults.listedShape(index, builtIn.size),
+        shapes = ListItemDefaults.listedShapes(index, builtIn.size),
       )
     }
 
@@ -56,12 +56,13 @@ fun FontFilesList(
 
       itemsIndexed(custom, { _, font -> font.id }) { index, fontFile ->
         FontFileListItem(
-          modifier = Modifier.clickable { onClick(fontFile) },
+          modifier = Modifier,
+          onClick = { onClick(fontFile) },
           fontFile = fontFile,
           fontName = fontFile.fileNameWithoutExtension,
           fontFamilyLoader = fontFamilyLoader,
           isSelected = selectedFontFile?.let { it == fontFile },
-          shape = ListItemDefaults.listedShape(index, custom.size),
+          shapes = ListItemDefaults.listedShapes(index, custom.size),
         )
       }
     }
@@ -74,14 +75,13 @@ private fun FontFileListItem(
   fontName: String,
   fontFile: FontFile,
   fontFamilyLoader: FontFamilyLoader,
+  onClick: () -> Unit,
   isSelected: Boolean? = null,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   ListItem2(
     modifier = modifier,
-    headlineContent = {
-      Text(text = fontName, modifier = Modifier.padding(vertical = Sizes.extraSmall))
-    },
+    content = { Text(text = fontName, modifier = Modifier.padding(vertical = Sizes.extraSmall)) },
     supportingContent = {
       Text(
         text = stringResource(Res.string.font_files_list_preview),
@@ -90,7 +90,8 @@ private fun FontFileListItem(
       )
     },
     trailingContent = isSelected?.let { { RadioButton(selected = it, onClick = null) } },
-    shape = shape,
+    shapes = shapes,
+    onClick = onClick,
   )
 }
 

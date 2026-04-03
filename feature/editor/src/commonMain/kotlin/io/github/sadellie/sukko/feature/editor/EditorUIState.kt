@@ -1,10 +1,12 @@
 package io.github.sadellie.sukko.feature.editor
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.DpSize
 import io.github.sadellie.sukko.core.model.WidgetData
 import io.github.sadellie.sukko.core.model.basic.ClickAction
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.layer.Layer
+import io.github.sadellie.sukko.core.model.layer.RenderOption
 import io.github.sadellie.sukko.core.model.modifier.WidgetModifier
 
 internal data class EditorUIState(
@@ -18,10 +20,18 @@ internal data class EditorUIState(
 
 internal data class ViewerState(
   val currentLayer: Layer.Cold?,
+  val highlightSelectedLayer: Boolean,
   val parentLayer: Layer.Cold?,
   val breadcrumbs: List<Layer.Cold>,
   val loadedLayers: List<Layer.Cold>,
-)
+) {
+  @Stable
+  fun asRenderOptions() =
+    RenderOption.Editor(
+      selectedLayerId = currentLayer?.id,
+      highlightSelectedLayer = highlightSelectedLayer,
+    )
+}
 
 internal sealed interface WidgetDataSaverState {
   data object NotRunning : WidgetDataSaverState

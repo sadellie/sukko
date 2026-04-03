@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.compose.compiler)
 }
 
-kotlin { sourceSets.commonMain.dependencies { implementation(compose.ui) } }
-
-android { namespace = "google.material.design.symbols" }
+kotlin {
+  android.namespace = "google.material.design.symbols"
+  sourceSets.commonMain.dependencies { implementation(libs.org.jetbrains.compose.ui.ui) }
+}

@@ -87,7 +87,7 @@ class SessionManagerImpl(
       private val sessions = mutableMapOf<String, Session>()
 
       override suspend fun startSession(context: Context, session: Session) {
-        Logger.d(TAG) { "startSession(${session.key})" }
+        Logger.d(tag = TAG) { "startSession(${session.key})" }
         addSessionCloseExisting(session)
         val workRequest =
           OneTimeWorkRequest.Builder(workerClass).setInputData(inputDataFactory(session)).build()
@@ -106,19 +106,19 @@ class SessionManagerImpl(
         val workerIsRunningOrEnqueued = workManagerProxy.workerIsRunningOrEnqueued(context, key)
         val hasOpenSession = sessions[key]?.isOpen ?: false
         val isRunning = hasOpenSession && workerIsRunningOrEnqueued
-        Logger.d(TAG) { "isSessionRunning($key) == $isRunning" }
+        Logger.d(tag = TAG) { "isSessionRunning($key) == $isRunning" }
         return isRunning
       }
 
       override suspend fun closeSession(key: String) {
-        Logger.d(TAG) { "closeSession($key)" }
+        Logger.d(tag = TAG) { "closeSession($key)" }
         sessions.remove(key)?.close()
       }
 
       override suspend fun recreateOrClose(session: Session): Session? {
         val events = session.receiveAllPendingEvents()
         if (!session.isOpen || session.hasError || events.isEmpty()) {
-          Logger.d(TAG) {
+          Logger.d(tag = TAG) {
             "Closing session ${session.key} wasOpen=${!session.isOpen}" +
               " hasError=${session.hasError} events=$events"
           }

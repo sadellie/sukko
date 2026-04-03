@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.editor
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -12,10 +11,13 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,7 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
@@ -40,7 +44,7 @@ import io.github.sadellie.sukko.core.ui.ListHeader
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.feature.editor.selector.BooleanSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ColorSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
@@ -65,9 +69,6 @@ import io.github.sadellie.sukko.resources.editor_globals_list_string
 import io.github.sadellie.sukko.resources.editor_globals_list_text_style
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
 internal fun EditorGlobalsList(
@@ -210,7 +211,7 @@ private fun LazyListScope.globalItems(
       onDelete = { onEvent(EditorEvent.GlobalAction.Delete(item)) },
       onUpdate = { onEvent(EditorEvent.GlobalAction.Update(it)) },
       globals = globals,
-      shape = ListItemDefaults.listedShape(index, items.size),
+      shapes = ListItemDefaults.listedShapes(index, items.size),
     )
   }
 }
@@ -222,12 +223,13 @@ private fun <T> GlobalListItem(
   onDelete: () -> Unit,
   global: GlobalValue<T>,
   globals: Globals,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2(
-    modifier = modifier.clickable { sheetState.expand() },
-    headlineContent = { Text(global.label) },
+    modifier = modifier,
+    onClick = { sheetState.expand() },
+    content = { Text(global.label) },
     trailingContent = {
       GlobalListItemMenu(
         globalLabel = global.label,
@@ -235,7 +237,7 @@ private fun <T> GlobalListItem(
         onDelete = onDelete,
       )
     },
-    shape = shape,
+    shapes = shapes,
   )
 
   when (global) {
@@ -301,35 +303,39 @@ private fun GlobalListItemMenu(
   DropDownMenuWithButton {
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
-    DropdownMenuItem(
-      text = { Text(stringResource(Res.string.common_rename)) },
-      onClick = { showRenameDialog = true },
-    )
-    if (showRenameDialog) {
-      val textFieldState = rememberTextFieldState(globalLabel)
-      AlertDialogWithTextField(
-        onDismiss = { showRenameDialog = false },
-        onConfirm = {
-          val newName = textFieldState.text.toString()
-          if (newName.isNotBlank()) onRename(newName)
-        },
-        textFieldLabel = stringResource(Res.string.editor_globals_list_label),
-        textFieldState = textFieldState,
-        title = stringResource(Res.string.editor_globals_list_rename_global),
+    DropdownMenuGroup(shapes = MenuDefaults.groupShapes()) {
+      DropdownMenuItem(
+        shape = MenuDefaults.leadingItemShape,
+        text = { Text(stringResource(Res.string.common_rename)) },
+        onClick = { showRenameDialog = true },
       )
-    }
+      if (showRenameDialog) {
+        val textFieldState = rememberTextFieldState(globalLabel)
+        AlertDialogWithTextField(
+          onDismiss = { showRenameDialog = false },
+          onConfirm = {
+            val newName = textFieldState.text.toString()
+            if (newName.isNotBlank()) onRename(newName)
+          },
+          textFieldLabel = stringResource(Res.string.editor_globals_list_label),
+          textFieldState = textFieldState,
+          title = stringResource(Res.string.editor_globals_list_rename_global),
+        )
+      }
 
-    DropdownMenuItem(
-      text = { Text(stringResource(Res.string.common_delete)) },
-      onClick = { showDeleteDialog = true },
-    )
-    if (showDeleteDialog) {
-      AlertDialogWithText(
-        onDismiss = { showRenameDialog = false },
-        onConfirm = onDelete,
-        title = stringResource(Res.string.editor_globals_list_delete_global),
-        text = stringResource(Res.string.editor_globals_list_delete_global_text),
+      DropdownMenuItem(
+        shape = MenuDefaults.trailingItemShape,
+        text = { Text(stringResource(Res.string.common_delete)) },
+        onClick = { showDeleteDialog = true },
       )
+      if (showDeleteDialog) {
+        AlertDialogWithText(
+          onDismiss = { showRenameDialog = false },
+          onConfirm = onDelete,
+          title = stringResource(Res.string.editor_globals_list_delete_global),
+          text = stringResource(Res.string.editor_globals_list_delete_global_text),
+        )
+      }
     }
   }
 }

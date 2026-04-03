@@ -15,6 +15,7 @@ internal interface SimplificationRule {
   companion object {
     fun allRules(): List<SimplificationRule> =
       listOf(
+        SimplifyUnary,
         SimplifyConstant,
         SimplifyOrBoolean,
         SimplifyAndBoolean,

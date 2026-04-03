@@ -6,7 +6,7 @@ import io.github.sadellie.sukko.core.model.basic.ImageUriSource
 import io.github.sadellie.sukko.core.model.layer.ColdColumnLayer
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.ColdTextLayer
-import kotlin.test.Test
+import org.junit.Test
 import kotlin.test.assertEquals
 
 class WidgetDataPresetExportRemoveImageUriTest {

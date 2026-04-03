@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import google.material.design.symbols.ArrowBack
@@ -49,9 +50,8 @@ import google.material.design.symbols.Search
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_search_text_field_placeholder
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

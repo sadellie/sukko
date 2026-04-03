@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation3.runtime.NavKey
 import google.material.design.symbols.EmojiPeople
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
@@ -33,12 +33,8 @@ import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_preset_list_placeholder_text
 import io.github.sadellie.sukko.resources.common_preset_list_placeholder_title
 import io.github.sadellie.sukko.resources.preset_selector_title
-import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-
-@Serializable data object PresetSelectorRoute : NavKey
 
 @Composable
 fun PresetSelectorScene(
@@ -93,8 +89,9 @@ private fun PresetSelectorScreen(
   }
 }
 
-class PresetSelectorViewModel(widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository) :
-  ViewModel() {
+internal class PresetSelectorViewModel(
+  widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository
+) : ViewModel() {
   val presets =
     widgetDataPresetCustomRepository
       .allWidgetDataPresets(decodeExtra = false)

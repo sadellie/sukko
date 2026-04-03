@@ -2,7 +2,7 @@
     <img src="./docs/banner.png" style="width:80%"/>
 </p>
 
-Purple monopoly destroyer 😈
+😈 Purple monopoly destroyer 😈
 
 # Screenshots
 
@@ -25,14 +25,12 @@ Purple monopoly destroyer 😈
 - Not for daily usage despite implemented features and overall stability 
 - Please avoid redistribution on "free and open source android app repositories" 🟢🟦
 
-Development updates: https://t.me/sadellie_dev
-
 ## Already implemented
 
 List can be outdated
 
 - Layers
-  - 6 types
+  - 7 types
   - Parameters and selectors (shape, brush, color and other tools)
 - Native dynamic color schemes support with all color tokens
 - Responsive widgets. No need to manually use "scale" and other barbarian methods
@@ -74,7 +72,7 @@ List can be outdated
 
 # Scripting
 
-Currently, scripting documentation is available as [source JSON file](./core/script/src/commonMain/composeResources/files/scripting.json) and in the app. Web based tools are planned.
+Currently, scripting documentation is available at https://sadellie.github.io/sukko/scripting/
 
 # Licenses
 

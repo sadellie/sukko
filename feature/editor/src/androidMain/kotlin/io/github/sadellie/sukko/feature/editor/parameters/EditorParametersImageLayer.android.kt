@@ -2,13 +2,11 @@ package io.github.sadellie.sukko.feature.editor.parameters
 
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
@@ -20,7 +18,7 @@ import io.github.sadellie.sukko.core.ui.ExpandableListItem
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.middleShape
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.IconSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.StringSelectorSheet
 import io.github.sadellie.sukko.resources.Res
@@ -38,20 +36,21 @@ internal actual fun EditorParametersImageUri(
   layer: ColdImageLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   ExpandableListItem(
     headlineText = stringResource(Res.string.editor_parameters_image_uri_source),
     supportingText = layer.imageUriSource.displayValue(),
     compactListMode = compactListMode,
-    shape = ListItemDefaults.middleShape,
+    shapes = ListItemDefaults.middleShapes,
   ) {
     val uriSourceSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_parameters_image_uri_source)) },
+      content = { Text(stringResource(Res.string.editor_parameters_image_uri_source)) },
       supportingContent = { Text(stringResource(layer.imageUriSource.displayName)) },
       compactListMode = compactListMode,
-      modifier = Modifier.clickable { uriSourceSheetState.expand() },
-      shape = RectangleShape,
+      onClick = uriSourceSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     AnimatedContent(layer.imageUriSource) { imageUriSource ->
       when (imageUriSource) {
@@ -107,13 +106,13 @@ private fun EditorParameterGallerySource(
       onUpdate(ImageUriSource.Gallery(pickedFileUri.toString()))
     }
   ListItem2Compact(
-    headlineContent = {
+    content = {
       Text(stringResource(Res.string.editor_parameters_image_uri_gallery_selected_image))
     },
     supportingContent = { Text(imageUriSource.displayValue()) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { imagePicker.launch() },
-    shape = RectangleShape,
+    onClick = imagePicker::launch,
+    shapes = ListItemDefaults.middleShapes,
   )
 }
 
@@ -126,13 +125,11 @@ private fun EditorParameterLinkSource(
 ) {
   val customUriSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = {
-      Text(stringResource(Res.string.editor_parameters_image_uri_gallery_custom_value))
-    },
+    content = { Text(stringResource(Res.string.editor_parameters_image_uri_gallery_custom_value)) },
     supportingContent = { Text(imageUriSource.displayValue()) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { customUriSheetState.expand() },
-    shape = RectangleShape,
+    onClick = customUriSheetState::expand,
+    shapes = ListItemDefaults.middleShapes,
   )
   StringSelectorSheet(
     state = customUriSheetState,
@@ -150,11 +147,11 @@ private fun EditorParameterIconPackSource(
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_icon)) },
+    content = { Text(stringResource(Res.string.editor_parameters_icon)) },
     supportingContent = { Text(imageUriSource.displayValue()) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = RectangleShape,
+    onClick = { sheetState.expand() },
+    shapes = ListItemDefaults.middleShapes,
   )
   IconSelectorSheet(
     state = sheetState,

@@ -15,7 +15,8 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 
-class FontFileCustomRepositoryImpl(private val context: Context) : FontFileCustomRepository {
+internal class FontFileCustomRepositoryImpl(private val context: Context) :
+  FontFileCustomRepository {
   @OptIn(ExperimentalCoroutinesApi::class)
   override fun loadAll(): Flow<List<FontFile.Custom>> {
     val fontsDirectory = (context.filesPath / FontFile.Custom.DIR_PATH.toPath()).toFile()

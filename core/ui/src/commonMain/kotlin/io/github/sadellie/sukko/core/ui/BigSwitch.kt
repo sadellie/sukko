@@ -19,11 +19,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import google.material.design.symbols.Check
 import google.material.design.symbols.Close
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun BigSwitch(
@@ -52,10 +52,15 @@ fun BigSwitch(
 }
 
 @Composable
-fun SwitchWithCheckIcon(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?) {
+fun SwitchWithCheckIcon(
+  checked: Boolean,
+  onCheckedChange: ((Boolean) -> Unit)?,
+  enabled: Boolean = true,
+) {
   Switch(
     checked = checked,
     onCheckedChange = onCheckedChange,
+    enabled = enabled,
     thumbContent = {
       val icon = remember(checked) { if (checked) Symbols.Check else Symbols.Close }
       AnimatedContent(checked) {

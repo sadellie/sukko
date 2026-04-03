@@ -15,16 +15,17 @@ import io.github.sadellie.sukko.core.iconfiles.IconPack
 import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.WidgetDataPreset
 import io.github.sadellie.sukko.core.model.basic.ImageUriSource
+import io.github.sadellie.sukko.core.model.basic.TextStyleSource
 import io.github.sadellie.sukko.core.model.layer.ColdColumnLayer
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.ColdTextLayer
-import io.github.sadellie.sukko.core.model.layer.TextStyleSource
 import io.github.vinceglb.filekit.PlatformFile
-import java.util.zip.ZipInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.zip.ZipInputStream
 
 class WidgetDataPresetExportTest {
   private val context =
@@ -128,7 +129,7 @@ class WidgetDataPresetExportTest {
   ) {
     val previewPath = widgetDataPreset.getPreviewPath(context.filesPath)
     previewPath.parent?.toFile()?.mkdirs()
-    previewPath.toFile().createNewFile()
+    withContext(Dispatchers.IO) { previewPath.toFile().createNewFile() }
     val insertedId =
       widgetDataPresetRepository.insertNewWithPreview(
         widgetDataPreset = widgetDataPreset,

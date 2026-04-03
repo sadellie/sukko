@@ -5,9 +5,10 @@ plugins {
 }
 
 kotlin {
+  android.namespace = "io.github.sadellie.sukko.core.designsystem"
   sourceSets.commonMain.dependencies {
-    implementation(compose.components.uiToolingPreview)
-    implementation(compose.foundation)
+    implementation(libs.org.jetbrains.compose.ui.ui.tooling.preview)
+    implementation(libs.org.jetbrains.compose.foundation.foundation)
     implementation(libs.com.squareup.okio.okio)
     implementation(libs.io.coil.kt.coil3.coil.compose)
     implementation(libs.io.coil.kt.coil3.coil.svg)
@@ -16,5 +17,3 @@ kotlin {
     implementation(project(":themmo"))
   }
 }
-
-android { namespace = "io.github.sadellie.sukko.core.designsystem" }

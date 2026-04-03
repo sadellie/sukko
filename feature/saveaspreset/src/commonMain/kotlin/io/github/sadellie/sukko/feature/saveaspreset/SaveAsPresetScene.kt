@@ -15,10 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation3.runtime.NavKey
 import co.touchlab.kermit.Logger
 import coil3.compose.AsyncImage
 import google.material.design.symbols.Save
@@ -48,14 +48,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import okio.Path
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-
-@Serializable data class SaveAsPresetRoute(val appWidgetId: Int) : NavKey
 
 @Composable
 fun SaveAsPresetScene(onNavigateUp: () -> Unit, appWidgetId: Int) {
@@ -127,7 +123,7 @@ private fun SaveAsPresetScreen(
   }
 }
 
-class SaveAsPresetViewModel(
+internal class SaveAsPresetViewModel(
   private val appWidgetId: Int,
   private val widgetDataRepository: WidgetDataRepository,
   private val widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository,

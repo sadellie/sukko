@@ -2,7 +2,6 @@ package io.github.sadellie.sukko.core.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,11 +20,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.tooling.preview.Preview
 import google.material.design.symbols.ChevronRight
 import google.material.design.symbols.Symbols
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 
 @Composable
 fun ExpandableListItem(
@@ -33,7 +32,7 @@ fun ExpandableListItem(
   supportingText: String? = null,
   leadingContent: (@Composable () -> Unit)? = null,
   compactListMode: Boolean,
-  shape: Shape,
+  shapes: ListItemShapes,
   expandedContent: @Composable ColumnScope.() -> Unit,
 ) {
   var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -44,7 +43,7 @@ fun ExpandableListItem(
     isExpanded = isExpanded,
     onExpandedUpdate = { isExpanded = !isExpanded },
     leadingContent = leadingContent,
-    shape = shape,
+    shapes = shapes,
     trailingContent = { ExpandableButton({ isExpanded = !isExpanded }, isExpanded) },
     compactListMode = compactListMode,
     expandedContent = expandedContent,
@@ -60,21 +59,23 @@ fun ExpandableListItem(
   onExpandedUpdate: () -> Unit,
   leadingContent: (@Composable () -> Unit)? = null,
   compactListMode: Boolean,
-  shape: Shape,
+  shapes: ListItemShapes,
   trailingContent: (@Composable () -> Unit) = { ExpandableButton(onExpandedUpdate, isExpanded) },
   expandedContent: @Composable ColumnScope.() -> Unit,
 ) {
-  Column(Modifier.clip(shape).then(modifier)) {
+  Column(Modifier.clip(shapes.shape).then(modifier), verticalArrangement = ListArrangement) {
     ListItem2Compact(
-      headlineContent = { Text(headlineText) },
+      content = { Text(headlineText) },
       supportingContent = supportingText?.let { { Text(it) } },
       leadingContent = leadingContent,
       trailingContent = trailingContent,
-      modifier = Modifier.clickable { onExpandedUpdate() },
+      onClick = onExpandedUpdate,
       compactListMode = compactListMode,
-      shape = RectangleShape,
+      shapes = ListItemDefaults.middleShapes,
     )
-    AnimatedVisibility(visible = isExpanded) { Column(content = expandedContent) }
+    AnimatedVisibility(visible = isExpanded) {
+      Column(content = expandedContent, verticalArrangement = ListArrangement)
+    }
   }
 }
 
@@ -106,16 +107,17 @@ private fun PreviewExpandableListItem() {
     expandedContent = {
       repeat(5) {
         ListItem2Compact(
-          headlineContent = { Text("Headline $it") },
+          content = { Text("Headline $it") },
           supportingContent = { Text("Supporting $it") },
           compactListMode = false,
-          shape = RectangleShape,
+          shapes = ListItemDefaults.middleShapes,
+          onClick = {},
         )
       }
     },
     leadingContent = null,
     isExpanded = isExpanded,
     compactListMode = false,
-    shape = ListItemDefaults.singleShape,
+    shapes = ListItemDefaults.singleShapes,
   )
 }

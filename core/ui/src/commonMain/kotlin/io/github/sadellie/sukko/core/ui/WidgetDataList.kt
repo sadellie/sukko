@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import io.github.sadellie.sukko.core.designsystem.LocalImageLoader
@@ -35,7 +36,6 @@ import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_my_presets
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun <T> WidgetDataList(

@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import co.touchlab.kermit.Logger
 import com.composables.core.ModalBottomSheetState
@@ -69,7 +70,6 @@ import io.github.sadellie.sukko.resources.editor_selector_input_mode_material_yo
 import io.github.sadellie.sukko.resources.editor_selector_input_mode_script
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ColorSelectorSheet(
@@ -379,7 +379,7 @@ internal fun produceColor(
       try {
         scriptableColor.getValue(layerContext, globals)
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to produce color" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to produce color" }
         Color.Unspecified
       }
   }

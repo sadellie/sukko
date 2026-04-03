@@ -5,16 +5,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
@@ -27,7 +28,7 @@ import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.RemoveButton
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.feature.editor.EditorEvent
 import io.github.sadellie.sukko.feature.editor.EditorList
 import io.github.sadellie.sukko.feature.editor.LayerListItemDragHandle
@@ -37,7 +38,6 @@ import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_not_selected
 import io.github.sadellie.sukko.resources.editor_click_actions_add_click_action
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 
 @Composable
@@ -67,7 +67,7 @@ internal fun EditorClickActionsList(
       isInEditingMode = isInEditingMode,
       compactListMode = compactListMode,
       globals = globals,
-      shape = ListItemDefaults.listedShape(index, layer.clickActions.size),
+      shapes = ListItemDefaults.listedShapes(index, layer.clickActions.size),
     )
   }
 
@@ -89,12 +89,11 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItem(
   isInEditingMode: Boolean,
   compactListMode: Boolean,
   globals: Globals,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   when (clickAction) {
     is ClickAction.LaunchApp -> {
       val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
-
       EditorClickActionsListItemBasic(
         modifier = modifier,
         onClick = { sheetState.expand() },
@@ -104,7 +103,7 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItem(
         headlineText = stringResource(clickAction.displayName),
         supportingText = clickAction.label ?: stringResource(Res.string.common_not_selected),
         onDragStopped = onDragStopped,
-        shape = shape,
+        shapes = shapes,
       )
       AppSelectorSheet(
         state = sheetState,
@@ -125,7 +124,7 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItem(
         headlineText = stringResource(clickAction.displayName),
         supportingText = LocalScriptableDisplay.current.displayString(clickAction.url),
         onDragStopped = onDragStopped,
-        shape = shape,
+        shapes = shapes,
       )
       StringSelectorSheet(
         state = sheetState,
@@ -146,7 +145,7 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItem(
         isInEditingMode = isInEditingMode,
         headlineText = stringResource(clickAction.displayName),
         onDragStopped = onDragStopped,
-        shape = shape,
+        shapes = shapes,
       )
   }
 }
@@ -161,9 +160,10 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItemBasic(
   supportingText: String? = null,
   compactListMode: Boolean,
   isInEditingMode: Boolean,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+  val interactionSource = remember { MutableInteractionSource() }
   AnimatedContent(
     targetState = isInEditingMode,
     transitionSpec = { fadeIn(spatialSpec) togetherWith fadeOut(spatialSpec) },
@@ -171,20 +171,29 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItemBasic(
     if (editing) {
       ListItem2Compact(
         modifier = modifier,
-        headlineContent = { Text(headlineText) },
+        content = { Text(headlineText) },
         supportingContent = supportingText?.let { { Text(it) } },
-        leadingContent = { LayerListItemDragHandle(onDragStopped = onDragStopped) },
+        leadingContent = {
+          LayerListItemDragHandle(
+            interactionSource = interactionSource,
+            onDragStopped = onDragStopped,
+          )
+        },
         trailingContent = { RemoveButton(onRemoveClick) },
         compactListMode = compactListMode,
-        shape = shape,
+        shapes = shapes,
+        onClick = {},
+        interactionSource = interactionSource,
       )
     } else {
       ListItem2Compact(
-        modifier = modifier.clickable(onClick = onClick),
-        headlineContent = { Text(headlineText) },
+        modifier = modifier,
+        content = { Text(headlineText) },
         supportingContent = supportingText?.let { { Text(it) } },
         compactListMode = compactListMode,
-        shape = shape,
+        shapes = shapes,
+        onClick = onClick,
+        interactionSource = interactionSource,
       )
     }
   }

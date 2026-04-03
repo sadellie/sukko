@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -13,14 +12,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.NavigateUpButton
 import io.github.sadellie.sukko.core.ui.ScaffoldWithLargeTopAppBar
-import io.github.sadellie.sukko.core.ui.firstShape
-import io.github.sadellie.sukko.core.ui.lastShape
-import io.github.sadellie.sukko.core.ui.singleShape
+import io.github.sadellie.sukko.core.ui.firstShapes
+import io.github.sadellie.sukko.core.ui.lastShapes
+import io.github.sadellie.sukko.core.ui.singleShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_disabled
 import io.github.sadellie.sukko.resources.common_enabled
@@ -29,10 +29,9 @@ import io.github.sadellie.sukko.resources.icon_packs_editor_title
 import io.github.sadellie.sukko.resources.settings_notification_listener
 import io.github.sadellie.sukko.resources.settings_title
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun SettingsScene(
+internal fun SettingsScene(
   onNavigateUp: () -> Unit,
   onNavigateToIconPackEditor: () -> Unit,
   onNavigateToFontFilesEditor: () -> Unit,
@@ -72,20 +71,20 @@ private fun SettingsScreen(
     ) {
       Column(modifier = Modifier, verticalArrangement = ListArrangement) {
         ListItem2(
-          headlineContent = { Text(stringResource(Res.string.icon_packs_editor_title)) },
-          modifier = Modifier.clickable(onClick = onNavigateToIconPackEditor),
-          shape = ListItemDefaults.firstShape,
+          content = { Text(stringResource(Res.string.icon_packs_editor_title)) },
+          onClick = onNavigateToIconPackEditor,
+          shapes = ListItemDefaults.firstShapes,
         )
 
         ListItem2(
-          headlineContent = { Text(stringResource(Res.string.fonts_editor_title)) },
-          modifier = Modifier.clickable(onClick = onNavigateToFontFilesEditor),
-          shape = ListItemDefaults.lastShape,
+          content = { Text(stringResource(Res.string.fonts_editor_title)) },
+          onClick = onNavigateToFontFilesEditor,
+          shapes = ListItemDefaults.lastShapes,
         )
       }
 
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.settings_notification_listener)) },
+        content = { Text(stringResource(Res.string.settings_notification_listener)) },
         supportingContent = {
           Text(
             stringResource(
@@ -94,8 +93,8 @@ private fun SettingsScreen(
             )
           )
         },
-        modifier = Modifier.clickable(onClick = navigateToNotificationListener),
-        shape = ListItemDefaults.singleShape,
+        onClick = navigateToNotificationListener,
+        shapes = ListItemDefaults.singleShapes,
       )
     }
   }

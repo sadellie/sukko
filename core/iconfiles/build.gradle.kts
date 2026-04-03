@@ -13,10 +13,11 @@ plugins {
 }
 
 kotlin {
+  android.namespace = "io.github.sadellie.sukko.core.iconfiles"
   sourceSets.commonMain.dependencies {
-    implementation(compose.components.resources)
-    implementation(compose.components.uiToolingPreview)
-    implementation(compose.foundation)
+    implementation(libs.org.jetbrains.compose.components.components.resources)
+    implementation(libs.org.jetbrains.compose.ui.ui.tooling.preview)
+    implementation(libs.org.jetbrains.compose.foundation.foundation)
     implementation(libs.co.touchlab.kermit)
     implementation(libs.com.squareup.okio.okio)
     implementation(libs.io.coil.kt.coil3.coil.compose)
@@ -31,8 +32,6 @@ kotlin {
 }
 
 compose.resources.generateResClass = compose.resources.never
-
-android { namespace = "io.github.sadellie.sukko.core.iconfiles" }
 
 // TODO run/check before release builds
 tasks.register("generateIconPackFiles") {

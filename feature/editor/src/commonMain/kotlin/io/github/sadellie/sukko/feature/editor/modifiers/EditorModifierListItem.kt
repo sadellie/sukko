@@ -6,12 +6,12 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.ui.ExpandableButton
 import io.github.sadellie.sukko.core.ui.ExpandableListItem
@@ -28,7 +28,7 @@ internal data class EditorModifierListItemState(
   val onExpandedUpdate: () -> Unit,
   val onRemoveClick: () -> Unit,
   val onDragStopped: () -> Unit,
-  val shape: Shape,
+  val shapes: ListItemShapes,
   val globals: Globals,
 )
 
@@ -38,6 +38,7 @@ internal fun ReorderableCollectionItemScope.EditorModifierFlatListItem(
   headlineText: String,
   supportingText: String,
   state: EditorModifierListItemState,
+  onClick: () -> Unit,
 ) {
   val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
   AnimatedContent(
@@ -48,19 +49,21 @@ internal fun ReorderableCollectionItemScope.EditorModifierFlatListItem(
       ListItem2Compact(
         modifier = modifier,
         compactListMode = state.compactListMode,
-        headlineContent = { Text(headlineText) },
+        content = { Text(headlineText) },
         supportingContent = { Text(supportingText) },
         leadingContent = { LayerListItemDragHandle(onDragStopped = state.onDragStopped) },
         trailingContent = { RemoveButton(state.onRemoveClick) },
-        shape = state.shape,
+        shapes = state.shapes,
+        onClick = onClick,
       )
     } else {
       ListItem2Compact(
         modifier = modifier,
         compactListMode = state.compactListMode,
-        headlineContent = { Text(headlineText) },
+        content = { Text(headlineText) },
         supportingContent = { Text(supportingText) },
-        shape = state.shape,
+        shapes = state.shapes,
+        onClick = onClick,
       )
     }
   }
@@ -82,12 +85,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierExpandableListItem(
     if (editing) {
       ListItem2Compact(
         modifier = modifier,
+        onClick = state.onExpandedUpdate,
         compactListMode = state.compactListMode,
-        headlineContent = { Text(headlineText) },
+        content = { Text(headlineText) },
         supportingContent = { Text(supportingText) },
         leadingContent = { LayerListItemDragHandle(onDragStopped = state.onDragStopped) },
         trailingContent = { RemoveButton(state.onRemoveClick) },
-        shape = state.shape,
+        shapes = state.shapes,
       )
     } else {
       ExpandableListItem(
@@ -98,7 +102,7 @@ internal fun ReorderableCollectionItemScope.EditorModifierExpandableListItem(
         onExpandedUpdate = state.onExpandedUpdate,
         expandedContent = expandedContent,
         compactListMode = state.compactListMode,
-        shape = state.shape,
+        shapes = state.shapes,
         trailingContent = {
           ExpandableTrailingButton(
             onExpandedUpdate = state.onExpandedUpdate,

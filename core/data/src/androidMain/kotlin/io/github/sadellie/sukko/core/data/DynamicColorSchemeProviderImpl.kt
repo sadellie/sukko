@@ -2,7 +2,6 @@ package io.github.sadellie.sukko.core.data
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.ImageDecoder
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -10,14 +9,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.net.toUri
+import co.touchlab.kermit.Logger
 import com.kmpalette.palette.graphics.Palette
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.hct.Hct
 import com.materialkolor.scheme.DynamicScheme
 import com.materialkolor.scheme.SchemeExpressive
 import io.github.sadellie.sukko.core.model.basic.M3Color
-import io.github.sadellie.sukko.core.model.data.DynamicColorSchemeProvider
+import io.github.sadellie.sukko.core.model.provider.DynamicColorSchemeProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -25,7 +24,7 @@ import kotlinx.coroutines.withContext
 
 class DynamicColorSchemeProviderImpl(
   private val context: Context,
-  private val imageUriProvider: ImageUriProvider,
+  private val imageProvider: ImageProvider,
 ) : DynamicColorSchemeProvider {
   private val cacheMutex by lazy { Mutex() }
   private val imageColorSchemes by lazy { hashMapOf<String, ColorScheme>() }
@@ -46,17 +45,22 @@ class DynamicColorSchemeProviderImpl(
     imageUri: String,
   ): String =
     cacheMutex.withLock {
-      val cached =
-        imageColorSchemes.getOrPut(imageUri) {
-          val localImageUri = imageUriProvider.loadAndCacheImage(imageUri)
-          val imageBitmap =
-            ImageDecoder.decodeBitmap(
-                ImageDecoder.createSource(context.contentResolver, localImageUri.toUri())
-              )
-              .asImageBitmap()
-          generateColorSchemeFromImage(imageBitmap)
+      if (imageUri.isEmpty() || m3ColorName.isEmpty()) return@withLock ""
+      try {
+        var cached = imageColorSchemes[imageUri]
+        if (cached == null) {
+          val imageBitmap = imageProvider.getBitmap(imageUri)?.asImageBitmap() ?: return@withLock ""
+          val colorScheme = generateColorSchemeFromImage(imageBitmap)
+          imageColorSchemes[imageUri] = colorScheme
+          cached = colorScheme
         }
-      extractHexFromColorScheme(m3ColorName, cached)
+        extractHexFromColorScheme(m3ColorName, cached)
+      } catch (e: Exception) {
+        Logger.e(e, "DynamicColorSchemeProviderImpl") {
+          "Failed extractHexFromImageColorScheme: m3ColorName: $m3ColorName imageUri: $imageUri"
+        }
+        ""
+      }
     }
 
   override fun getColorFromSystemColorScheme(m3Color: M3Color): Color =

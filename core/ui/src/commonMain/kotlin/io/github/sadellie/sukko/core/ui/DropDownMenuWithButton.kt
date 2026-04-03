@@ -1,15 +1,17 @@
 package io.github.sadellie.sukko.core.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,14 +46,11 @@ fun DropDownMenuWithButton(
         modifier = Modifier.size(IconButtonDefaults.smallIconSize),
       )
     }
-    DropdownMenu(
-      expanded = showMenu,
-      onDismissRequest = { showMenu = false },
-      shape = MaterialTheme.shapes.medium,
-      containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    ) {
-      val scope = remember { DropDownMenuWithButtonScopeImpl({ showMenu = false }, this) }
-      scope.content()
+    DropdownMenuPopup(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+      Column(verticalArrangement = Arrangement.spacedBy(MenuDefaults.GroupSpacing)) {
+        val scope = remember { DropDownMenuWithButtonScopeImpl({ showMenu = false }, this) }
+        scope.content()
+      }
     }
   }
 }
@@ -77,14 +76,11 @@ fun DropDownMenuWithFilledTonalButton(
         modifier = Modifier.size(IconButtonDefaults.smallIconSize),
       )
     }
-    DropdownMenu(
-      expanded = showMenu,
-      onDismissRequest = { showMenu = false },
-      shape = MaterialTheme.shapes.medium,
-      containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-    ) {
-      val scope = remember { DropDownMenuWithButtonScopeImpl({ showMenu = false }, this) }
-      scope.content()
+    DropdownMenuPopup(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+      Column(verticalArrangement = Arrangement.spacedBy(MenuDefaults.GroupSpacing)) {
+        val scope = remember { DropDownMenuWithButtonScopeImpl({ showMenu = false }, this) }
+        scope.content()
+      }
     }
   }
 }

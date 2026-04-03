@@ -1,20 +1,20 @@
 package io.github.sadellie.sukko.feature.editor.modifiers
 
-import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.modifier.ColdColumnWeightModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.BooleanSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
-import io.github.sadellie.sukko.resources.editor_modifiers_fill
+import io.github.sadellie.sukko.resources.common_fill
 import io.github.sadellie.sukko.resources.editor_modifiers_weight
 import org.jetbrains.compose.resources.stringResource
 import sh.calvin.reorderable.ReorderableCollectionItemScope
@@ -35,11 +35,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierColumnWeight(
   ) {
     val weightSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_weight)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_weight)) },
       supportingContent = { Text(scriptableDisplay.displayString(widgetModifier.weight)) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { weightSheetState.expand() },
-      shape = RectangleShape,
+      onClick = weightSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DoubleSelectorSheet(
       state = weightSheetState,
@@ -52,11 +52,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierColumnWeight(
 
     val fillSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_fill)) },
+      content = { Text(stringResource(Res.string.common_fill)) },
       supportingContent = { Text(scriptableDisplay.displayString(widgetModifier.fill)) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { fillSheetState.expand() },
-      shape = RectangleShape,
+      onClick = fillSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     BooleanSelectorSheet(
       state = fillSheetState,

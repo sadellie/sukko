@@ -1,6 +1,7 @@
 package io.github.sadellie.sukko.core.script.simplify
 
 internal enum class SimplificationType {
+  INVISIBLE,
   SUM_OF_NUMBERS,
   PRODUCT_OF_NUMBERS,
   DIVISION_OF_NUMBERS,

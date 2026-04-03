@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
@@ -41,6 +42,7 @@ import io.github.sadellie.sukko.core.model.layer.ColdColumnLayer
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.ColdProgressBarLayer
 import io.github.sadellie.sukko.core.model.layer.ColdRowLayer
+import io.github.sadellie.sukko.core.model.layer.ColdStepIndicatorLayer
 import io.github.sadellie.sukko.core.model.layer.ColdTextLayer
 import io.github.sadellie.sukko.core.ui.Tab
 import io.github.sadellie.sukko.core.ui.TabsSwitcher
@@ -54,7 +56,6 @@ import io.github.sadellie.sukko.resources.editor_tab_layers
 import io.github.sadellie.sukko.resources.editor_tab_modifiers
 import io.github.sadellie.sukko.resources.editor_tab_parameters
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -117,7 +118,8 @@ private fun EditorPages(
               listOf(LayersTab, ParametersTab, ModifiersTab, ClicksTab, GlobalsTab)
             is ColdTextLayer,
             is ColdImageLayer,
-            is ColdProgressBarLayer -> listOf(ParametersTab, ModifiersTab, ClicksTab, GlobalsTab)
+            is ColdProgressBarLayer,
+            is ColdStepIndicatorLayer -> listOf(ParametersTab, ModifiersTab, ClicksTab, GlobalsTab)
             null -> listOf(LayersTab, GlobalsTab)
           }
         }
@@ -239,6 +241,7 @@ private fun PreviewEditorControlsAtRoot() = Preview2 {
         parentLayer = null,
         breadcrumbs = emptyList(),
         loadedLayers = List(3) { ColdTextLayer(it) },
+        highlightSelectedLayer = false,
       ),
     globals = Globals(),
   )
@@ -274,6 +277,7 @@ private fun PreviewEditorControlsInLayer() = Preview2 {
             ColdTextLayer(12, 1),
             ColdTextLayer(13, 1),
           ),
+        highlightSelectedLayer = true,
       ),
     globals =
       Globals(

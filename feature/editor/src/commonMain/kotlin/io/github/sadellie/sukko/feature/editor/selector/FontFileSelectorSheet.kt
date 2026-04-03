@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -75,7 +75,7 @@ private fun FontFileSelectorSheetInnerContent(
   }
 }
 
-class FontFileSelectorViewModel(
+internal class FontFileSelectorViewModel(
   initialValue: FontFile?,
   fontFileCustomRepository: FontFileCustomRepository,
 ) : ViewModel() {

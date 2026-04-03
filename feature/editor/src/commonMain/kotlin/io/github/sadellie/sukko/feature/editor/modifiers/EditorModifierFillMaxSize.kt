@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.editor.modifiers
 
-import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.composables.core.SheetDetent
@@ -22,7 +21,8 @@ internal fun ReorderableCollectionItemScope.EditorModifierFillMaxSize(
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   EditorModifierFlatListItem(
-    modifier = modifier.clickable { sheetState.expand() },
+    modifier = modifier,
+    onClick = sheetState::expand,
     headlineText = stringResource(widgetModifier.displayName),
     supportingText = LocalScriptableDisplay.current.displayString(widgetModifier.fraction),
     state = state,

@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -44,14 +45,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.graphics.shapes.RoundedPolygon
 import co.touchlab.kermit.Logger
 import com.composables.core.ModalBottomSheetState
+import io.github.sadellie.sukko.core.data.BrushSourceEvaluator
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
@@ -67,7 +69,7 @@ import io.github.sadellie.sukko.core.ui.ModalBottomSheet2
 import io.github.sadellie.sukko.core.ui.RemoveButton
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
 import io.github.sadellie.sukko.core.ui.hide
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_back
 import io.github.sadellie.sukko.resources.common_select
@@ -77,10 +79,9 @@ import io.github.sadellie.sukko.resources.core_model_brush_solid
 import io.github.sadellie.sukko.resources.editor_selector_brush_add_color
 import io.github.sadellie.sukko.resources.editor_selector_brush_horizontal
 import io.github.sadellie.sukko.resources.editor_selector_brush_vertical
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.math.roundToInt
 
 @Composable
 fun BrushSourceSelectorSheet(
@@ -295,7 +296,7 @@ private fun LinearBrushParameters(
             },
             isRemoveEnabled = isRemoveEnabled,
             globals = globals,
-            shape = ListItemDefaults.listedShape(index, brushSource.colors.size),
+            shapes = ListItemDefaults.listedShapes(index, brushSource.colors.size),
           )
         }
       }
@@ -398,7 +399,7 @@ private fun ColorListItem(
   onIconClick: () -> Unit = {},
   isRemoveEnabled: Boolean = true,
   polygon: RoundedPolygon = MaterialShapes.Pill,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   val selectedTransition = updateTransition(isSelected)
   val backgroundColor =
@@ -412,13 +413,14 @@ private fun ColorListItem(
     }
 
   ListItem2(
-    modifier = modifier.clickable(onClick = onClick),
+    modifier = modifier,
+    onClick = onClick,
     colors =
       ListItemDefaults.colors(
         containerColor = backgroundColor.value,
         headlineColor = headlineColor.value,
       ),
-    headlineContent = { Text(LocalScriptableDisplay.current.displayString(color)) },
+    content = { Text(LocalScriptableDisplay.current.displayString(color)) },
     leadingContent = {
       val shape = polygon.toShape()
       Box(
@@ -431,7 +433,7 @@ private fun ColorListItem(
     },
     trailingContent =
       onRemove?.let { { RemoveButton(onRemoveClick = onRemove, enabled = isRemoveEnabled) } },
-    shape = shape,
+    shapes = shapes,
   )
 }
 
@@ -472,9 +474,9 @@ private fun produceBrush(brushSource: BrushSource, layerContext: LayerContext, g
   ) {
     value =
       try {
-        brushSource.getBrush(layerContext, globals)
+        BrushSourceEvaluator(brushSource, layerContext, globals).evaluate()
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to produce brush" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to produce brush" }
         SolidColor(Color.Unspecified)
       }
   }

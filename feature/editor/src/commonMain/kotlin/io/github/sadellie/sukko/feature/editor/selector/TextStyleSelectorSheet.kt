@@ -2,7 +2,6 @@ package io.github.sadellie.sukko.feature.editor.selector
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,32 +21,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.ModalBottomSheetState
+import io.github.sadellie.sukko.core.data.TextStyleSourceEvaluator
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.fontfiles.FontFile
 import io.github.sadellie.sukko.core.model.Globals
+import io.github.sadellie.sukko.core.model.basic.FontStyleSource
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
 import io.github.sadellie.sukko.core.model.basic.ScriptableSp
-import io.github.sadellie.sukko.core.model.layer.TextAlignSource
-import io.github.sadellie.sukko.core.model.layer.TextStyleSource
+import io.github.sadellie.sukko.core.model.basic.TextAlignSource
+import io.github.sadellie.sukko.core.model.basic.TextStyleSource
 import io.github.sadellie.sukko.core.ui.AlertDialogWithRadioItems
 import io.github.sadellie.sukko.core.ui.BackHandler
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
-import io.github.sadellie.sukko.core.ui.firstShape
+import io.github.sadellie.sukko.core.ui.firstShapes
 import io.github.sadellie.sukko.core.ui.hide
-import io.github.sadellie.sukko.core.ui.lastShape
-import io.github.sadellie.sukko.core.ui.middleShape
+import io.github.sadellie.sukko.core.ui.lastShapes
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_back
 import io.github.sadellie.sukko.resources.common_select
 import io.github.sadellie.sukko.resources.core_model_text_style_global
 import io.github.sadellie.sukko.resources.core_model_text_style_local
+import io.github.sadellie.sukko.resources.editor_parameters_font_style
 import io.github.sadellie.sukko.resources.editor_selector_text_style_align
 import io.github.sadellie.sukko.resources.editor_selector_text_style_font
 import io.github.sadellie.sukko.resources.editor_selector_text_style_preview
@@ -55,7 +57,6 @@ import io.github.sadellie.sukko.resources.editor_selector_text_style_size
 import io.github.sadellie.sukko.resources.editor_selector_text_style_weight
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun TextStyleSelectorSheet(
@@ -108,7 +109,7 @@ private fun LocalTextStyle(
   }
   val textStyle =
     produceState(initialValue = TextStyle(), key1 = textStyleSource) {
-      value = textStyleSource.getTextStyle(layerContext, globals)
+      value = TextStyleSourceEvaluator(textStyleSource, layerContext, globals).evaluate()
     }
   Column(verticalArrangement = Arrangement.spacedBy(Sizes.small)) {
     Text(
@@ -180,38 +181,29 @@ private fun LocalTextStyleParameters(
     ) {
       val scriptableDisplay = LocalScriptableDisplay.current
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.editor_selector_text_style_font)) },
+        content = { Text(stringResource(Res.string.editor_selector_text_style_font)) },
         supportingContent = { Text(textStyleSource.fontFile.toDisplayString()) },
-        modifier =
-          Modifier.clickable {
-            switchPage(SelectorPage.FontFileSelector(textStyleSource.fontFile))
-          },
-        shape = ListItemDefaults.firstShape,
+        onClick = { switchPage(SelectorPage.FontFileSelector(textStyleSource.fontFile)) },
+        shapes = ListItemDefaults.firstShapes,
       )
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.editor_selector_text_style_size)) },
+        content = { Text(stringResource(Res.string.editor_selector_text_style_size)) },
         supportingContent = { Text(scriptableDisplay.displayString(textStyleSource.fontSize)) },
-        modifier =
-          Modifier.clickable {
-            switchPage(SelectorPage.FontSizeSelector(textStyleSource.fontSize))
-          },
-        shape = ListItemDefaults.middleShape,
+        onClick = { switchPage(SelectorPage.FontSizeSelector(textStyleSource.fontSize)) },
+        shapes = ListItemDefaults.middleShapes,
       )
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.editor_selector_text_style_weight)) },
+        content = { Text(stringResource(Res.string.editor_selector_text_style_weight)) },
         supportingContent = { Text(scriptableDisplay.displayString(textStyleSource.fontWeight)) },
-        modifier =
-          Modifier.clickable {
-            switchPage(SelectorPage.FontWeightSelector(textStyleSource.fontWeight))
-          },
-        shape = ListItemDefaults.middleShape,
+        onClick = { switchPage(SelectorPage.FontWeightSelector(textStyleSource.fontWeight)) },
+        shapes = ListItemDefaults.middleShapes,
       )
       var showTextAlignDialog by rememberSaveable { mutableStateOf(false) }
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.editor_selector_text_style_align)) },
+        content = { Text(stringResource(Res.string.editor_selector_text_style_align)) },
         supportingContent = { Text(stringResource(textStyleSource.textAlignSource.displayName)) },
-        modifier = Modifier.clickable { showTextAlignDialog = true },
-        shape = ListItemDefaults.lastShape,
+        onClick = { showTextAlignDialog = true },
+        shapes = ListItemDefaults.middleShapes,
       )
       if (showTextAlignDialog) {
         AlertDialogWithRadioItems(
@@ -222,6 +214,24 @@ private fun LocalTextStyleParameters(
           isSelected = { it == textStyleSource.textAlignSource },
           key = null,
           onClick = { onTextStyleSourceUpdate(textStyleSource.copy(textAlignSource = it)) },
+        )
+      }
+      var showFontStyleDialog by rememberSaveable { mutableStateOf(false) }
+      ListItem2(
+        content = { Text(stringResource(Res.string.editor_parameters_font_style)) },
+        supportingContent = { Text(stringResource(textStyleSource.fontStyle.displayName)) },
+        onClick = { showFontStyleDialog = true },
+        shapes = ListItemDefaults.lastShapes,
+      )
+      if (showFontStyleDialog) {
+        AlertDialogWithRadioItems(
+          title = stringResource(Res.string.editor_parameters_font_style),
+          onDismiss = { showFontStyleDialog = false },
+          headlineText = { stringResource(it.displayName) },
+          items = remember { FontStyleSource.values() },
+          isSelected = { it == textStyleSource.fontStyle },
+          key = null,
+          onClick = { onTextStyleSourceUpdate(textStyleSource.copy(fontStyle = it)) },
         )
       }
     }
@@ -269,16 +279,13 @@ private enum class TextStyleInputMode(override val displayName: StringResource) 
 @Composable
 @Preview
 private fun PreviewLocalTextStyle() = Preview2 {
-  LocalTextStyle(
+  var textStyleSource by remember { mutableStateOf(TextStyleSource.Local()) }
+  LocalTextStyleParameters(
     onDismiss = {},
     onConfirm = {},
-    initialValue =
-      TextStyleSource.Local(
-        fontWeight = ScriptableDouble.Fixed(100.0),
-        fontSize = ScriptableSp.Fixed(32.sp),
-        textAlignSource = TextAlignSource.Center,
-      ),
-    globals = Globals(),
+    onTextStyleSourceUpdate = { textStyleSource = it },
+    textStyleSource = textStyleSource,
+    switchPage = {},
   )
 }
 

@@ -6,15 +6,15 @@ plugins {
 }
 
 kotlin {
+  android.namespace = "io.github.sadellie.sukko.core.common"
   sourceSets.commonMain.dependencies {
-    implementation(compose.components.resources)
-    implementation(compose.foundation)
     implementation(libs.co.touchlab.kermit)
     implementation(libs.com.squareup.okio.okio)
     implementation(libs.io.github.vinceglb.filekit.dialogs)
+    implementation(libs.org.jetbrains.compose.components.components.resources)
+    implementation(libs.org.jetbrains.compose.foundation.foundation)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
   }
-  sourceSets.androidMain.dependencies { implementation(libs.androidx.core.ktx) }
   sourceSets.commonTest.dependencies { implementation(libs.kotlin.test) }
 }
 
@@ -22,5 +22,3 @@ compose.resources {
   packageOfResClass = "io.github.sadellie.sukko.resources"
   publicResClass = true
 }
-
-android { namespace = "io.github.sadellie.sukko.core.common" }

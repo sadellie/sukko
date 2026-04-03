@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.editor.selector
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.ModalBottomSheetState
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
@@ -26,16 +26,15 @@ import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
-import io.github.sadellie.sukko.core.ui.firstShape
+import io.github.sadellie.sukko.core.ui.firstShapes
 import io.github.sadellie.sukko.core.ui.hide
-import io.github.sadellie.sukko.core.ui.lastShape
+import io.github.sadellie.sukko.core.ui.lastShapes
 import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditor
 import io.github.sadellie.sukko.feature.editor.selector.scripteditor.SuccessMessage
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.core_model_scriptable_boolean_false
 import io.github.sadellie.sukko.resources.core_model_scriptable_boolean_true
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -89,20 +88,20 @@ private fun FixedBoolean(
       verticalArrangement = ListArrangement,
     ) {
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.core_model_scriptable_boolean_true)) },
+        content = { Text(stringResource(Res.string.core_model_scriptable_boolean_true)) },
         leadingContent = {
           RadioButton(selected = currentValue, onClick = { currentValue = true })
         },
-        modifier = Modifier.clickable { currentValue = true },
-        shape = ListItemDefaults.firstShape,
+        onClick = { currentValue = true },
+        shapes = ListItemDefaults.firstShapes,
       )
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.core_model_scriptable_boolean_false)) },
+        content = { Text(stringResource(Res.string.core_model_scriptable_boolean_false)) },
         leadingContent = {
           RadioButton(selected = !currentValue, onClick = { currentValue = false })
         },
-        modifier = Modifier.clickable { currentValue = false },
-        shape = ListItemDefaults.lastShape,
+        onClick = { currentValue = false },
+        shapes = ListItemDefaults.lastShapes,
       )
     }
   }
@@ -171,7 +170,7 @@ private fun PreviewScriptBoolean() {
     y = 456
     z = "this is a long text to see how does wrapping work in script editor on narrow screens"
     a = 789
-  """
+    """
       .trimIndent()
   Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
     ScriptBoolean(onDismiss = {}, onConfirm = {}, initialValue = ScriptableBoolean.Script(script))

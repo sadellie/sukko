@@ -1,9 +1,8 @@
 package io.github.sadellie.sukko.feature.editor.parameters
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,7 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.designsystem.Preview2
@@ -22,8 +21,8 @@ import io.github.sadellie.sukko.core.model.layer.ProgressBarType
 import io.github.sadellie.sukko.core.ui.AlertDialogWithRadioItems
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.lastShape
-import io.github.sadellie.sukko.core.ui.middleShape
+import io.github.sadellie.sukko.core.ui.lastShapes
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.ColorSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
@@ -36,7 +35,6 @@ import io.github.sadellie.sukko.resources.editor_parameters_track_color
 import io.github.sadellie.sukko.resources.editor_parameters_type
 import io.github.sadellie.sukko.resources.editor_parameters_wave_length
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun EditorParametersProgressBarLayer(
@@ -50,41 +48,48 @@ internal fun EditorParametersProgressBarLayer(
     layer = layer,
     compactListMode = compactListMode,
     globals = globals,
+    shapes = ListItemDefaults.middleShapes,
   )
   EditorParametersProgressBarType(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
+    shapes = ListItemDefaults.middleShapes,
   )
   EditorParametersColor(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
     globals = globals,
+    shapes = ListItemDefaults.middleShapes,
   )
   EditorParametersTrackColor(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
     globals = globals,
+    shapes = ListItemDefaults.middleShapes,
   )
   EditorParametersGapSize(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
     globals = globals,
+    shapes = ListItemDefaults.middleShapes,
   )
   EditorParametersAmplitude(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
     globals = globals,
+    shapes = ListItemDefaults.middleShapes,
   )
   EditorParametersWaveLength(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
     globals = globals,
+    shapes = ListItemDefaults.lastShapes,
   )
 }
 
@@ -94,14 +99,15 @@ internal fun EditorParametersProgress(
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_progress)) },
+    content = { Text(stringResource(Res.string.editor_parameters_progress)) },
     supportingContent = { Text(LocalScriptableDisplay.current.displayString(layer.progress)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.middleShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   DoubleSelectorSheet(
@@ -119,14 +125,15 @@ private fun EditorParametersProgressBarType(
   onUpdateLayer: (ColdProgressBarLayer) -> Unit,
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
+  shapes: ListItemShapes,
 ) {
   var showDialog by rememberSaveable { mutableStateOf(false) }
   ListItem2Compact(
-    modifier = Modifier.clickable { showDialog = true }.fillMaxWidth(),
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_type)) },
+    onClick = { showDialog = true },
+    content = { Text(stringResource(Res.string.editor_parameters_type)) },
     supportingContent = { Text(stringResource(layer.progressBarType.res)) },
     compactListMode = compactListMode,
-    shape = ListItemDefaults.middleShape,
+    shapes = shapes,
   )
 
   if (showDialog) {
@@ -134,7 +141,7 @@ private fun EditorParametersProgressBarType(
       title = stringResource(Res.string.editor_parameters_type),
       onDismiss = { showDialog = false },
       items = remember { ProgressBarType.entries },
-      key = { it },
+      key = { _, item -> item },
       headlineText = { stringResource(it.res) },
       isSelected = { it == layer.progressBarType },
       onClick = { onUpdateLayer(layer.copy(progressBarType = it)) },
@@ -148,14 +155,15 @@ internal fun EditorParametersColor(
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_color)) },
+    content = { Text(stringResource(Res.string.editor_parameters_color)) },
     supportingContent = { Text(LocalScriptableDisplay.current.displayString(layer.color)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.middleShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   ColorSelectorSheet(
@@ -172,14 +180,15 @@ internal fun EditorParametersTrackColor(
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_track_color)) },
+    content = { Text(stringResource(Res.string.editor_parameters_track_color)) },
     supportingContent = { Text(LocalScriptableDisplay.current.displayString(layer.trackColor)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.middleShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   ColorSelectorSheet(
@@ -196,14 +205,15 @@ internal fun EditorParametersGapSize(
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_gap_size)) },
+    content = { Text(stringResource(Res.string.editor_parameters_gap_size)) },
     supportingContent = { Text(LocalScriptableDisplay.current.displayString(layer.gapSize)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.middleShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   DpSelectorSheet(
@@ -220,14 +230,15 @@ internal fun EditorParametersAmplitude(
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_amplitude)) },
+    content = { Text(stringResource(Res.string.editor_parameters_amplitude)) },
     supportingContent = { Text(LocalScriptableDisplay.current.displayString(layer.amplitude)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.middleShape,
+    onClick = { sheetState.expand() },
+    shapes = shapes,
   )
 
   DoubleSelectorSheet(
@@ -246,14 +257,15 @@ internal fun EditorParametersWaveLength(
   layer: ColdProgressBarLayer,
   compactListMode: Boolean,
   globals: Globals,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_wave_length)) },
+    content = { Text(stringResource(Res.string.editor_parameters_wave_length)) },
     supportingContent = { Text(LocalScriptableDisplay.current.displayString(layer.waveLength)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.lastShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   DpSelectorSheet(

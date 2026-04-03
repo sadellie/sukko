@@ -36,6 +36,7 @@ import io.github.sadellie.sukko.core.common.filesPath
 import io.github.sadellie.sukko.core.designsystem.LocalFilesDirPath
 import io.github.sadellie.sukko.core.designsystem.LocalImageLoader
 import io.github.sadellie.sukko.core.model.layer.Layer
+import io.github.sadellie.sukko.core.model.layer.RenderOption
 import io.github.sadellie.sukko.core.model.layer.Renderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -83,7 +84,7 @@ private fun renderWidget(
                 graphicsLayer.record {
                   this@drawWithContent.drawContent()
                   trySend(RenderSubResult(canvasSize, graphicsLayer, allLayerBounds))
-                  Logger.d(TAG) { "Sending new result" }
+                  Logger.d(tag = TAG) { "Sending new result" }
                 }
               }
               .requiredSize(canvasSize),
@@ -91,7 +92,7 @@ private fun renderWidget(
           onGloballyPositioned = { id, layerBounds ->
             allLayerBounds = allLayerBounds + (id to layerBounds)
           },
-          renderOption = null,
+          renderOption = RenderOption.HomeScreen,
         )
       }
     }

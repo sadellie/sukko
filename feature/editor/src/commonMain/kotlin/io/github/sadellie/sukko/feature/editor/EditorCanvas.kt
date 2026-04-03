@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.editor
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -16,7 +15,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.sadellie.sukko.core.model.layer.EvaluatedColumnLayer
@@ -27,7 +26,6 @@ import io.github.sadellie.sukko.core.model.layer.Renderer
 import io.github.sadellie.sukko.core.model.modifier.EvaluatedBackgroundColorModifier
 import io.github.sadellie.sukko.core.model.modifier.EvaluatedFillMaxSizeModifier
 import kotlin.math.min
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun EditorCanvas(
@@ -35,7 +33,7 @@ fun EditorCanvas(
   layers: List<Layer.Evaluated>,
   canvasSize: DpSize,
   graphicsLayer: GraphicsLayer,
-  renderOption: RenderOption? = null,
+  renderOption: RenderOption.Editor,
 ) {
   BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
     // scale to make widget fill bounds
@@ -75,8 +73,6 @@ private fun PreviewEditorCanvas() {
       listOf(
         EvaluatedColumnLayer(
           id = 0,
-          parentId = null,
-          name = null,
           widgetModifiers =
             listOf(
               EvaluatedBackgroundColorModifier(
@@ -86,22 +82,16 @@ private fun PreviewEditorCanvas() {
               ),
               EvaluatedFillMaxSizeModifier(id = 2, fraction = 1f),
             ),
-          clickActions = emptyList(),
-          arrangement = Arrangement.Center,
-          alignment = Alignment.CenterHorizontally,
         ),
         EvaluatedTextLayer(
           id = 1,
           parentId = 0,
-          name = null,
-          widgetModifiers = emptyList(),
-          clickActions = emptyList(),
-          textStyle = TextStyle(),
           text = "Text",
           textColor = SolidColor(MaterialTheme.colorScheme.onPrimaryContainer),
         ),
       ),
     canvasSize = DpSize(240.dp, 240.dp),
     graphicsLayer = rememberGraphicsLayer(),
+    renderOption = RenderOption.Editor(selectedLayerId = 1, highlightSelectedLayer = false),
   )
 }

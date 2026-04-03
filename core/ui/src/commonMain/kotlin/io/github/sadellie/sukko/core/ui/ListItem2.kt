@@ -1,61 +1,88 @@
 package io.github.sadellie.sukko.core.ui
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ListItem2Compact(
-  modifier: Modifier = Modifier,
-  headlineContent: @Composable () -> Unit,
+  onClick: () -> Unit,
+  shapes: ListItemShapes,
   compactListMode: Boolean,
-  supportingContent: @Composable (() -> Unit)? = null,
+  modifier: Modifier = Modifier,
+  selected: Boolean = false,
+  enabled: Boolean = true,
   leadingContent: @Composable (() -> Unit)? = null,
   trailingContent: @Composable (() -> Unit)? = null,
+  overlineContent: @Composable (() -> Unit)? = null,
+  supportingContent: @Composable (() -> Unit)? = null,
+  verticalAlignment: Alignment.Vertical = ListItemDefaults.verticalAlignment(),
+  onLongClick: (() -> Unit)? = null,
+  onLongClickLabel: String? = null,
   colors: ListItemColors =
-    ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceBright),
-  tonalElevation: Dp = ListItemDefaults.Elevation,
-  shadowElevation: Dp = ListItemDefaults.Elevation,
-  shape: Shape,
+    ListItemDefaults.segmentedColors(containerColor = MaterialTheme.colorScheme.surfaceBright),
+  elevation: ListItemElevation = ListItemDefaults.elevation(),
+  contentPadding: PaddingValues = ListItemDefaults.ContentPadding,
+  interactionSource: MutableInteractionSource? = null,
+  content: @Composable () -> Unit,
 ) {
   Crossfade(compactListMode) {
     if (it) {
       ListItem2(
+        selected = selected,
+        onClick = onClick,
+        shapes = shapes,
         modifier = modifier,
-        headlineContent = headlineContent,
-        supportingContent = null,
+        enabled = enabled,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = null,
+        verticalAlignment = verticalAlignment,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        shape = shape,
+        elevation = elevation,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        content = content,
       )
     } else {
       ListItem2(
+        selected = selected,
+        onClick = onClick,
+        shapes = shapes,
         modifier = modifier,
-        headlineContent = headlineContent,
-        supportingContent = supportingContent,
+        enabled = enabled,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
+        overlineContent = overlineContent,
+        supportingContent = supportingContent,
+        verticalAlignment = verticalAlignment,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        shape = shape,
+        elevation = elevation,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+        content = content,
       )
     }
   }
@@ -63,28 +90,43 @@ fun ListItem2Compact(
 
 @Composable
 fun ListItem2(
+  onClick: () -> Unit,
+  shapes: ListItemShapes,
   modifier: Modifier = Modifier,
-  headlineContent: @Composable () -> Unit,
-  overlineContent: @Composable (() -> Unit)? = null,
-  supportingContent: @Composable (() -> Unit)? = null,
+  selected: Boolean = false,
+  enabled: Boolean = true,
   leadingContent: @Composable (() -> Unit)? = null,
   trailingContent: @Composable (() -> Unit)? = null,
+  overlineContent: @Composable (() -> Unit)? = null,
+  supportingContent: @Composable (() -> Unit)? = null,
+  verticalAlignment: Alignment.Vertical = ListItemDefaults.verticalAlignment(),
+  onLongClick: (() -> Unit)? = null,
+  onLongClickLabel: String? = null,
   colors: ListItemColors =
-    ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceBright),
-  tonalElevation: Dp = ListItemDefaults.Elevation,
-  shadowElevation: Dp = ListItemDefaults.Elevation,
-  shape: Shape,
+    ListItemDefaults.segmentedColors(containerColor = MaterialTheme.colorScheme.surfaceBright),
+  elevation: ListItemElevation = ListItemDefaults.elevation(),
+  contentPadding: PaddingValues = ListItemDefaults.ContentPadding,
+  interactionSource: MutableInteractionSource? = null,
+  content: @Composable () -> Unit,
 ) {
-  ListItem(
-    modifier = Modifier.clip(shape).then(modifier),
-    overlineContent = overlineContent,
-    headlineContent = headlineContent,
-    supportingContent = supportingContent,
+  SegmentedListItem(
+    selected = selected,
+    onClick = onClick,
+    shapes = shapes,
+    modifier = modifier,
+    enabled = enabled,
     leadingContent = leadingContent,
     trailingContent = trailingContent,
+    overlineContent = overlineContent,
+    supportingContent = supportingContent,
+    verticalAlignment = verticalAlignment,
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     colors = colors,
-    tonalElevation = tonalElevation,
-    shadowElevation = shadowElevation,
+    elevation = elevation,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    content = content,
   )
 }
 
@@ -100,6 +142,31 @@ fun ListItemDefaults.listedShape(indexInList: Int, listSize: Int): Shape {
     else -> middleShape
   }
 }
+
+@Composable
+fun ListItemDefaults.listedShapes(indexInList: Int, listSize: Int): ListItemShapes {
+  return segmentedShapes(
+    index = indexInList,
+    count = listSize,
+    defaultShapes = shapes(if (listSize == 1) singleShape else middleShape),
+  )
+}
+
+@Stable
+val ListItemDefaults.firstShapes: ListItemShapes
+  @Composable get() = shapes(ListItemDefaults.firstShape)
+
+@Stable
+val ListItemDefaults.middleShapes: ListItemShapes
+  @Composable get() = shapes(ListItemDefaults.middleShape)
+
+@Stable
+val ListItemDefaults.lastShapes: ListItemShapes
+  @Composable get() = shapes(ListItemDefaults.lastShape)
+
+@Stable
+val ListItemDefaults.singleShapes: ListItemShapes
+  @Composable get() = shapes(ListItemDefaults.singleShape)
 
 @Suppress("UnusedReceiverParameter")
 @Stable
@@ -125,11 +192,25 @@ val ListItemDefaults.singleShape: Shape
 @Preview
 private fun PreviewListItem2() {
   Column(verticalArrangement = ListArrangement) {
-    ListItem2(headlineContent = { Text("List item") }, shape = ListItemDefaults.listedShape(0, 2))
     ListItem2(
-      headlineContent = { Text("List item") },
-      supportingContent = { Text("Item supporting text") },
-      shape = ListItemDefaults.listedShape(1, 2),
+      shapes = ListItemDefaults.firstShapes,
+      content = { Text("List item") },
+      supportingContent = { Text("List item") },
+      onClick = {},
+    )
+    ListItem2Compact(
+      shapes = ListItemDefaults.firstShapes,
+      content = { Text("List item") },
+      supportingContent = { Text("List item") },
+      onClick = {},
+      compactListMode = false,
+    )
+    ListItem2Compact(
+      shapes = ListItemDefaults.firstShapes,
+      content = { Text("List item") },
+      supportingContent = { Text("List item") },
+      onClick = {},
+      compactListMode = true,
     )
   }
 }

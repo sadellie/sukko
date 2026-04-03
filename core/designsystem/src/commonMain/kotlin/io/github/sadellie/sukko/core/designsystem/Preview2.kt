@@ -26,6 +26,6 @@ fun Preview2(content: @Composable () -> Unit) {
     LocalFilesDirPath provides "".toPath(),
     LocalContentColor provides MaterialTheme.colorScheme.onSurface,
   ) {
-    Surface(content = content)
+    Surface(content = content, color = MaterialTheme.colorScheme.surfaceContainer)
   }
 }

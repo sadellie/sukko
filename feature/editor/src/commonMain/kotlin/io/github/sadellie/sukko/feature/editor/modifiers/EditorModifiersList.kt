@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
@@ -43,13 +44,12 @@ import io.github.sadellie.sukko.core.model.modifier.ColdWidthModifier
 import io.github.sadellie.sukko.core.model.modifier.WidgetModifier
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.feature.editor.EditorEvent
 import io.github.sadellie.sukko.feature.editor.EditorList
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_modifiers_add_modifier
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -67,7 +67,7 @@ internal fun EditorModifiersList(
   var expandedItem by rememberSaveable { mutableStateOf<Int?>(null) }
   EditorList(
     modifier = modifier,
-    onAddItemClick = { sheetState.expand() },
+    onAddItemClick = sheetState::expand,
     addButtonLabel = stringResource(Res.string.editor_modifiers_add_modifier),
     items = layer.widgetModifiers,
     contentPadding = contentPadding,
@@ -78,7 +78,7 @@ internal fun EditorModifiersList(
         isExpanded = expandedItem == widgetModifier.id,
         isInEditingMode = isInEditingMode,
         compactListMode = compactListMode,
-        shape = ListItemDefaults.listedShape(index, layer.widgetModifiers.size),
+        shapes = ListItemDefaults.listedShapes(index, layer.widgetModifiers.size),
         onExpandedUpdate = {
           expandedItem = if (expandedItem == widgetModifier.id) null else widgetModifier.id
         },

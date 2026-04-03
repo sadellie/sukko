@@ -8,7 +8,7 @@ import io.github.sadellie.sukko.core.model.InstalledApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class InstalledAppsProviderImpl(private val context: Context) : InstalledAppsProvider {
+internal class InstalledAppsProviderImpl(private val context: Context) : InstalledAppsProvider {
   override suspend fun getAllApps(): List<InstalledApp> =
     withContext(Dispatchers.Default) {
       val packageManager = context.packageManager

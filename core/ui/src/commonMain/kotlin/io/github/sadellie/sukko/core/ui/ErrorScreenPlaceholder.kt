@@ -6,13 +6,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import google.material.design.symbols.Error
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_error
 import io.github.sadellie.sukko.resources.common_error_text
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -8,6 +8,7 @@
     <string name="common_enabled">Enabled</string>
     <string name="common_error">Error</string>
     <string name="common_error_text">Something went wrong</string>
+    <string name="common_fill">Fill</string>
     <string name="common_loading">Loading…</string>
     <string name="common_my_presets">My presets</string>
     <string name="common_not_selected">Not selected</string>
@@ -18,6 +19,9 @@
     <string name="common_save">Save</string>
     <string name="common_search_text_field_placeholder">Search…</string>
     <string name="common_select">Select</string>
+    <string name="common_shape">Shape</string>
+    <string name="common_widget_info">Widget info</string>
+    <string name="common_widget_name">Widget name</string>
     <string name="common_widget_name_placeholder">Widget %1$s</string>
     <string name="core_model_alignment_bottom">Bottom</string>
     <string name="core_model_alignment_bottom_center">Bottom center</string>
@@ -61,11 +65,13 @@
     <string name="core_model_content_scale_source_fixed_scale">Fixed scale</string>
     <string name="core_model_content_scale_source_inside">Inside</string>
     <string name="core_model_content_scale_source_none">None</string>
+    <string name="core_model_font_style_italic">Italic</string>
+    <string name="core_model_font_style_normal">Normal</string>
     <string name="core_model_image_uri_source_album_cover">Album cover</string>
     <string name="core_model_image_uri_source_gallery">Gallery</string>
     <string name="core_model_image_uri_source_gallery_selected">Selected</string>
-    <string name="core_model_image_uri_source_link">Link</string>
     <string name="core_model_image_uri_source_icon_pack">Icon pack</string>
+    <string name="core_model_image_uri_source_link">Link</string>
     <string name="core_model_image_uri_source_player_icon">Player icon</string>
     <string name="core_model_layer_box">Box</string>
     <string name="core_model_layer_box_description">Stack multiple layers over each other</string>
@@ -77,6 +83,8 @@
     <string name="core_model_layer_progress_bar_description">Show current progress</string>
     <string name="core_model_layer_row">Row</string>
     <string name="core_model_layer_row_description">Stack multiple layers horizontally</string>
+    <string name="core_model_layer_step_indicator">Step indicator</string>
+    <string name="core_model_layer_step_indicator_description">Show current step</string>
     <string name="core_model_layer_text">Text</string>
     <string name="core_model_layer_text_description">Show any fixed or dynamic text</string>
     <string name="core_model_m3color_background">Background</string>
@@ -165,22 +173,25 @@
     <string name="core_model_text_align_left">Left</string>
     <string name="core_model_text_align_right">Right</string>
     <string name="core_model_text_align_start">Start</string>
+    <string name="core_model_text_overflow_source_clip">Clip</string>
+    <string name="core_model_text_overflow_source_ellipsis">Ellipsis</string>
+    <string name="core_model_text_overflow_source_middle_ellipsis">Middle ellipsis</string>
+    <string name="core_model_text_overflow_source_start_ellipsis">Start ellipsis</string>
+    <string name="core_model_text_overflow_source_visible">Visible</string>
     <string name="core_model_text_style_global">Global</string>
     <string name="core_model_text_style_local">Local</string>
     <string name="editor_click_actions_add_click_action">Add action</string>
-    <string name="editor_collapse_list">Collapse list</string>
-    <string name="editor_compact_list_disable">Disable compact list</string>
-    <string name="editor_compact_list_enable">Enable compact list</string>
+    <string name="editor_compact_list">Compact list</string>
     <string name="editor_exit_without_saving_exit_button_label">Exit</string>
     <string name="editor_exit_without_saving_stay_button_label">Stay</string>
     <string name="editor_exit_without_saving_text">Your current changes are not saved. You can stay and save them before leaving editor.</string>
     <string name="editor_exit_without_saving_title">Exit without saving?</string>
-    <string name="editor_expand_list">Expand list</string>
     <string name="editor_force_update">Force update</string>
+    <string name="editor_full_screen_list">Full screen list</string>
     <string name="editor_globals_list_add_global">Add global</string>
     <string name="editor_globals_list_boolean">Boolean</string>
     <string name="editor_globals_list_color">Color</string>
-    <string name="editor_globals_list_delete_global">Delete layer?</string>
+    <string name="editor_globals_list_delete_global">Delete global?</string>
     <string name="editor_globals_list_delete_global_text">Global will become invalid in layers that use it.</string>
     <string name="editor_globals_list_dp" translatable="false">Dp</string>
     <string name="editor_globals_list_label">Label</string>
@@ -190,6 +201,7 @@
     <string name="editor_globals_list_string">String</string>
     <string name="editor_globals_list_text_style">Text style</string>
     <string name="editor_grant_permission">Grant permission</string>
+    <string name="editor_highlight_selected_layer">Highlight selected layer</string>
     <string name="editor_ignore_and_save">Ignore and save</string>
     <string name="editor_layer_name_placeholder">Layer %1$s</string>
     <string name="editor_layers_add_layer_title">Add layer</string>
@@ -206,33 +218,40 @@
     <string name="editor_modifiers_bottom">Bottom</string>
     <string name="editor_modifiers_color">Color</string>
     <string name="editor_modifiers_end">End</string>
-    <string name="editor_modifiers_fill">Fill</string>
     <string name="editor_modifiers_horizontal">Horizontal</string>
     <string name="editor_modifiers_match_height_constraints_first">Match height constraints first</string>
     <string name="editor_modifiers_offset_x">Offset X</string>
     <string name="editor_modifiers_offset_y">Offset Y</string>
     <string name="editor_modifiers_ratio">Ratio</string>
-    <string name="editor_modifiers_shape">Shape</string>
     <string name="editor_modifiers_start">Start</string>
     <string name="editor_modifiers_top">Top</string>
     <string name="editor_modifiers_vertical">Vertical</string>
     <string name="editor_modifiers_weight">Weight</string>
     <string name="editor_modifiers_width">Width</string>
+    <string name="editor_parameters_active_color">Active color</string>
     <string name="editor_parameters_alignment">Alignment</string>
     <string name="editor_parameters_amplitude">Amplitude</string>
     <string name="editor_parameters_arrangement">Arrangement</string>
     <string name="editor_parameters_color">Color</string>
     <string name="editor_parameters_content_scale">Content scale</string>
+    <string name="editor_parameters_current_step">Current step</string>
+    <string name="editor_parameters_font_style">Font style</string>
     <string name="editor_parameters_gap_size">Gap size</string>
     <string name="editor_parameters_icon">Icon</string>
     <string name="editor_parameters_image_uri_gallery_custom_value">Value</string>
     <string name="editor_parameters_image_uri_gallery_selected_image">Selected image</string>
     <string name="editor_parameters_image_uri_source">Image source</string>
+    <string name="editor_parameters_inactive_color">Inactive color</string>
+    <string name="editor_parameters_indicator_size">Indicator size</string>
     <string name="editor_parameters_progress">Progress</string>
     <string name="editor_parameters_scale_factor">Scale factor</string>
     <string name="editor_parameters_text">Text</string>
+    <string name="editor_parameters_text_max_lines">Maximum lines</string>
+    <string name="editor_parameters_text_min_lines">Minimum lines</string>
+    <string name="editor_parameters_text_overflow">Overflow</string>
     <string name="editor_parameters_text_style">Text style</string>
     <string name="editor_parameters_tint">Tint</string>
+    <string name="editor_parameters_total_steps">Total steps</string>
     <string name="editor_parameters_track_color">Track color</string>
     <string name="editor_parameters_type">Type</string>
     <string name="editor_parameters_wave_length">Wave length</string>
@@ -278,7 +297,6 @@
     <string name="editor_tab_layers">Layers</string>
     <string name="editor_tab_modifiers">Style</string>
     <string name="editor_tab_parameters">Parameters</string>
-    <string name="editor_widget_name">Widget name</string>
     <string name="font_file_cursive" translatable="false">Cursive</string>
     <string name="font_file_monospace" translatable="false">Monospace</string>
     <string name="font_file_sans_serif" translatable="false">Sans Serif</string>
@@ -336,4 +354,11 @@
     <string name="settings_notification_listener_how_to_title">How to enable</string>
     <string name="settings_notification_listener_learn_more_from_faq">Learn more from FAQ.</string>
     <string name="settings_title">Settings</string>
+    <string name="widget_info_battery_description">Update when battery state changes</string>
+    <string name="widget_info_battery_name">Battery</string>
+    <string name="widget_info_media_description">Update when media info is updated</string>
+    <string name="widget_info_media_name">Media</string>
+    <string name="widget_info_subscriptions">Subscriptions</string>
+    <string name="widget_info_time_description">Update when time changes</string>
+    <string name="widget_info_time_name">Time</string>
 </resources>

@@ -4,11 +4,13 @@ plugins {
   alias(libs.plugins.compose.compiler)
 }
 
-android { namespace = "io.github.sadellie.sukko.core.unglance" }
+android.namespace = "io.github.sadellie.sukko.core.unglance"
+
+android.buildFeatures.compose = true
 
 dependencies {
   implementation(project.dependencies.platform(libs.io.insert.koin.koin.bom))
-  implementation(compose.ui)
+  implementation(libs.org.jetbrains.compose.ui.ui)
   implementation(libs.androidx.concurrent.concurrent.futures.ktx)
   implementation(libs.androidx.lifecycle.lifecycle.process)
   implementation(libs.androidx.work.work.runtime.ktx)
@@ -20,5 +22,5 @@ dependencies {
   implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
   implementation(project(":core:common"))
   implementation(project(":core:designsystem"))
-  implementation(project(":core:model"))
+  implementation(project(":core:data"))
 }

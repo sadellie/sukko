@@ -1,16 +1,16 @@
 package io.github.sadellie.sukko.feature.editor.modifiers
 
-import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.modifier.ColdPaddingEachSideModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_modifiers_bottom
@@ -41,11 +41,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
   ) {
     val startSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_start)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_start)) },
       supportingContent = { Text(startDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { startSheetState.expand() },
-      shape = RectangleShape,
+      onClick = startSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = startSheetState,
@@ -57,11 +57,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
 
     val endSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_end)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_end)) },
       supportingContent = { Text(endDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { endSheetState.expand() },
-      shape = RectangleShape,
+      onClick = endSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = endSheetState,
@@ -73,11 +73,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
 
     val topSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_top)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_top)) },
       supportingContent = { Text(topDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { topSheetState.expand() },
-      shape = RectangleShape,
+      onClick = topSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = topSheetState,
@@ -89,11 +89,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
 
     val bottomSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_bottom)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_bottom)) },
       supportingContent = { Text(bottomDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { bottomSheetState.expand() },
-      shape = RectangleShape,
+      onClick = bottomSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = bottomSheetState,

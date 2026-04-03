@@ -30,49 +30,8 @@ internal inline fun <reified T : AtomicNode> ASTNode.getParameter(childIndex: In
 }
 
 /**
- * Walks from parent to children. First performs [onVisitParent] on [parentNode]. Calls
- * [onVisitParent] on [parentNode]'s children only if parent didn't match the pattern.
- *
- * Returns modified node on first match or null if failed to match pattern for entire tree.
- *
- * @param parentNode Entry point, top of the tree
- * @param onVisitParent Perform any modification in this block. Result will be passed recursively
- *   all the way up. Return null to indicate mismatch and continue visiting other children.
- * @see walkBottomToTop
- */
-private fun walkTopToBottom(
-  parentNode: ASTNode,
-  scriptContext: ScriptContext,
-  onVisitParent: (node: ASTNode) -> ASTNode?,
-): ASTNode? {
-  val parentMatch = onVisitParent(parentNode)
-  if (parentMatch != null) return parentMatch
-
-  var childrenWithIndex = parentNode.children.withIndex()
-
-  // control flow
-  if (parentNode.token == Token3.Function.If) {
-    // for if statements only allow visiting their condition
-    childrenWithIndex = childrenWithIndex.take(1)
-  }
-
-  for ((index, child) in childrenWithIndex) {
-    val simplified = walkTopToBottom(child, scriptContext, onVisitParent)
-    if (simplified != null) {
-      val updatedChildren = parentNode.children.toMutableList()
-      updatedChildren[index] = simplified
-      return parentNode.withNewChildren(updatedChildren).collapse(scriptContext)
-    }
-  }
-
-  return null
-}
-
-/**
  * Start visiting nodes from the deepest bracket in expression. Always collapses before returning
  * result.
- *
- * @see walkTopToBottom
  */
 private suspend fun walkBottomToTop(
   context: ScriptContext,

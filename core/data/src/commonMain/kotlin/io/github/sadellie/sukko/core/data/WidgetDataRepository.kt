@@ -15,6 +15,7 @@ interface WidgetDataRepository {
     widgetData: WidgetData,
     evaluatedLayers: List<Layer.Evaluated>,
     previewImageBitmap: ImageBitmap?,
+    isForced: Boolean,
   )
 
   suspend fun rename(appWidgetId: Int, newName: String)

@@ -5,7 +5,7 @@ import android.media.AudioManager
 import android.media.session.PlaybackState
 import io.github.sadellie.sukko.core.common.getAppLabel
 import io.github.sadellie.sukko.core.medialistener.MediaListener
-import io.github.sadellie.sukko.core.model.data.MediaInfoProvider
+import io.github.sadellie.sukko.core.model.provider.MediaInfoProvider
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -21,8 +21,6 @@ class MediaInfoProviderImpl(context: Context) : MediaInfoProvider, KoinComponent
   override val title: String? by lazy { mediaInfo?.title }
   override val durationSeconds: Long? by lazy { mediaInfo?.durationMs?.div(MS_IN_SECONDS) }
   override val positionSeconds: Long? by lazy { mediaInfo?.positionMs?.div(MS_IN_SECONDS) }
-  override val coverUri: String? by lazy { mediaInfo?.coverUri }
-  override val playerIcon: String? by lazy { mediaInfo?.playerIconUri }
   override val playerName: String? by lazy {
     // this is here and not in media listener to invoke as late as possible
     val packageName = mediaInfo?.playerPackageName ?: return@lazy null

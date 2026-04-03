@@ -1,16 +1,16 @@
 package io.github.sadellie.sukko.feature.editor.modifiers
 
-import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.modifier.ColdOffsetModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_modifiers_offset_x
@@ -36,11 +36,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierOffset(
   ) {
     val xSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_offset_x)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_offset_x)) },
       supportingContent = { Text(xDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { xSheetState.expand() },
-      shape = RectangleShape,
+      onClick = xSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = xSheetState,
@@ -51,11 +51,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierOffset(
 
     val ySheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_offset_y)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_offset_y)) },
       supportingContent = { Text(yDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { ySheetState.expand() },
-      shape = RectangleShape,
+      onClick = ySheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = ySheetState,

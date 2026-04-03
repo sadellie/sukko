@@ -1,7 +1,6 @@
 package io.github.sadellie.sukko.feature.editor.selector
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.ModalBottomSheetState
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
@@ -32,8 +32,8 @@ import io.github.sadellie.sukko.core.ui.AlertDialogWithListItems
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.ModalBottomSheet2
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
-import io.github.sadellie.sukko.core.ui.listedShape
-import io.github.sadellie.sukko.core.ui.singleShape
+import io.github.sadellie.sukko.core.ui.listedShapes
+import io.github.sadellie.sukko.core.ui.singleShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_cancel
 import io.github.sadellie.sukko.resources.common_confirm
@@ -43,7 +43,6 @@ import io.github.sadellie.sukko.resources.editor_selector_input_mode_global
 import io.github.sadellie.sukko.resources.editor_selector_input_mode_script
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -105,10 +104,10 @@ internal fun <T> GlobalSelectorSheetContent(
     ) {
       itemsIndexed(globals) { index, global ->
         ListItem2(
-          modifier = Modifier.clickable { selectedGlobalId = global.id },
+          onClick = { selectedGlobalId = global.id },
           leadingContent = { RadioButton(selectedGlobalId == global.id, onClick = null) },
-          headlineContent = { Text(global.label) },
-          shape = ListItemDefaults.listedShape(index, globals.size),
+          content = { Text(global.label) },
+          shapes = ListItemDefaults.listedShapes(index, globals.size),
         )
       }
     }
@@ -123,13 +122,11 @@ internal fun <T : InputMode> InputModeSelector(
 ) {
   var showDialog by rememberSaveable { mutableStateOf(false) }
   ListItem2(
-    headlineContent = { Text(stringResource(Res.string.editor_selector_input_mode)) },
+    content = { Text(stringResource(Res.string.editor_selector_input_mode)) },
     supportingContent = { Text(stringResource(currentInputMode.displayName)) },
-    modifier =
-      Modifier.padding(horizontal = Sizes.large).clip(MaterialTheme.shapes.large).clickable {
-        showDialog = true
-      },
-    shape = ListItemDefaults.singleShape,
+    modifier = Modifier.padding(horizontal = Sizes.large).clip(MaterialTheme.shapes.large),
+    shapes = ListItemDefaults.singleShapes,
+    onClick = { showDialog = true },
   )
   if (showDialog) {
     AlertDialogWithListItems(

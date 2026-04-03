@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ListHeader(
@@ -40,8 +40,9 @@ private fun PreviewListHeader() {
     item { ListHeader("Text") }
     items(10) {
       ListItem2(
-        headlineContent = { Text("Item $it") },
-        shape = ListItemDefaults.listedShape(it, 10),
+        content = { Text("Item $it") },
+        onClick = {},
+        shapes = ListItemDefaults.listedShapes(it, 10),
       )
     }
   }

@@ -1,21 +1,21 @@
 package io.github.sadellie.sukko.feature.editor.modifiers
 
-import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.modifier.ColdBorderModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.BrushSourceSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ShapeSelectorSheet
 import io.github.sadellie.sukko.resources.Res
-import io.github.sadellie.sukko.resources.editor_modifiers_shape
+import io.github.sadellie.sukko.resources.common_shape
 import io.github.sadellie.sukko.resources.editor_modifiers_width
 import org.jetbrains.compose.resources.stringResource
 import sh.calvin.reorderable.ReorderableCollectionItemScope
@@ -35,13 +35,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierBorder(
   ) {
     val dpSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_width)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_width)) },
       supportingContent = {
         Text(LocalScriptableDisplay.current.displayString(widgetModifier.width))
       },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { dpSheetState.expand() },
-      shape = RectangleShape,
+      onClick = dpSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DpSelectorSheet(
       state = dpSheetState,
@@ -52,11 +52,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierBorder(
 
     val sheetColorState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_shape)) },
+      content = { Text(stringResource(Res.string.common_shape)) },
       supportingContent = { Text(widgetModifier.color.displayValue()) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { sheetColorState.expand() },
-      shape = RectangleShape,
+      onClick = sheetColorState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     BrushSourceSelectorSheet(
       state = sheetColorState,
@@ -67,11 +67,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierBorder(
 
     val shapeSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_shape)) },
+      content = { Text(stringResource(Res.string.common_shape)) },
       supportingContent = { Text(stringResource(widgetModifier.shapeSource.displayName)) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { shapeSheetState.expand() },
-      shape = RectangleShape,
+      onClick = shapeSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     ShapeSelectorSheet(
       state = shapeSheetState,

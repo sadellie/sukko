@@ -1,16 +1,16 @@
 package io.github.sadellie.sukko.feature.editor.modifiers
 
-import androidx.compose.foundation.clickable
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.modifier.ColdAspectRatioModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.BooleanSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
@@ -36,11 +36,11 @@ internal fun ReorderableCollectionItemScope.EditorModifierAspectRatio(
   ) {
     val weightSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_modifiers_ratio)) },
+      content = { Text(stringResource(Res.string.editor_modifiers_ratio)) },
       supportingContent = { Text(ratioDisplayString) },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { weightSheetState.expand() },
-      shape = RectangleShape,
+      onClick = weightSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     DoubleSelectorSheet(
       state = weightSheetState,
@@ -53,15 +53,15 @@ internal fun ReorderableCollectionItemScope.EditorModifierAspectRatio(
 
     val fillSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
-      headlineContent = {
+      content = {
         Text(stringResource(Res.string.editor_modifiers_match_height_constraints_first))
       },
       supportingContent = {
         Text(scriptableDisplay.displayString(widgetModifier.matchHeightConstraintsFirst))
       },
       compactListMode = state.compactListMode,
-      modifier = Modifier.clickable { fillSheetState.expand() },
-      shape = RectangleShape,
+      onClick = fillSheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     BooleanSelectorSheet(
       state = fillSheetState,

@@ -5,15 +5,18 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,7 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
@@ -33,6 +36,7 @@ import io.github.sadellie.sukko.core.model.layer.ColdColumnLayer
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.ColdProgressBarLayer
 import io.github.sadellie.sukko.core.model.layer.ColdRowLayer
+import io.github.sadellie.sukko.core.model.layer.ColdStepIndicatorLayer
 import io.github.sadellie.sukko.core.model.layer.ColdTextLayer
 import io.github.sadellie.sukko.core.model.layer.Layer
 import io.github.sadellie.sukko.core.ui.AlertDialogWithText
@@ -42,7 +46,7 @@ import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.RemoveButton
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_delete
 import io.github.sadellie.sukko.resources.common_rename
@@ -53,7 +57,6 @@ import io.github.sadellie.sukko.resources.editor_layers_delete_layer_title
 import io.github.sadellie.sukko.resources.editor_layers_layer_name
 import io.github.sadellie.sukko.resources.editor_layers_rename_layer_title
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -86,7 +89,7 @@ internal fun EditorLayersList(
       onDragStopped = { onEvent(EditorEvent.LayerAction.Reorder(reorderedList())) },
       isInEditingMode = isInEditingMode,
       compactListMode = compactListMode,
-      shape = ListItemDefaults.listedShape(index, layers.size),
+      shapes = ListItemDefaults.listedShapes(index, layers.size),
     )
   }
 
@@ -125,6 +128,7 @@ internal fun EditorLayersList(
           ColdTextLayer(id = 0, parentId = parentLayerId),
           ColdImageLayer(id = 0, parentId = parentLayerId),
           ColdProgressBarLayer(id = 0, parentId = parentLayerId),
+          ColdStepIndicatorLayer(id = 0, parentId = parentLayerId),
         )
       },
     headlineText = { stringResource(it.displayName) },
@@ -144,9 +148,10 @@ private fun ReorderableCollectionItemScope.LayerListItem(
   onDragStopped: () -> Unit,
   isInEditingMode: Boolean,
   compactListMode: Boolean,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+  val interactionSource = remember { MutableInteractionSource() }
   AnimatedContent(
     targetState = isInEditingMode,
     transitionSpec = { fadeIn(spatialSpec) togetherWith fadeOut(spatialSpec) },
@@ -157,20 +162,29 @@ private fun ReorderableCollectionItemScope.LayerListItem(
       ListItem2Compact(
         modifier = modifier,
         compactListMode = compactListMode,
-        headlineContent = { Text(headlineText) },
+        content = { Text(headlineText) },
         supportingContent = { Text(stringResource(layer.displayName)) },
-        leadingContent = { LayerListItemDragHandle(onDragStopped = onDragStopped) },
+        leadingContent = {
+          LayerListItemDragHandle(
+            interactionSource = interactionSource,
+            onDragStopped = onDragStopped,
+          )
+        },
         trailingContent = { RemoveButton(onDeleteClick) },
-        shape = shape,
+        shapes = shapes,
+        onClick = {},
+        interactionSource = interactionSource,
       )
     } else {
       ListItem2Compact(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier,
         compactListMode = compactListMode,
-        headlineContent = { Text(headlineText) },
+        content = { Text(headlineText) },
         supportingContent = { Text(stringResource(layer.displayName)) },
         trailingContent = { LayerListItemDropDownMenu(onRenameClick) },
-        shape = shape,
+        shapes = shapes,
+        onClick = onClick,
+        interactionSource = interactionSource,
       )
     }
   }
@@ -179,14 +193,17 @@ private fun ReorderableCollectionItemScope.LayerListItem(
 @Composable
 private fun LayerListItemDropDownMenu(onRenameClick: () -> Unit) {
   DropDownMenuWithButton {
-    DropdownMenuItem(
-      text = { Text(stringResource(Res.string.common_rename)) },
-      onClick = {
-        onRenameClick()
-        closeMenu()
-      },
-      leadingIcon = { Icon(Symbols.Edit, contentDescription = null) },
-    )
+    DropdownMenuGroup(shapes = MenuDefaults.groupShapes()) {
+      DropdownMenuItem(
+        shape = MenuDefaults.standaloneItemShape,
+        text = { Text(stringResource(Res.string.common_rename)) },
+        onClick = {
+          onRenameClick()
+          this@DropDownMenuWithButton.closeMenu()
+        },
+        leadingIcon = { Icon(Symbols.Edit, contentDescription = null) },
+      )
+    }
   }
 }
 

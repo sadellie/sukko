@@ -112,23 +112,6 @@ internal data class UnaryOperatorNode(
     val childFormatted = children.first().toFormattedString()
     return "${token.symbol}$childFormatted"
   }
-
-  override fun collapse(scriptContext: ScriptContext): ASTNode {
-    val child = children.firstOrNull()?.collapse(scriptContext)
-    if (child is NumberNode) {
-      if (token !is Token3.Operator.UnaryMinus) throw ScriptException.WrongUnary(child, token)
-      // negate numbers and omit this unary minus
-      return child.negate()
-    }
-
-    if (child is BoolNode) {
-      if (token !is Token3.Operator.Not) throw ScriptException.WrongUnary(child, token)
-      // negate boolean and omit this unary minus
-      return if (child.toBoolean()) FalseNode else TrueNode
-    }
-
-    return super.collapse(scriptContext)
-  }
 }
 
 internal data class DivideNode(override val children: List<ASTNode>) : OperatorNode {

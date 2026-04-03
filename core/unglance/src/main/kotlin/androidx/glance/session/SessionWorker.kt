@@ -71,7 +71,7 @@ class SessionWorker(
       ?: error("SessionWorker must be started with a key")
 
   override suspend fun doWork(): Result {
-    Logger.d(TAG) { "doWork called" }
+    Logger.d(tag = TAG) { "doWork called" }
     val session =
       sessionManager.runWithLock { getSession(key) }
         ?: if (params.runAttemptCount == 0) {
@@ -80,7 +80,7 @@ class SessionWorker(
           // If this is a retry because the process was restarted (e.g. on app upgrade
           // or reinstall), the Session object won't be available because it's not
           // persistable.
-          Logger.w(TAG) { "SessionWorker attempted restart but Session is not available for $key" }
+          Logger.w(tag = TAG) { "SessionWorker attempted restart but Session is not available for $key" }
           return Result.success()
         }
 
@@ -96,7 +96,7 @@ class SessionWorker(
               applicationContext,
               onIdle = {
                 startTimer(timeouts.idleTimeout)
-                Logger.d(TAG) { "Received idle event, session timeout $timeLeft" }
+                Logger.d(tag = TAG) { "Received idle event, session timeout $timeLeft" }
               },
             ) {
               runSession(applicationContext, currentSession, timeouts)
@@ -105,7 +105,7 @@ class SessionWorker(
           }
 
         if (result != null) {
-          Logger.w(TAG) { "result is null" }
+          Logger.w(tag = TAG) { "result is null" }
           // If there is a result, runSession completed in time, which means that the
           // session was closed externally (widget deleted). In this case we do not care
           // if there were pending events to run.
@@ -140,7 +140,7 @@ private suspend fun TimerScope.runSession(
   try {
     // flow that generates new states
     launch {
-      Logger.d(SessionWorker.TAG) { "Collecting unglance results" }
+      Logger.d(tag = SessionWorker.TAG) { "Collecting unglance results" }
       try {
         session.provideUnglance(context).collect { captureComposableResult ->
           resultHolder.emit(captureComposableResult)
@@ -148,7 +148,7 @@ private suspend fun TimerScope.runSession(
       } catch (_: CancellationException) {
         // do nothing if we are cancelled.
       } catch (e: Exception) {
-        Logger.e(SessionWorker.TAG, e) { "Failed to update view" }
+        Logger.e(throwable = e, tag = SessionWorker.TAG) { "Failed to update view" }
         session.reportCompositionError(context, e)
       }
     }
@@ -160,10 +160,10 @@ private suspend fun TimerScope.runSession(
           uiReady.emit(true)
           startTimer(timeouts.initialTimeout)
         }
-        Logger.d(SessionWorker.TAG) { "processRemoteViews done" }
+        Logger.d(tag = SessionWorker.TAG) { "processRemoteViews done" }
       }
     }
-    Logger.d(SessionWorker.TAG) { "starting to receive events" }
+    Logger.d(tag = SessionWorker.TAG) { "starting to receive events" }
     // wait here until uiReady emits true
     uiReady.first { it }
     // receiveEvents will suspend until the session is closed (usually due to widget deletion)
@@ -172,11 +172,11 @@ private suspend fun TimerScope.runSession(
       // If time is running low, add time to make sure that we have time to respond to this
       // event.
       if (timeLeft < timeouts.additionalTime) addTime(timeouts.additionalTime)
-      Logger.d(SessionWorker.TAG) { "Received event $it" }
+      Logger.d(tag = SessionWorker.TAG) { "Received event $it" }
     }
   } catch (e: TimeoutCancellationException) {
-    Logger.e(SessionWorker.TAG, e) { "session closed. timeout" }
+      Logger.e(throwable = e, tag = SessionWorker.TAG) { "session closed. timeout" }
   } catch (e: Exception) {
-    Logger.e(SessionWorker.TAG, e) { "runSession failed" }
+      Logger.e(throwable = e, tag = SessionWorker.TAG) { "runSession failed" }
   }
 }

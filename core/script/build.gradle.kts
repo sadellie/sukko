@@ -6,9 +6,10 @@ plugins {
 }
 
 kotlin {
+  android.namespace = "io.github.sadellie.sukko.core.script"
   sourceSets.commonMain.dependencies {
-    implementation(compose.components.resources)
-    implementation(compose.runtime)
+    implementation(libs.org.jetbrains.compose.components.components.resources)
+    implementation(libs.org.jetbrains.compose.runtime.runtime)
     implementation(libs.com.squareup.okio.okio)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
@@ -17,7 +18,7 @@ kotlin {
     implementation(libs.kotlin.test)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
   }
-  sourceSets.androidUnitTest.dependencies {
+  sourceSets.androidHostTest.dependencies {
     implementation(libs.kotlin.test)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.test)
   }
@@ -48,5 +49,3 @@ tasks.register("updateScriptingJson") {
     targetFile.setLastModified(sourceFile.lastModified())
   }
 }
-
-android { namespace = "io.github.sadellie.sukko.core.script" }

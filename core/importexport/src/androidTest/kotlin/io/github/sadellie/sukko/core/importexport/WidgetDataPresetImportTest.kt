@@ -17,9 +17,9 @@ import io.github.sadellie.sukko.core.model.ImportingIconPackAction
 import io.github.sadellie.sukko.core.model.ImportingWidgetDataPreset
 import io.github.sadellie.sukko.core.model.WidgetDataPreset
 import io.github.sadellie.sukko.core.model.basic.ImageUriSource
+import io.github.sadellie.sukko.core.model.basic.TextStyleSource
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.ColdTextLayer
-import io.github.sadellie.sukko.core.model.layer.TextStyleSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

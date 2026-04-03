@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import google.material.design.symbols.Info
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
@@ -36,10 +37,9 @@ import io.github.sadellie.sukko.resources.settings_notification_listener_how_to_
 import io.github.sadellie.sukko.resources.settings_notification_listener_how_to_title
 import io.github.sadellie.sukko.resources.settings_notification_listener_learn_more_from_faq
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun NotificationListenerScene(onNavigateUp: () -> Unit) {
+internal fun NotificationListenerScene(onNavigateUp: () -> Unit) {
   val context = LocalContext.current
   NotificationListenerScreen(
     onNavigateUp = onNavigateUp,

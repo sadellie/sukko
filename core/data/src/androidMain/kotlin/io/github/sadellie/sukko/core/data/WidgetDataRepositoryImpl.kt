@@ -1,14 +1,19 @@
 package io.github.sadellie.sukko.core.data
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import io.github.sadellie.sukko.core.common.MainWidgetAction
 import io.github.sadellie.sukko.core.common.filesPath
 import io.github.sadellie.sukko.core.database.WidgetDataBased
 import io.github.sadellie.sukko.core.database.WidgetDataDao
+import io.github.sadellie.sukko.core.medialistener.NotificationListener
 import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.WidgetData
+import io.github.sadellie.sukko.core.model.WidgetSubscriptionInfo
+import io.github.sadellie.sukko.core.model.WidgetUpdateException
 import io.github.sadellie.sukko.core.model.layer.Layer
 import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +24,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okio.Path
 
-class WidgetDataRepositoryImpl(
+internal class WidgetDataRepositoryImpl(
   private val dao: WidgetDataDao,
   private val context: Context,
   private val removeImageFromCache: (path: Path) -> Unit,
@@ -37,6 +42,7 @@ class WidgetDataRepositoryImpl(
     widgetData: WidgetData,
     evaluatedLayers: List<Layer.Evaluated>,
     previewImageBitmap: ImageBitmap?,
+    isForced: Boolean,
   ) {
     if (previewImageBitmap != null) {
       withContext(Dispatchers.IO) {
@@ -51,6 +57,7 @@ class WidgetDataRepositoryImpl(
       }
     }
     dao.save(widgetData.toBased())
+    updateWidget(widgetData, isForced)
   }
 
   override suspend fun rename(appWidgetId: Int, newName: String) = dao.rename(appWidgetId, newName)
@@ -85,5 +92,38 @@ class WidgetDataRepositoryImpl(
       layers = layerAsJson,
       globals = globalsAsJson,
     )
+  }
+
+  /**
+   * @param forced When true will not throw on missing notification listener and other permission.
+   */
+  private suspend fun updateWidget(widgetData: WidgetData, forced: Boolean) {
+    val widgetSubscriptionInfo = generateWidgetSubscriptionInfo(widgetData)
+    if (forced) {
+      // disabled checks
+      sendUpdateWidgetBroadcast(widgetData.appWidgetId, widgetSubscriptionInfo)
+      return
+    }
+
+    if (widgetSubscriptionInfo.isMedia && !NotificationListener.canAccessNotifications(context)) {
+      throw WidgetUpdateException.MissingNotificationListener()
+    }
+
+    // all checks passed
+    sendUpdateWidgetBroadcast(widgetData.appWidgetId, widgetSubscriptionInfo)
+  }
+
+  private fun sendUpdateWidgetBroadcast(
+    appWidgetId: Int,
+    widgetSubscriptionInfo: WidgetSubscriptionInfo,
+  ) {
+    val intent =
+      Intent(MainWidgetAction.ACTION_UPDATE_WITH_SUBSCRIPTION)
+        .setPackage(context.packageName)
+        .putExtra(MainWidgetAction.EXTRA_APPWIDGET_ID, appWidgetId)
+        .putExtra(MainWidgetAction.EXTRA_IS_TIME_SUBSCRIBER, widgetSubscriptionInfo.isTime)
+        .putExtra(MainWidgetAction.EXTRA_IS_BATTERY_SUBSCRIBER, widgetSubscriptionInfo.isBattery)
+        .putExtra(MainWidgetAction.EXTRA_IS_MEDIA_SUBSCRIBER, widgetSubscriptionInfo.isMedia)
+    context.sendBroadcast(intent)
   }
 }

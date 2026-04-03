@@ -15,6 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.sadellie.sukko.core.designsystem.Preview2
@@ -27,11 +30,9 @@ import io.github.sadellie.sukko.core.model.layer.ColdColumnLayer
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.ColdProgressBarLayer
 import io.github.sadellie.sukko.core.model.layer.ColdRowLayer
+import io.github.sadellie.sukko.core.model.layer.ColdStepIndicatorLayer
 import io.github.sadellie.sukko.core.model.layer.ColdTextLayer
 import io.github.sadellie.sukko.core.model.layer.Layer
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
 internal fun EditorParametersList(
@@ -104,6 +105,13 @@ private fun LayerParameters(
         )
       is ColdProgressBarLayer ->
         EditorParametersProgressBarLayer(
+          onUpdateLayer = onUpdateLayer,
+          layer = layer,
+          compactListMode = compactListMode,
+          globals = globals,
+        )
+      is ColdStepIndicatorLayer ->
+        EditorParametersStepIndicatorLayer(
           onUpdateLayer = onUpdateLayer,
           layer = layer,
           compactListMode = compactListMode,

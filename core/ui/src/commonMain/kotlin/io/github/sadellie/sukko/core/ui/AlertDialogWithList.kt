@@ -1,17 +1,15 @@
 package io.github.sadellie.sukko.core.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -24,30 +22,24 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_cancel
 import io.github.sadellie.sukko.resources.common_confirm
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** [onClick] will call [onDismiss] */
 @Composable
@@ -55,24 +47,31 @@ fun <T> AlertDialogWithRadioItems(
   title: String,
   onDismiss: () -> Unit,
   items: List<T>,
-  key: ((T) -> Any)?,
+  key: ((index: Int, item: T) -> Any)?,
   headlineText: @Composable (T) -> String,
   isSelected: (T) -> Boolean,
   onClick: (T) -> Unit,
   listState: LazyListState = rememberLazyListState(),
 ) {
   AlertDialogWithList(title = title, onDismiss = onDismiss, listState = listState) {
-    items(items = items, key = key) { item ->
-      AlertDialogWithListItem(
-        headlineText = headlineText(item),
-        selected = remember(isSelected) { isSelected(item) },
-        onClick =
-          remember(onClick) {
-            {
+    itemsIndexed(items = items, key = key) { _, item ->
+      ListItem2(
+        content = { Text(text = headlineText(item)) },
+        leadingContent = {
+          RadioButton(
+            selected = remember(isSelected) { isSelected(item) },
+            onClick = {
               onClick(item)
               onDismiss()
-            }
-          },
+            },
+          )
+        },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        shapes = ListItemDefaults.middleShapes,
+        onClick = {
+          onClick(item)
+          onDismiss()
+        },
       )
     }
   }
@@ -84,24 +83,21 @@ fun <T> AlertDialogWithListItems(
   title: String,
   onDismiss: () -> Unit,
   items: List<T>,
-  key: ((T) -> Any)?,
+  key: ((index: Int, item: T) -> Any)?,
   headlineText: @Composable (T) -> String,
   onClick: (T) -> Unit,
   listState: LazyListState = rememberLazyListState(),
 ) {
   AlertDialogWithList(title = title, onDismiss = onDismiss, listState = listState) {
-    items(items = items, key = key) { item ->
+    itemsIndexed(items = items, key = key) { _, item ->
       ListItem2(
-        headlineContent = { Text(text = headlineText(item)) },
-        modifier =
-          Modifier.clickable(
-            onClick = {
-              onClick(item)
-              onDismiss()
-            }
-          ),
+        content = { Text(text = headlineText(item)) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        shape = RectangleShape,
+        shapes = ListItemDefaults.middleShapes,
+        onClick = {
+          onClick(item)
+          onDismiss()
+        },
       )
     }
   }
@@ -124,23 +120,6 @@ fun AlertDialogWithList(
       content = content,
     )
   }
-}
-
-@Composable
-fun AlertDialogWithListItem(
-  modifier: Modifier = Modifier,
-  headlineText: String,
-  selected: Boolean,
-  onClick: () -> Unit,
-  colors: ListItemColors = ListItemDefaults.colors(containerColor = Color.Transparent),
-) {
-  ListItem2(
-    headlineContent = { Text(headlineText) },
-    leadingContent = { RadioButton(selected = selected, onClick = onClick) },
-    modifier = modifier.clickable(onClick = onClick),
-    colors = colors,
-    shape = RectangleShape,
-  )
 }
 
 /** [onDismiss] is always called after [onConfirm] */
@@ -275,23 +254,27 @@ private fun AlertDialogContent(
 
 @Preview
 @Composable
-private fun PreviewAlertDialogWithRadioSelector() {
-  var showDialog by rememberSaveable { mutableStateOf(true) }
+private fun PreviewAlertDialogWithRadioItems() {
+  AlertDialogWithRadioItems(
+    title = "Alert dialog",
+    onDismiss = {},
+    items = remember { List(5) { "Item $it" } },
+    key = null,
+    headlineText = { it },
+    isSelected = { it == "Item 2" },
+    onClick = {},
+  )
+}
 
-  Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).fillMaxSize()) {
-    Button(onClick = { showDialog = true }, shapes = ButtonDefaults.shapes()) {
-      Text("Show dialog")
-    }
-    if (!showDialog) return@Box
-
-    AlertDialogWithList(
-      title = "Preview",
-      onDismiss = { showDialog = false },
-      listState = rememberLazyListState(),
-    ) {
-      items(30) {
-        AlertDialogWithListItem(headlineText = "Item $it", selected = it == 3, onClick = {})
-      }
-    }
-  }
+@Preview
+@Composable
+private fun PreviewAlertDialogWithListItems() {
+  AlertDialogWithListItems(
+    title = "Alert dialog",
+    onDismiss = {},
+    items = remember { List(5) { "Item $it" } },
+    key = null,
+    headlineText = { it },
+    onClick = {},
+  )
 }

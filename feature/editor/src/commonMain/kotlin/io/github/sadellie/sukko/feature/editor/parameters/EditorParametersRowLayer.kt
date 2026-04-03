@@ -1,17 +1,16 @@
 package io.github.sadellie.sukko.feature.editor.parameters
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.AlignmentSource
@@ -21,14 +20,13 @@ import io.github.sadellie.sukko.core.ui.ExpandableListItem
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.lastShape
-import io.github.sadellie.sukko.core.ui.middleShape
+import io.github.sadellie.sukko.core.ui.lastShapes
+import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.FixedDpSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_parameters_alignment
 import io.github.sadellie.sukko.resources.editor_parameters_arrangement
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun EditorParametersRowLayer(
@@ -45,6 +43,7 @@ internal fun EditorParametersRowLayer(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
+    shapes = ListItemDefaults.lastShapes,
   )
 }
 
@@ -59,14 +58,14 @@ private fun EditorParametersArrangement(
     headlineText = stringResource(Res.string.editor_parameters_arrangement),
     supportingText = stringResource(layer.arrangementSource.displayName),
     compactListMode = compactListMode,
-    shape = ListItemDefaults.middleShape,
+    shapes = ListItemDefaults.middleShapes,
   ) {
     ListItem2Compact(
-      headlineContent = { Text(stringResource(Res.string.editor_parameters_arrangement)) },
+      content = { Text(stringResource(Res.string.editor_parameters_arrangement)) },
       supportingContent = { Text(stringResource(layer.arrangementSource.displayName)) },
       compactListMode = compactListMode,
-      modifier = Modifier.clickable { sheetState.expand() },
-      shape = RectangleShape,
+      onClick = sheetState::expand,
+      shapes = ListItemDefaults.middleShapes,
     )
     AnimatedContent(targetState = layer.arrangementSource) { arrangementSource ->
       Column {
@@ -105,11 +104,11 @@ private fun EditorArrangementSourceSpacedBy(
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(arrangementSource.displayName)) },
+    content = { Text(stringResource(arrangementSource.displayName)) },
     supportingContent = { Text(arrangementSource.space.toString()) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = RectangleShape,
+    onClick = sheetState::expand,
+    shapes = ListItemDefaults.middleShapes,
   )
   FixedDpSelectorSheet(
     state = sheetState,
@@ -130,18 +129,18 @@ private fun EditorArrangementSourceSpacedByHorizontal(
   val sheetSpaceState = rememberModalBottomSheetState(SheetDetent.Hidden)
   val sheetAlignmentState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(arrangementSource.displayName)) },
+    content = { Text(stringResource(arrangementSource.displayName)) },
     supportingContent = { Text(arrangementSource.space.toString()) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetSpaceState.expand() },
-    shape = RectangleShape,
+    onClick = sheetSpaceState::expand,
+    shapes = ListItemDefaults.middleShapes,
   )
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_alignment)) },
+    content = { Text(stringResource(Res.string.editor_parameters_alignment)) },
     supportingContent = { Text(stringResource(arrangementSource.alignmentSource.displayName)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetAlignmentState.expand() },
-    shape = RectangleShape,
+    onClick = sheetAlignmentState::expand,
+    shapes = ListItemDefaults.middleShapes,
   )
 
   FixedDpSelectorSheet(
@@ -162,14 +161,15 @@ private fun EditorParametersAlignment(
   onUpdateLayer: (ColdRowLayer) -> Unit,
   layer: ColdRowLayer,
   compactListMode: Boolean,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_alignment)) },
+    content = { Text(stringResource(Res.string.editor_parameters_alignment)) },
     supportingContent = { Text(stringResource(layer.alignmentSource.displayName)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.lastShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   ModalBottomSheetWithItems(

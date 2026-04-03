@@ -17,16 +17,18 @@ fun AppWidgetManager.appWidgetSize(appWidgetId: Int, orientation: Int): DpSize {
   return widgetSize
 }
 
-fun AppWidgetManager.appWidgetSizes(appWidgetId: Int): List<DpSize> {
-  val options = this.getAppWidgetOptions(appWidgetId)
+fun AppWidgetManager.appWidgetSizes(appWidgetId: Int): List<DpSize> =
+  this.getAppWidgetOptions(appWidgetId).getWidgetSizes()
+
+fun Bundle.getWidgetSizes(): List<DpSize> {
   @Suppress("Deprecation")
-  val sizes = options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+  val sizes = this.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
   return if (sizes.isNullOrEmpty()) {
-      val estimatedSizes = listOf(options.portraitWidgetSize(), options.landscapeWidgetSize())
-      Logger.w("AppWidgetUtils") { "appWidgetSizes: Fallback to estimation: $estimatedSizes" }
+      val estimatedSizes = listOf(this.portraitWidgetSize(), this.landscapeWidgetSize())
+      Logger.w(tag = "AppWidgetUtils") { "appWidgetSizes: Fallback to estimation: $estimatedSizes" }
       estimatedSizes
     } else {
-      // pixel launcher report really similar sizes
+      // pixel launcher reports really similar sizes
       sizes.map { DpSize(it.width.roundToInt().dp, it.height.roundToInt().dp) }
     }
     .distinct()

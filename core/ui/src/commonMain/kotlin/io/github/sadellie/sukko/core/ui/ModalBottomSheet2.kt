@@ -3,7 +3,6 @@ package io.github.sadellie.sukko.core.ui
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.composables.core.DragIndication
 import com.composables.core.ModalBottomSheet
@@ -48,7 +48,6 @@ import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_cancel
 import io.github.sadellie.sukko.resources.common_confirm
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** [onDismiss] is always called after [onConfirm] */
 @Composable
@@ -88,13 +87,12 @@ fun <T> ModalBottomSheetWithItems(
     ) {
       itemsIndexed(items = items, key = key) { index, item ->
         ListItem2(
-          modifier =
-            Modifier.clickable {
-              onClick(item)
-              onDismiss()
-            },
-          shape = ListItemDefaults.listedShape(index, items.size),
-          headlineContent = { Text(headlineText(item)) },
+          onClick = {
+            onClick(item)
+            onDismiss()
+          },
+          shapes = ListItemDefaults.listedShapes(index, items.size),
+          content = { Text(headlineText(item)) },
           supportingContent = supportText?.let { { Text(supportText(item)) } },
           leadingContent = leadingContent?.let { { leadingContent(item) } },
         )

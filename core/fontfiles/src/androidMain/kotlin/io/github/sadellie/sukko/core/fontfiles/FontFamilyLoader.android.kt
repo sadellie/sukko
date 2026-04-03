@@ -31,7 +31,7 @@ actual class FontFamilyLoader {
             is FontFile.BuiltIn -> fontFile.getFontFamily()
           }
         } catch (e: Exception) {
-          Logger.d("FontFamilyLoaderImpl", e) { "Failed to load font from file" }
+          Logger.d(throwable = e, tag = "FontFamilyLoaderImpl") { "Failed to load font from file" }
           return@withContext FontFamily.Default
         }
 

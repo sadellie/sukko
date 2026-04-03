@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,9 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,7 +53,7 @@ import io.github.sadellie.sukko.core.ui.ListHeader
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.LoadingBox
 import io.github.sadellie.sukko.core.ui.SearchBar
-import io.github.sadellie.sukko.core.ui.listedShape
+import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_selector_script_docs_boolean
 import io.github.sadellie.sukko.resources.editor_selector_script_docs_number
@@ -65,9 +68,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 
 @Composable
 internal fun DocsPage(
@@ -126,7 +126,7 @@ private fun DocsPageContentLoaded(
           modifier = Modifier,
           onInsert = onInsert,
           item = item,
-          shape = ListItemDefaults.listedShape(index, docs.templates.size),
+          shapes = ListItemDefaults.listedShapes(index, docs.templates.size),
         )
       }
     }
@@ -138,7 +138,7 @@ private fun DocsPageContentLoaded(
           modifier = Modifier,
           onInsert = onInsert,
           item = item,
-          shape = ListItemDefaults.listedShape(index, docs.constants.size),
+          shapes = ListItemDefaults.listedShapes(index, docs.constants.size),
         )
       }
     }
@@ -149,7 +149,7 @@ private fun DocsPageContentLoaded(
         MethodItemCard(
           modifier = Modifier,
           item = item,
-          shape = ListItemDefaults.listedShape(index, docs.methods.size),
+          shapes = ListItemDefaults.listedShapes(index, docs.methods.size),
         )
       }
     }
@@ -161,19 +161,20 @@ private fun TemplateItemCard(
   modifier: Modifier,
   onInsert: (script: String) -> Unit,
   item: DocsItem.Template,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   ListItem2(
     modifier = modifier,
     overlineContent = { Text(formatDocsItemName(item)) },
-    headlineContent = {
+    content = {
       ScriptBlock(
         modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth(),
         onClick = { onInsert(item.script) },
         script = item.script,
       )
     },
-    shape = shape,
+    shapes = shapes,
+    onClick = {},
   )
 }
 
@@ -182,12 +183,12 @@ private fun ConstantItemCard(
   modifier: Modifier,
   onInsert: (String) -> Unit,
   item: DocsItem.Constant,
-  shape: Shape,
+  shapes: ListItemShapes,
 ) {
   ListItem2(
     modifier = modifier,
     overlineContent = { Text(formatDocsItemName(item)) },
-    headlineContent = {
+    content = {
       ScriptBlock(
         modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth(),
         onClick = { onInsert(item.api) },
@@ -195,16 +196,17 @@ private fun ConstantItemCard(
       )
     },
     supportingContent = { Text(item.description.load()) },
-    shape = shape,
+    shapes = shapes,
+    onClick = {},
   )
 }
 
 @Composable
-private fun MethodItemCard(modifier: Modifier, item: DocsItem.Method, shape: Shape) {
+private fun MethodItemCard(modifier: Modifier, item: DocsItem.Method, shapes: ListItemShapes) {
   ListItem2(
     modifier = modifier,
     overlineContent = { Text(formatDocsItemName(item)) },
-    headlineContent = {
+    content = {
       ScriptBlock(
         modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth(),
         onClick = null,
@@ -220,7 +222,8 @@ private fun MethodItemCard(modifier: Modifier, item: DocsItem.Method, shape: Sha
         }
       }
     },
-    shape = shape,
+    shapes = shapes,
+    onClick = {},
   )
 }
 
@@ -282,7 +285,7 @@ private fun ScriptTypeTag.displayName() =
     }
   )
 
-class DocsViewModel(private val repository: DocsRepository) : ViewModel() {
+internal class DocsViewModel(private val repository: DocsRepository) : ViewModel() {
   val searchTextFieldState = TextFieldState()
   private val _isLoading = MutableStateFlow(true)
   private val _results = MutableStateFlow<Docs?>(null)

@@ -1,15 +1,15 @@
 package io.github.sadellie.sukko.feature.editor.parameters
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.AlignmentSource
@@ -17,11 +17,10 @@ import io.github.sadellie.sukko.core.model.layer.ColdBoxLayer
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
-import io.github.sadellie.sukko.core.ui.lastShape
+import io.github.sadellie.sukko.core.ui.lastShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_parameters_alignment
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 internal fun EditorParametersBoxLayer(
@@ -33,6 +32,7 @@ internal fun EditorParametersBoxLayer(
     onUpdateLayer = onUpdateLayer,
     layer = layer,
     compactListMode = compactListMode,
+    shapes = ListItemDefaults.lastShapes,
   )
 }
 
@@ -41,14 +41,15 @@ private fun EditorParametersAlignment(
   onUpdateLayer: (ColdBoxLayer) -> Unit,
   layer: ColdBoxLayer,
   compactListMode: Boolean,
+  shapes: ListItemShapes,
 ) {
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
-    headlineContent = { Text(stringResource(Res.string.editor_parameters_alignment)) },
+    content = { Text(stringResource(Res.string.editor_parameters_alignment)) },
     supportingContent = { Text(stringResource(layer.alignmentSource.displayName)) },
     compactListMode = compactListMode,
-    modifier = Modifier.clickable { sheetState.expand() },
-    shape = ListItemDefaults.lastShape,
+    onClick = sheetState::expand,
+    shapes = shapes,
   )
 
   ModalBottomSheetWithItems(

@@ -1,7 +1,6 @@
 package io.github.sadellie.sukko.feature.fontseditor
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -31,10 +30,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation3.runtime.NavKey
 import co.touchlab.kermit.Logger
 import com.composables.core.ModalBottomSheetState
 import com.composables.core.SheetDetent
@@ -58,8 +59,8 @@ import io.github.sadellie.sukko.core.ui.LoadingBox
 import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithButtons
 import io.github.sadellie.sukko.core.ui.NavigateUpButton
 import io.github.sadellie.sukko.core.ui.ScaffoldWithLargeTopAppBar
-import io.github.sadellie.sukko.core.ui.firstShape
-import io.github.sadellie.sukko.core.ui.lastShape
+import io.github.sadellie.sukko.core.ui.firstShapes
+import io.github.sadellie.sukko.core.ui.lastShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_delete
 import io.github.sadellie.sukko.resources.common_rename
@@ -79,18 +80,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.viewmodel.koinViewModel
 
-@Serializable data object FontFilesEditorRoute : NavKey
-
 @Composable
-fun FontsEditorScene(onNavigateUp: () -> Unit) {
+internal fun FontsEditorScene(onNavigateUp: () -> Unit) {
   val viewModel = koinViewModel<FontsEditorViewModel>()
   val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value
 
@@ -122,7 +117,7 @@ private fun FontsEditorScreen(
   val error = uiState.errorFlow.collectAsStateWithLifecycle(null).value
   LaunchedEffect(error) {
     if (error is FileAlreadyExistsException) {
-      Logger.e(TAG) { "error emitted $error" }
+      Logger.e(tag = TAG) { "error emitted $error" }
       coroutineScope.launch {
         snackbarHost.showSnackbar(
           message = getString(Res.string.fonts_editor_file_already_exists, error.file.name)
@@ -228,22 +223,20 @@ private fun FontFileSheet(
       verticalArrangement = ListArrangement,
     ) {
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.common_rename)) },
-        modifier =
-          Modifier.clickable {
-            onRename()
-            state.targetDetent = SheetDetent.Hidden
-          },
-        shape = ListItemDefaults.firstShape,
+        content = { Text(stringResource(Res.string.common_rename)) },
+        shapes = ListItemDefaults.firstShapes,
+        onClick = {
+          onRename()
+          state.targetDetent = SheetDetent.Hidden
+        },
       )
       ListItem2(
-        headlineContent = { Text(stringResource(Res.string.common_delete)) },
-        modifier =
-          Modifier.clickable {
-            onDelete()
-            state.targetDetent = SheetDetent.Hidden
-          },
-        shape = ListItemDefaults.lastShape,
+        content = { Text(stringResource(Res.string.common_delete)) },
+        onClick = {
+          onDelete()
+          state.targetDetent = SheetDetent.Hidden
+        },
+        shapes = ListItemDefaults.lastShapes,
       )
     }
   }
@@ -281,8 +274,9 @@ private sealed interface FontsEditorsAlertState {
   data class Rename(val fontFile: FontFile.Custom) : FontsEditorsAlertState
 }
 
-class FontsEditorViewModel(private val fontFileCustomRepository: FontFileCustomRepository) :
-  ViewModel() {
+internal class FontsEditorViewModel(
+  private val fontFileCustomRepository: FontFileCustomRepository
+) : ViewModel() {
   private val _allFontFiles = fontFileCustomRepository.loadAll()
   private val _isImporting = MutableStateFlow(false)
   private val _errorFlow = MutableSharedFlow<Throwable?>()
@@ -304,7 +298,7 @@ class FontsEditorViewModel(private val fontFileCustomRepository: FontFileCustomR
         _isImporting.update { true }
         fontFileCustomRepository.importFontFiles(selectedFiles)
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to import" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to import" }
         _errorFlow.tryEmit(e)
       } finally {
         _isImporting.update { false }
@@ -316,7 +310,7 @@ class FontsEditorViewModel(private val fontFileCustomRepository: FontFileCustomR
       try {
         fontFileCustomRepository.delete(fontFile)
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to delete" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to delete" }
       }
     }
 
@@ -325,7 +319,7 @@ class FontsEditorViewModel(private val fontFileCustomRepository: FontFileCustomR
       try {
         fontFileCustomRepository.rename(fontFile, newName)
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to rename" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to rename" }
         _errorFlow.tryEmit(e)
       }
     }

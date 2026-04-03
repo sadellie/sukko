@@ -3,7 +3,7 @@ package io.github.sadellie.sukko.core.data
 import android.content.Context
 import android.os.BatteryManager
 import android.os.PowerManager
-import io.github.sadellie.sukko.core.model.data.BatteryInfoProvider
+import io.github.sadellie.sukko.core.model.provider.BatteryInfoProvider
 import kotlin.time.Duration.Companion.milliseconds
 
 class BatteryInfoProviderImpl(context: Context) : BatteryInfoProvider {

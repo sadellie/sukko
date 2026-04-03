@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.navigation3.runtime.rememberNavBackStack
 import coil3.ImageLoader
 import io.github.sadellie.sukko.core.common.filesPath
-import io.github.sadellie.sukko.feature.home.HomeRoute
+import io.github.sadellie.sukko.core.routes.CommonRoute
+import io.github.sadellie.sukko.core.routes.ui.MainApp
 import org.koin.android.ext.android.get
 
 class MainActivity : ComponentActivity() {
@@ -22,7 +24,7 @@ class MainActivity : ComponentActivity() {
         windowsSize = calculateWindowSizeClass(this),
         imageLoader = get<ImageLoader>(),
         filesDirPath = this.filesPath,
-        initialRoute = HomeRoute,
+        backStack = rememberNavBackStack(CommonRoute.HomeRoute),
       )
     }
   }

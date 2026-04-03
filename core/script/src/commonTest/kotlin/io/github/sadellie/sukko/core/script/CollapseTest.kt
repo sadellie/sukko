@@ -17,52 +17,6 @@ class CollapseTest {
   }
 
   @Test
-  fun collapse_unaryMinusNumber() {
-    val input =
-      UnaryOperatorNode(token = Token3.Operator.UnaryMinus, children = listOf(NumberNode(123)))
-
-    val expected = NumberNode(-123)
-    val actual = input.collapse(simplificationContext)
-    assertEquals(expected, actual)
-  }
-
-  @Test
-  fun collapse_unaryMinusBoolean() {
-    val input = UnaryOperatorNode(token = Token3.Operator.UnaryMinus, children = listOf(FalseNode))
-    assertFailsWith<ScriptException.WrongUnary> { input.collapse(simplificationContext) }
-  }
-
-  @Test
-  fun collapse_unaryNotBoolean() {
-    val input = UnaryOperatorNode(token = Token3.Operator.Not, children = listOf(FalseNode))
-
-    val expected = TrueNode
-    val actual = input.collapse(simplificationContext)
-    assertEquals(expected, actual)
-  }
-
-  @Test
-  fun collapse_unaryNotNumber() {
-    val input = UnaryOperatorNode(token = Token3.Operator.Not, children = listOf(NumberNode(123)))
-    assertFailsWith<ScriptException.WrongUnary> { input.collapse(simplificationContext) }
-  }
-
-  @Test
-  fun collapse_unaryMinusVariable() {
-    simplificationContext.variableValueMemory[VariableNode(Token3.Variable("test"))] =
-      NumberNode(123)
-    val input =
-      UnaryOperatorNode(
-        token = Token3.Operator.UnaryMinus,
-        children = listOf(VariableNode(Token3.Variable("test"))),
-      )
-
-    val expected = NumberNode(-123)
-    val actual = input.collapse(simplificationContext)
-    assertEquals(expected, actual)
-  }
-
-  @Test
   fun collapse_plusOperator() {
     // 123+456+789
     val input = PlusNode(PlusNode(NumberNode(123), NumberNode(456)), NumberNode(789))

@@ -3,7 +3,6 @@ package io.github.sadellie.sukko.feature.editor.selector
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.annotation.ExperimentalCoilApi
@@ -46,7 +46,7 @@ import io.github.sadellie.sukko.core.ui.ModalBottomSheet2
 import io.github.sadellie.sukko.core.ui.SearchBar
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
 import io.github.sadellie.sukko.core.ui.hide
-import io.github.sadellie.sukko.core.ui.singleShape
+import io.github.sadellie.sukko.core.ui.singleShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_not_selected
 import io.github.sadellie.sukko.resources.editor_selector_icon_pack
@@ -58,7 +58,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -111,13 +110,12 @@ private fun IconSelectorSheetContent(
   ) {
     var showIconPackSelector by rememberSaveable { mutableStateOf(false) }
     ListItem2(
-      headlineContent = { Text(stringResource(Res.string.editor_selector_icon_pack)) },
+      content = { Text(stringResource(Res.string.editor_selector_icon_pack)) },
       supportingContent = {
         Text(uiState.iconPack?.name ?: stringResource(Res.string.common_not_selected))
       },
-      modifier =
-        Modifier.clip(MaterialTheme.shapes.large).clickable { showIconPackSelector = true },
-      shape = ListItemDefaults.singleShape,
+      shapes = ListItemDefaults.singleShapes,
+      onClick = { showIconPackSelector = true },
     )
 
     SearchBar(
@@ -153,7 +151,7 @@ private fun IconSelectorSheetContent(
         title = stringResource(Res.string.editor_selector_icon_pack),
         onDismiss = { showIconPackSelector = false },
         items = uiState.iconPacks,
-        key = { it.iconPackId },
+        key = { _, item -> item.iconPackId },
         headlineText = { it.name },
         onClick = onIconPackChange,
       )
@@ -161,8 +159,9 @@ private fun IconSelectorSheetContent(
   }
 }
 
-class IconSelectorViewModel(private val iconPackCustomRepository: IconPackCustomRepository) :
-  ViewModel() {
+internal class IconSelectorViewModel(
+  private val iconPackCustomRepository: IconPackCustomRepository
+) : ViewModel() {
   val textFieldState = TextFieldState()
   private val _selectedIconFile = MutableStateFlow<IconFile?>(null)
   private val _selectedIconPack = MutableStateFlow<IconPack?>(null)

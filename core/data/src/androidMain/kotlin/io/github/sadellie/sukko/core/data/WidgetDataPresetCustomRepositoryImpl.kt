@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.serialization.json.Json
 import okio.Path
 
-class WidgetDataPresetCustomRepositoryImpl(
+internal class WidgetDataPresetCustomRepositoryImpl(
   private val dao: WidgetDataPresetDao,
   private val context: Context,
   private val removeImageFromCache: (path: Path) -> Unit,

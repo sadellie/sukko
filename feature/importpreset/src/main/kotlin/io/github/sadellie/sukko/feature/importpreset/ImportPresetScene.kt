@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.importpreset
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,14 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation3.runtime.NavKey
 import co.touchlab.kermit.Logger
 import coil3.compose.AsyncImage
 import google.material.design.symbols.Add
@@ -55,8 +52,8 @@ import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.LoadingScaffold
 import io.github.sadellie.sukko.core.ui.NavigateUpButton
 import io.github.sadellie.sukko.core.ui.ScaffoldWithTopAppBar
-import io.github.sadellie.sukko.core.ui.listedShape
-import io.github.sadellie.sukko.core.ui.singleShape
+import io.github.sadellie.sukko.core.ui.listedShapes
+import io.github.sadellie.sukko.core.ui.singleShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_create_new
 import io.github.sadellie.sukko.resources.common_preset_name
@@ -73,17 +70,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import okio.Path.Companion.toPath
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameterProvider
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@Serializable data class ImportPresetRoute(val selectedFileUri: String) : NavKey
-
 @Composable
-fun ImportPresetScene(navigateUp: () -> Unit, importingPresetUri: String) {
+internal fun ImportPresetScene(navigateUp: () -> Unit, importingPresetUri: String) {
   val viewModel =
     koinViewModel<ImportPresetViewModel>(key = importingPresetUri) {
       parametersOf(importingPresetUri)
@@ -156,10 +149,11 @@ private fun PresetOverviewScreen(
         )
       }
       ListItem2(
-        modifier = Modifier.padding(horizontal = Sizes.large).clip(MaterialTheme.shapes.large),
-        headlineContent = { Text(stringResource(Res.string.common_preset_name)) },
+        modifier = Modifier.padding(horizontal = Sizes.large),
+        content = { Text(stringResource(Res.string.common_preset_name)) },
         supportingContent = { Text(uiState.importingWidgetDataPreset.widgetDataPreset.name) },
-        shape = ListItemDefaults.singleShape,
+        shapes = ListItemDefaults.singleShapes,
+        onClick = {},
       )
 
       if (uiState.importingWidgetDataPreset.importingIconPacks.isNotEmpty()) {
@@ -213,10 +207,11 @@ private fun IconPackImporter(
     importingIconPacks.forEachIndexed { index, importingIconPack ->
       var showActionSelector by remember { mutableStateOf(false) }
       ListItem2(
-        headlineContent = { Text(importingIconPack.importingName) },
+        content = { Text(importingIconPack.importingName) },
         supportingContent = { Text(importingIconPack.action.displayName()) },
-        modifier = Modifier.fillMaxWidth().clickable { showActionSelector = true },
-        shape = ListItemDefaults.listedShape(index, importingIconPacks.size),
+        modifier = Modifier.fillMaxWidth(),
+        onClick = { showActionSelector = true },
+        shapes = ListItemDefaults.listedShapes(index, importingIconPacks.size),
       )
       if (showActionSelector) {
         AlertDialogWithRadioItems(
@@ -242,7 +237,7 @@ private fun FontFileImporter(
   Column(modifier = modifier, verticalArrangement = ListArrangement) {
     importingFontFiles.forEachIndexed { index, importingFontFile ->
       ListItem2(
-        headlineContent = { Text(importingFontFile.importingName) },
+        content = { Text(importingFontFile.importingName) },
         supportingContent = {
           Text(
             stringResource(
@@ -252,11 +247,10 @@ private fun FontFileImporter(
           )
         },
         trailingContent = { Switch(importingFontFile.import, null) },
-        modifier =
-          Modifier.clickable {
-            onImportingFontFileUpdate(importingFontFile.copy(import = !importingFontFile.import))
-          },
-        shape = ListItemDefaults.listedShape(index, importingFontFiles.size),
+        onClick = {
+          onImportingFontFileUpdate(importingFontFile.copy(import = !importingFontFile.import))
+        },
+        shapes = ListItemDefaults.listedShapes(index, importingFontFiles.size),
       )
     }
   }
@@ -270,7 +264,7 @@ private fun ImportingIconPackAction.displayName() =
       stringResource(Res.string.import_preset_merge_into, destinationIconPack.name)
   }
 
-class ImportPresetViewModel(
+internal class ImportPresetViewModel(
   private val importingPresetUri: String,
   private val widgetDataPresetExportImport: WidgetDataPresetExportImport,
   private val iconPackCustomRepository: IconPackCustomRepository,
@@ -291,7 +285,7 @@ class ImportPresetViewModel(
           )
         }
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to preload" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to preload" }
         uiState.update { ImportPresetUIState.Error }
       }
     }
@@ -305,7 +299,7 @@ class ImportPresetViewModel(
         uiState.update { ImportPresetUIState.Importing }
         widgetDataPresetExportImport.import(currentPreview)
       } catch (e: Exception) {
-        Logger.e(TAG, e) { "Failed to import" }
+        Logger.e(throwable = e, tag = TAG) { "Failed to import" }
         uiState.update { ImportPresetUIState.Error }
       }
       navigateUpCallback.emit(true)

@@ -11,7 +11,6 @@ import io.github.sadellie.sukko.core.iconfiles.IconFile
 import io.github.sadellie.sukko.core.iconfiles.IconPack
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.name
-import kotlin.io.path.ExperimentalPathApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -20,8 +19,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
+import kotlin.io.path.ExperimentalPathApi
 
-class IconPackCustomRepositoryImpl(
+internal class IconPackCustomRepositoryImpl(
   private val dao: IconPackDao,
   private val context: Context,
   private val removeImageFromCache: (path: Path) -> Unit,

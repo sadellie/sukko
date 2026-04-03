@@ -2,7 +2,6 @@ package io.github.sadellie.sukko.feature.editor.selector
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.composables.core.ModalBottomSheetState
 import io.github.sadellie.sukko.core.designsystem.Preview2
@@ -46,6 +46,7 @@ import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithButtons
 import io.github.sadellie.sukko.core.ui.SukkoOutlinedTextField
 import io.github.sadellie.sukko.core.ui.SwitchWithCheckIcon
 import io.github.sadellie.sukko.core.ui.firstShape
+import io.github.sadellie.sukko.core.ui.firstShapes
 import io.github.sadellie.sukko.core.ui.lastShape
 import io.github.sadellie.sukko.core.ui.middleShape
 import io.github.sadellie.sukko.resources.Res
@@ -53,9 +54,8 @@ import io.github.sadellie.sukko.resources.editor_selector_shape_corner_radius
 import io.github.sadellie.sukko.resources.editor_selector_shape_inner_radius
 import io.github.sadellie.sukko.resources.editor_selector_shape_rounded_corners
 import io.github.sadellie.sukko.resources.editor_selector_shape_vertices_per_radius
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.math.roundToInt
 
 @Composable
 fun ShapeSelectorSheet(
@@ -188,15 +188,12 @@ private fun CutCornersDpEditor(
 ) {
   Column(modifier = modifier, verticalArrangement = ListArrangement) {
     ListItem2(
-      modifier =
-        Modifier.clickable {
-          onShapeSourceUpdate(shapeSource.copy(isRounded = !shapeSource.isRounded))
-        },
-      headlineContent = { Text(stringResource(Res.string.editor_selector_shape_rounded_corners)) },
+      onClick = { onShapeSourceUpdate(shapeSource.copy(isRounded = !shapeSource.isRounded)) },
+      content = { Text(stringResource(Res.string.editor_selector_shape_rounded_corners)) },
       trailingContent = {
         SwitchWithCheckIcon(checked = shapeSource.isRounded, onCheckedChange = null)
       },
-      shape = ListItemDefaults.firstShape,
+      shapes = ListItemDefaults.firstShapes,
     )
     val inputTransformation = InputTransformationDp(0.dp..1_000.dp)
     val textFieldState = rememberTextFieldState(shapeSource.size.value.toString())
@@ -231,15 +228,12 @@ private fun CutCornersPercentEditor(
 ) {
   Column(modifier = modifier, verticalArrangement = ListArrangement) {
     ListItem2(
-      modifier =
-        Modifier.clickable {
-          onShapeSourceUpdate(shapeSource.copy(isRounded = !shapeSource.isRounded))
-        },
-      headlineContent = { Text(stringResource(Res.string.editor_selector_shape_rounded_corners)) },
+      onClick = { onShapeSourceUpdate(shapeSource.copy(isRounded = !shapeSource.isRounded)) },
+      content = { Text(stringResource(Res.string.editor_selector_shape_rounded_corners)) },
       trailingContent = {
         SwitchWithCheckIcon(checked = shapeSource.isRounded, onCheckedChange = null)
       },
-      shape = ListItemDefaults.firstShape,
+      shapes = ListItemDefaults.firstShapes,
     )
     SliderListItem(
       modifier = Modifier.fillMaxWidth().padding(Sizes.large),

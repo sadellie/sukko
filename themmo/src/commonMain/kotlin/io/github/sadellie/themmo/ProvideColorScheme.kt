@@ -2,6 +2,8 @@ package io.github.sadellie.themmo
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.isSpecified
@@ -66,9 +68,12 @@ private fun provideLightColorScheme(
   lightColorScheme: ColorScheme,
 ): ColorScheme {
   return when {
-    isDynamicThemeEnabled -> provideDynamicColorScheme(isDark = false)
+    isDynamicThemeEnabled ->
+      provideDynamicColorScheme(isDark = false, defaultColorScheme = lightColorScheme)
     currentCustomColor.isSpecified ->
-      generateColorScheme(keyColor = currentCustomColor, isDark = false, style = currentMonetMode)
+      remember(currentCustomColor, currentMonetMode) {
+        generateColorScheme(keyColor = currentCustomColor, isDark = false, style = currentMonetMode)
+      }
     else -> lightColorScheme
   }
 }
@@ -83,18 +88,30 @@ private fun provideDarkColorScheme(
 ): ColorScheme {
   val darkColorScheme: ColorScheme =
     when {
-      isDynamicThemeEnabled -> provideDynamicColorScheme(isDark = true)
+      isDynamicThemeEnabled ->
+        provideDynamicColorScheme(isDark = true, defaultColorScheme = darkColorScheme)
       currentCustomColor.isSpecified ->
-        generateColorScheme(keyColor = currentCustomColor, isDark = true, style = currentMonetMode)
+        remember(currentCustomColor, currentMonetMode) {
+          generateColorScheme(
+            keyColor = currentCustomColor,
+            isDark = true,
+            style = currentMonetMode,
+          )
+        }
       else -> darkColorScheme
     }
 
   return if (isAmoledThemeEnabled) darkColorScheme.toAmoled() else darkColorScheme
 }
 
-@Composable expect fun provideDynamicColorScheme(isDark: Boolean): ColorScheme
+@Composable
+internal expect fun provideDynamicColorScheme(
+  isDark: Boolean,
+  defaultColorScheme: ColorScheme,
+): ColorScheme
 
-private fun ColorScheme.toAmoled(): ColorScheme {
+@Stable
+fun ColorScheme.toAmoled(): ColorScheme {
   return ColorScheme(
     primary = this.primary.darken(AMOLED_MAIN_FACTOR),
     onPrimary = this.onPrimary.darken(AMOLED_TEXT_FACTOR),
@@ -127,7 +144,7 @@ private fun ColorScheme.toAmoled(): ColorScheme {
     scrim = this.scrim.darken(AMOLED_MAIN_FACTOR),
     surfaceBright = this.surfaceBright.darken(AMOLED_MAIN_FACTOR),
     surfaceDim = this.surfaceDim.darken(AMOLED_MAIN_FACTOR),
-    surfaceContainer = this.surfaceContainer.darken(AMOLED_MAIN_FACTOR),
+    surfaceContainer = Color.Black,
     surfaceContainerHigh = this.surfaceContainerHigh.darken(AMOLED_MAIN_FACTOR),
     surfaceContainerHighest = this.surfaceContainerHighest.darken(AMOLED_MAIN_FACTOR),
     surfaceContainerLow = this.surfaceContainerLow.darken(AMOLED_MAIN_FACTOR),
@@ -149,5 +166,5 @@ private fun ColorScheme.toAmoled(): ColorScheme {
 
 private fun Color.darken(alpha: Float) = this.copy(alpha = alpha).compositeOver(Color.Black)
 
-private const val AMOLED_MAIN_FACTOR = 0.65f
-private const val AMOLED_TEXT_FACTOR = 0.85f
+private const val AMOLED_MAIN_FACTOR = 0.8f
+private const val AMOLED_TEXT_FACTOR = 1f
