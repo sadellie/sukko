@@ -101,28 +101,27 @@ private interface UnexpectedDigitsInputTransformation<T> : InputTransformation {
 
   private fun TextFieldBuffer.filterLegal() {
     if (length == 0) return
-    val legalTokens = mutableSetOf('1', '2', '3', '4', '5', '6', '7', '8', '9', '0')
-    if (allowNegative) {
-      legalTokens.add('-')
-    }
-
-    if (allowFraction) {
-      legalTokens.add('.')
-      legalTokens.add(',')
-    }
+    var alreadyHaveMinus = false
+    var alreadyHaveFractional = false
 
     var cursor = 0
     while (cursor < length) {
       val char = charAt(cursor)
-      val isTokenLegal = char in legalTokens
-      if (char == ',' || char == '.') {
-        // found fractional, replace to dot and make fractional illegal for other iterations
-        replace(cursor, cursor + 1, ".")
-        legalTokens.remove('.')
-        legalTokens.remove(',')
+      when {
+        char.isDigit() -> {
+          cursor++
+        }
+        char == '-' && allowNegative && !alreadyHaveMinus -> {
+          cursor++
+          alreadyHaveMinus = true
+        }
+        (char == ',' || char == '.') && allowFraction && !alreadyHaveFractional -> {
+          replace(cursor, cursor + 1, ".")
+          cursor++
+          alreadyHaveFractional = true
+        }
+        else -> delete(cursor, cursor + 1)
       }
-
-      if (isTokenLegal) cursor++ else delete(cursor, cursor + 1)
     }
   }
 }
