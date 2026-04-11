@@ -1,4 +1,4 @@
-package io.github.sadellie.sukko.feature.widget
+package io.github.sadellie.sukko.core.data
 
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp

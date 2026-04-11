@@ -16,7 +16,6 @@ import io.github.sadellie.sukko.feature.presetselector.presetSelectorModule
 import io.github.sadellie.sukko.feature.saveaspreset.saveAsPresetModule
 import io.github.sadellie.sukko.feature.settings.settingsModule
 import io.github.sadellie.sukko.feature.widget.MainWidgetProvider
-import io.github.sadellie.sukko.feature.widget.widgetModule
 import io.github.sadellie.sukko.feature.widgetinfo.widgetInfoModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.androix.startup.KoinStartup
@@ -51,7 +50,6 @@ class SukkoApplication : Application(), KoinStartup {
       settingsModule,
       presetSelectorModule,
       listeners,
-      widgetModule,
     )
   }
 }

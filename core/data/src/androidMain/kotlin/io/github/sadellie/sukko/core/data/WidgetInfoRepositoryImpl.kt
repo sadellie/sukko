@@ -1,4 +1,4 @@
-package io.github.sadellie.sukko.feature.widget
+package io.github.sadellie.sukko.core.data
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 
 internal class WidgetInfoRepositoryImpl(private val context: Context) : WidgetInfoRepository {
   private val appWidgetManager = AppWidgetManager.getInstance(context)
-  private val componentName = ComponentName(context, MainWidgetProvider::class.java)
+  private val componentName = ComponentName(context, MAIN_WIDGET_PROVIDER)
 
   override fun allWidgetIds(): Flow<IntArray> =
     flow {
@@ -35,3 +35,5 @@ internal class WidgetInfoRepositoryImpl(private val context: Context) : WidgetIn
 }
 
 private const val WIDGET_INFO_UPDATE_RATE_MS = 5_000L
+private const val MAIN_WIDGET_PROVIDER =
+  "io.github.sadellie.sukko.feature.widget.MainWidgetProvider"

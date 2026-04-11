@@ -13,11 +13,11 @@ import io.github.sadellie.sukko.core.data.LayerContextProvider
 import io.github.sadellie.sukko.core.data.LayerEvaluator
 import io.github.sadellie.sukko.core.data.WidgetDataPresetCustomRepository
 import io.github.sadellie.sukko.core.data.WidgetDataRepository
+import io.github.sadellie.sukko.core.data.WidgetInfoRepository
 import io.github.sadellie.sukko.core.model.WidgetData
 import io.github.sadellie.sukko.core.model.WidgetDataPreset
 import io.github.sadellie.sukko.core.model.WidgetUpdateException
 import io.github.sadellie.sukko.core.model.layer.Layer
-import io.github.sadellie.sukko.feature.widget.WidgetInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

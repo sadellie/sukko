@@ -34,6 +34,7 @@ import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
 import io.github.sadellie.sukko.core.common.stateIn
 import io.github.sadellie.sukko.core.data.WidgetDataRepository
+import io.github.sadellie.sukko.core.data.WidgetInfoRepository
 import io.github.sadellie.sukko.core.designsystem.LocalFilesDirPath
 import io.github.sadellie.sukko.core.designsystem.PreviewScreenSizesContainer
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
@@ -42,7 +43,6 @@ import io.github.sadellie.sukko.core.ui.EmptyScreen
 import io.github.sadellie.sukko.core.ui.ScaffoldWithLargeTopAppBar
 import io.github.sadellie.sukko.core.ui.ScenePlaceholder
 import io.github.sadellie.sukko.core.ui.WidgetDataList
-import io.github.sadellie.sukko.feature.widget.WidgetInfoRepository
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_widget_name_placeholder
 import io.github.sadellie.sukko.resources.home_add_widget

@@ -53,6 +53,7 @@ val dataModule = lazyModule {
       cacheDir = context.cacheDir.resolve("image_cache").toOkioPath(),
     )
   }
+  factory<WidgetInfoRepository> { WidgetInfoRepositoryImpl(context = androidContext()) }
   single<ImageLoader> { get<ImageProvider>().imageLoader }
   factory<WidgetSubscriptionsRepository> { WidgetSubscriptionsRepositoryImpl(androidContext()) }
 }

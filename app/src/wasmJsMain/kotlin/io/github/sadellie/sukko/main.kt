@@ -18,7 +18,6 @@ import io.github.sadellie.sukko.core.routes.CommonRoute
 import io.github.sadellie.sukko.core.routes.ui.MainApp
 import io.github.sadellie.sukko.feature.editor.editorModule
 import io.github.sadellie.sukko.feature.home.homeModule
-import io.github.sadellie.sukko.feature.widget.widgetModule
 import io.github.sadellie.sukko.feature.widgetinfo.widgetInfoModule
 import kotlinx.browser.document
 import kotlinx.serialization.modules.SerializersModule
@@ -59,5 +58,5 @@ fun main() {
 }
 
 private fun setupKoin() = startKoin {
-  modules(homeModule, editorModule, widgetInfoModule, widgetModule, dataModule)
+  modules(homeModule, editorModule, widgetInfoModule, dataModule)
 }

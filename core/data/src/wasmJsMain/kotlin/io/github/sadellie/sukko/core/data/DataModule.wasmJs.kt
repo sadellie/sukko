@@ -12,7 +12,7 @@ val dataModule = module {
   includes(remoteModule)
   factory<DocsRepository> { DocsRepositoryImpl() }
   factory<WidgetDataRepository> { WidgetDataRepositoryImpl() }
-
+  factory<WidgetInfoRepository> { WidgetInfoRepositoryImpl() }
   single<ImageProvider> {
     val context = PlatformContext.INSTANCE
     ImageProviderImpl(platformContext = context, cacheDir = "image_cache".toPath())
