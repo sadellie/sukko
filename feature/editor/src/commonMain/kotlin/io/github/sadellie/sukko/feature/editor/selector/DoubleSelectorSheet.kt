@@ -20,12 +20,17 @@ import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
 import io.github.sadellie.sukko.core.ui.InputTransformationDouble
+import io.github.sadellie.sukko.core.ui.ModalBottomSheet2
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
 import io.github.sadellie.sukko.core.ui.SukkoOutlinedTextField
 import io.github.sadellie.sukko.core.ui.hide
 import io.github.sadellie.sukko.feature.editor.selector.scripteditor.OutOfRangeErrorMessage
 import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditor
 import io.github.sadellie.sukko.feature.editor.selector.scripteditor.SuccessMessage
+import io.github.sadellie.sukko.resources.Res
+import io.github.sadellie.sukko.resources.common_cancel
+import io.github.sadellie.sukko.resources.common_confirm
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -37,9 +42,31 @@ fun DoubleSelectorSheet(
   allowFraction: Boolean,
   range: ClosedRange<Double> = DoubleSelectorSheetDefaults.valueRangeUnspecified,
 ) {
+  ModalBottomSheet2(state) {
+    DoubleSelectorSheetContent(
+      onDismissRequest = state::hide,
+      onValueSelected = onValueSelected,
+      value = value,
+      range = range,
+      globals = globals,
+      allowFraction = allowFraction,
+    )
+  }
+}
+
+@Composable
+internal fun DoubleSelectorSheetContent(
+  onDismissRequest: () -> Unit,
+  onValueSelected: (ScriptableDouble) -> Unit,
+  value: ScriptableDouble,
+  range: ClosedRange<Double>,
+  globals: List<GlobalValue.GlobalDouble>,
+  allowFraction: Boolean,
+  dismissLabel: String = stringResource(Res.string.common_cancel),
+  confirmLabel: String = stringResource(Res.string.common_confirm),
+) {
   var currentInputMode by rememberSaveable { mutableStateOf(DefaultInputMode2.initialMode(value)) }
-  SelectorSheetTemplate(
-    state = state,
+  SelectorSheetTemplateContent(
     currentInputMode = currentInputMode,
     onInputModeUpdate = { currentInputMode = it },
     inputModes = remember { DefaultInputMode2.entries },
@@ -47,38 +74,46 @@ fun DoubleSelectorSheet(
     when (currentMode) {
       DefaultInputMode2.FIXED ->
         FixedDouble(
-          onDismiss = state::hide,
+          onDismiss = onDismissRequest,
           onConfirm = onValueSelected,
           initialValue = value,
           allowFraction = allowFraction,
           range = range,
+          dismissLabel = dismissLabel,
+          confirmLabel = confirmLabel,
         )
       DefaultInputMode2.SCRIPT ->
         ScriptDouble(
-          onDismiss = state::hide,
+          onDismiss = onDismissRequest,
           onConfirm = onValueSelected,
           initialValue = value,
           range = range,
+          dismissLabel = dismissLabel,
+          confirmLabel = confirmLabel,
         )
 
       DefaultInputMode2.GLOBAL ->
         GlobalDouble(
-          onDismiss = state::hide,
+          onDismiss = onDismissRequest,
           onConfirm = onValueSelected,
           initialValue = value,
           globals = globals,
+          dismissLabel = dismissLabel,
+          confirmLabel = confirmLabel,
         )
     }
   }
 }
 
 @Composable
-private fun FixedDouble(
+internal fun FixedDouble(
   onDismiss: () -> Unit,
   onConfirm: (value: ScriptableDouble.Fixed) -> Unit,
   initialValue: ScriptableDouble,
   range: ClosedRange<Double>,
   allowFraction: Boolean,
+  dismissLabel: String = stringResource(Res.string.common_cancel),
+  confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
   val textFieldState =
     rememberTextFieldState(
@@ -96,6 +131,8 @@ private fun FixedDouble(
   SheetContentWithButtons(
     onDismiss = onDismiss,
     onConfirm = { if (currentValue != null) onConfirm(ScriptableDouble.Fixed(currentValue)) },
+    dismissLabel = dismissLabel,
+    confirmLabel = confirmLabel,
     isConfirmButtonEnabled = currentValue != null,
   ) {
     SukkoOutlinedTextField(
@@ -108,11 +145,13 @@ private fun FixedDouble(
 }
 
 @Composable
-private fun ScriptDouble(
+internal fun ScriptDouble(
   onDismiss: () -> Unit,
   onConfirm: (value: ScriptableDouble.Script) -> Unit,
   initialValue: ScriptableDouble,
   range: ClosedRange<Double>,
+  dismissLabel: String = stringResource(Res.string.common_cancel),
+  confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
   val textFieldState =
     rememberTextFieldState(if (initialValue is ScriptableDouble.Script) initialValue.script else "")
@@ -122,6 +161,8 @@ private fun ScriptDouble(
       val newValue = ScriptableDouble.Script(textFieldState.text.toString())
       onConfirm(newValue)
     },
+    dismissLabel = dismissLabel,
+    confirmLabel = confirmLabel,
     isConfirmButtonEnabled = true,
   ) {
     ScriptEditor(
@@ -140,12 +181,16 @@ private fun GlobalDouble(
   onConfirm: (value: ScriptableDouble.Global) -> Unit,
   initialValue: ScriptableDouble,
   globals: List<GlobalValue.GlobalDouble>,
+  dismissLabel: String = stringResource(Res.string.common_cancel),
+  confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
   GlobalSelectorSheetContent(
     onDismiss = onDismiss,
     onConfirm = { onConfirm(ScriptableDouble.Global(it)) },
     initialGlobalId = remember { (initialValue as? ScriptableDouble.Global)?.id },
     globals = globals,
+    dismissLabel = dismissLabel,
+    confirmLabel = confirmLabel,
   )
 }
 
@@ -156,11 +201,12 @@ object DoubleSelectorSheetDefaults {
 @Composable
 @Preview
 private fun PreviewFixedDouble() {
-  FixedDouble(
-    onDismiss = {},
-    onConfirm = {},
-    initialValue = ScriptableDouble.Fixed(123.456),
+  DoubleSelectorSheetContent(
+    onDismissRequest = {},
+    onValueSelected = {},
+    value = remember { ScriptableDouble.Fixed(123.456) },
     range = DoubleSelectorSheetDefaults.valueRangeUnspecified,
-    allowFraction = false,
+    globals = remember { emptyList() },
+    allowFraction = true,
   )
 }

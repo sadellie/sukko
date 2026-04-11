@@ -145,11 +145,13 @@ private fun LocalTextStyle(
             confirmLabel = stringResource(Res.string.common_select),
           )
         is SelectorPage.FontWeightSelector ->
-          FontWeightSelectorSheetContent(
+          DoubleSelectorSheetContent(
             onDismissRequest = { page = SelectorPage.Parameters },
             onValueSelected = { textStyleSource = textStyleSource.copy(fontWeight = it) },
             value = currentPage.fontWeight,
             range = TextStyleSource.fontWeightRange,
+            allowFraction = false,
+            globals = globals.doubles,
             dismissLabel = stringResource(Res.string.common_back),
             confirmLabel = stringResource(Res.string.common_select),
           )
