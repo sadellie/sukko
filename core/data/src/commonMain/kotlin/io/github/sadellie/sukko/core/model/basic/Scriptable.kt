@@ -281,7 +281,7 @@ class ScriptableDisplay(private val globals: Globals) {
           else Res.string.core_model_scriptable_boolean_false
         )
       is ScriptableString.Fixed -> scriptable.value
-      is ScriptableDouble.Fixed -> scriptable.value.toString()
+      is ScriptableDouble.Fixed -> if (scriptable.value >= Int.MAX_VALUE) "∞" else scriptable.value.toString()
       is ScriptableDp.Fixed ->
         "${scriptable.value.value} ${stringResource(Res.string.core_model_scriptable_dp)}"
       is ScriptableSp.Fixed ->
