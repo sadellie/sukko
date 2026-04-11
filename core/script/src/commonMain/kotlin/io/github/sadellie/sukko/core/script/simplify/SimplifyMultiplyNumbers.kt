@@ -21,7 +21,7 @@ internal val SimplifyMultiplyNumbers =
         val numberNodes = currentNode.children.filterIsInstance<NumberNode>()
         if (numberNodes.size < 2) return@simplifyBottomToTop null
         // multiply up all found number nodes
-        val productOfNumberNodes = numberNodes.fold(1.0) { left, right -> left * right.toDouble() }
+        val productOfNumberNodes = numberNodes.fold(1.0) { left, right -> left * right.value }
         val productAsNumberNode = NumberNode(productOfNumberNodes)
 
         val updatedChildren =

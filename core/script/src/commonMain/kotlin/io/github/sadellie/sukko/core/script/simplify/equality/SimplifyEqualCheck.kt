@@ -30,7 +30,7 @@ internal val SimplifyEqualCheck =
 
         val checkResult =
           when {
-            child1 is NumberNode && child2 is NumberNode -> child1.toDouble() == child2.toDouble()
+            child1 is NumberNode && child2 is NumberNode -> child1.value == child2.value
             child1 is TextNode && child2 is TextNode -> child1.toText() == child2.toText()
             child1 is BoolNode && child2 is BoolNode -> child1.toBoolean() == child2.toBoolean()
             else -> return@walker null

@@ -43,7 +43,7 @@ suspend fun evaluateScriptBoolean(input: String, context: ScriptContext): Boolea
 suspend fun evaluateScriptDouble(input: String, context: ScriptContext): Double {
   val evaluation = evaluateScript(input, context)
   if (evaluation !is NumberNode) throw ScriptException.WrongReturnType(evaluation, "number")
-  return evaluation.toDouble()
+  return evaluation.value
 }
 
 /** Null if empty input or result */

@@ -1,7 +1,6 @@
 package io.github.sadellie.sukko.core.script
 
 import io.github.sadellie.sukko.core.script.token.Token3
-import kotlin.math.absoluteValue
 
 /** Nodes without children, can not be simplified. Usually some number or text. */
 internal sealed interface AtomicNode : ASTNode {
@@ -25,29 +24,26 @@ data class TextNode(override val token: Token3.Text) : AtomicNode {
   fun toText(): String = token.symbol
 }
 
-data class NumberNode(override val token: Token3.Number, private val isNegative: Boolean = false) :
-  AtomicNode {
-  constructor(value: Double) : this(Token3.Number(value.absoluteValue.toString()), value < 0)
+data class NumberNode(
+  override val token: Token3.Number,
+  val value: Double = token.symbol.toDouble(),
+) : AtomicNode {
+  constructor(value: Double) : this(Token3.Number(value.toString()), value)
 
-  constructor(value: Int) : this(Token3.Number(value.absoluteValue.toString()), value < 0)
+  constructor(value: Int) : this(Token3.Number(value.toString()), value.toDouble())
 
-  constructor(value: Long) : this(Token3.Number(value.absoluteValue.toString()), value < 0)
-
-  override fun toFormattedString(): String =
-    if (isNegative) "${Token3.Operator.UnaryMinus.symbol}${token.symbol}" else token.symbol
+  constructor(value: Long) : this(Token3.Number(value.toString()), value.toDouble())
 
   override fun toFinalFormattedString(): String = toNumber().toString()
 
-  fun negate() = this.copy(isNegative = !isNegative)
-
-  fun toDouble() = if (isNegative) token.symbol.toDouble().unaryMinus() else token.symbol.toDouble()
+  fun negate() = NumberNode(value.unaryMinus())
 
   /** Returns double or integer based on decimal points */
   fun toNumber(): Number {
     val fractionalPart = token.symbol.substringAfter(DOT, "")
     // true if no decimal points or all zeros
     val isFractionalPartUseless = fractionalPart.all { it == '0' }
-
+    val isNegative = value < 0
     return if (isFractionalPartUseless) {
       val wholePart = token.symbol.substringBefore(DOT)
       if (isNegative) wholePart.toInt().unaryMinus() else wholePart.toInt()

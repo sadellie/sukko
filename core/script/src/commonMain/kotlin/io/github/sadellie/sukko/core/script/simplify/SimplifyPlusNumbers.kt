@@ -23,7 +23,7 @@ internal val SimplifyPlusNumbers =
         val numberNodes = currentNode.children.filterIsInstance<NumberNode>()
         if (numberNodes.size < 2) return@simplifyBottomToTop null
         // sum up all found number nodes
-        val sumOfNumberNodes = numberNodes.sumOf { numberNode -> numberNode.toDouble() }
+        val sumOfNumberNodes = numberNodes.sumOf { numberNode -> numberNode.value }
         val sumAsNumberNode = NumberNode(sumOfNumberNodes)
 
         val updatedChildren =

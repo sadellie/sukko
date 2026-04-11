@@ -21,7 +21,7 @@ internal val SimplifyDivideNumbers =
         val numberNodes = currentNode.children.filterIsInstance<NumberNode>()
         if (numberNodes.size != 2) return@simplifyBottomToTop null
         // divide found number nodes
-        val divisionOfNumberNodes = numberNodes[0].toDouble() / numberNodes[1].toDouble()
+        val divisionOfNumberNodes = numberNodes[0].value / numberNodes[1].value
         val divisionAsNumberNode = NumberNode(divisionOfNumberNodes)
 
         // kill parent division node and return result as number node

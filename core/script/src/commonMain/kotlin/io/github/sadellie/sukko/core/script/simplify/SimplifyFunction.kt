@@ -62,7 +62,7 @@ internal val SimplifyFunction =
 
           Token3.Function.FormatTimestamp -> {
             val timeStamp =
-              currentNode.getParameter<NumberNode>(0)?.toDouble()?.toLong() ?: return@walker null
+              currentNode.getParameter<NumberNode>(0)?.value?.toLong() ?: return@walker null
             val format = currentNode.getParameter<TextNode>(1)?.token?.symbol ?: return@walker null
             val result = context.formatTimestamp(timeStamp, format)
             return@walker TextNode(result)
