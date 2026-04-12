@@ -3,7 +3,6 @@ package io.github.sadellie.sukko.feature.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Bundle
-import android.util.SizeF
 import android.widget.RemoteViews
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.util.fastForEach
@@ -25,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
@@ -86,6 +86,7 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
           LayerEvaluator(widgetData.layers, _imageProvider, layerContext, widgetData.globals)
             .evaluateEnabled()
       }
+      .distinctUntilChanged()
       .debounce(EVALUATE_LAYER_DEBOUNCE_MS)
       // emit stable evaluated result
       .flatMapLatest { it }
@@ -95,9 +96,11 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
         if (widgetSizes == null || evaluatedLayers == null) flowOf(RenderResult.Ignore)
         else renderAllWidgetConfigurations(context, widgetSizes, evaluatedLayers)
       }
+      .distinctUntilChanged()
       .debounce(RENDER_DEBOUNCE_MS)
       // emit stable renders
       .flatMapLatest { it }
+      .distinctUntilChanged()
       .debounce(PROVIDE_UNGLANCE_DEBOUNCE_MS)
 
   override suspend fun processRenderResult(context: Context, renderResult: RenderResult) {
@@ -105,13 +108,7 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
       when (renderResult) {
         RenderResult.Ignore -> return
         RenderResult.Error -> RemoteViews(context.packageName, R.layout.error_layout)
-        is RenderResult.Ready ->
-          RemoteViews(
-            renderResult.subResults.associate { subResult ->
-              subResult.widgetSize.toSizeF() to
-                processRenderSubResult(context, subResult, renderResult.layers)
-            }
-          )
+        is RenderResult.Ready -> processAllRenderSubResults(context, renderResult)
       }
     val appWidgetManager = AppWidgetManager.getInstance(context)
     appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
@@ -171,5 +168,3 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
   suspend fun updateWidgetOptions(newOption: Bundle) =
     sendEvent(UnglanceEvent.UpdateWidgetOptions(newOption))
 }
-
-private fun DpSize.toSizeF(): SizeF = SizeF(width.value, height.value)

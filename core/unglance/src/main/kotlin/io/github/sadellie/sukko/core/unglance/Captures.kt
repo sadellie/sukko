@@ -19,9 +19,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.roundToIntSize
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -44,8 +42,10 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.koin.compose.koinInject
 
 // "Slightly" modified https://gist.github.com/iamcalledrob/871568679ad58e64959b097d4ef30738
@@ -53,53 +53,66 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 fun renderAllWidgetConfigurations(
   applicationContext: Context,
-  canvasSizes: List<DpSize>,
+  widgetSizes: List<DpSize>,
   layers: List<Layer.Evaluated>,
 ): Flow<RenderResult> =
-  combine(canvasSizes.map { size -> renderWidget(applicationContext, size, layers) }) { subResults
-    ->
-    RenderResult.Ready(subResults = subResults.toList(), layers = layers)
+  renderWidget(applicationContext, widgetSizes.toSet(), layers).map { renderSubResults ->
+    val distinctSubResults =
+      renderSubResults.distinctBy { renderSubResult -> renderSubResult.widgetSize }.toSet()
+    RenderResult.Ready(subResults = distinctSubResults, layers = layers)
   }
 
-/** @param canvasSize Widget sizes, do not apply density */
+/** @param widgetSizes Widget sizes, do not apply density */
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 private fun renderWidget(
   applicationContext: Context,
-  canvasSize: DpSize,
+  widgetSizes: Set<DpSize>,
   layers: List<Layer.Evaluated>,
-): Flow<RenderSubResult> = callbackFlow {
-  val virtualPresenter = VirtualPresenter(applicationContext, canvasSize)
+): Flow<Set<RenderSubResult>> = callbackFlow {
+  val virtualPresenter = VirtualPresenter(applicationContext)
+  val renderSubResults = mutableSetOf<RenderSubResult>()
+  val mutex = Mutex()
+
+  fun safeEmit(newItem: RenderSubResult) = launch {
+    mutex.withLock {
+      // only emit if added
+      if (renderSubResults.add(newItem)) send(renderSubResults)
+    }
+  }
   launch(Dispatchers.Main) {
     virtualPresenter.setContent {
       CompositionLocalProvider(
         LocalImageLoader provides koinInject(),
         LocalFilesDirPath provides applicationContext.filesPath,
       ) {
-        val graphicsLayer = rememberGraphicsLayer()
-        // language server dies when you specify type in remember
-        var allLayerBounds: Map<Int, Rect> by remember { mutableStateOf(emptyMap()) }
-        Renderer(
-          modifier =
-            Modifier.drawWithContent {
-                graphicsLayer.record {
-                  this@drawWithContent.drawContent()
-                  trySend(RenderSubResult(canvasSize, graphicsLayer, allLayerBounds))
-                  Logger.d(tag = TAG) { "Sending new result" }
+        for (widgetSize in widgetSizes) {
+          val graphicsLayer = rememberGraphicsLayer()
+          // language server dies when you specify type in remember
+          var allLayerBounds: Map<Int, Rect> by remember { mutableStateOf(emptyMap()) }
+          Renderer(
+            modifier =
+              Modifier.drawWithContent {
+                  graphicsLayer.record {
+                    this@drawWithContent.drawContent()
+                    safeEmit(RenderSubResult(widgetSize, graphicsLayer, allLayerBounds))
+                    Logger.d(tag = TAG) { "Sending new result" }
+                  }
                 }
-              }
-              .requiredSize(canvasSize),
-          layers = layers,
-          onGloballyPositioned = { id, layerBounds ->
-            allLayerBounds = allLayerBounds + (id to layerBounds)
-          },
-          renderOption = RenderOption.HomeScreen,
-        )
+                .requiredSize(widgetSize),
+            layers = layers,
+            onGloballyPositioned = { id, layerBounds ->
+              allLayerBounds = allLayerBounds + (id to layerBounds)
+            },
+            renderOption = RenderOption.HomeScreen,
+          )
+        }
       }
     }
   }
   awaitClose { virtualPresenter.close() }
 }
 
+/** Render result for [widgetSize] */
 data class RenderSubResult(
   val widgetSize: DpSize,
   val graphicsLayer: GraphicsLayer,
@@ -111,7 +124,7 @@ sealed interface RenderResult {
 
   object Error : RenderResult
 
-  data class Ready(val subResults: List<RenderSubResult>, val layers: List<Layer.Evaluated>) :
+  data class Ready(val subResults: Set<RenderSubResult>, val layers: List<Layer.Evaluated>) :
     RenderResult
 }
 
@@ -127,13 +140,9 @@ sealed interface RenderResult {
  * virtualPresenter.close()
  * ```
  */
-private class VirtualPresenter(applicationContext: Context, canvasSize: DpSize) : AutoCloseable {
+private class VirtualPresenter(applicationContext: Context) : AutoCloseable {
   val composeView =
-    ComposeView(applicationContext).apply {
-      val density = Density(applicationContext)
-      val size = with(density) { canvasSize.toSize().roundToIntSize() }
-      layoutParams = ViewGroup.LayoutParams(size.width, size.height)
-    }
+    ComposeView(applicationContext).apply { layoutParams = ViewGroup.LayoutParams(1, 1) }
 
   fun setContent(content: @Composable () -> Unit) {
     presentation.setContentView(composeView, composeView.layoutParams)

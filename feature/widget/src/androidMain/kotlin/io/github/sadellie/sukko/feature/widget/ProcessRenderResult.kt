@@ -3,6 +3,8 @@ package io.github.sadellie.sukko.feature.widget
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.DisplayMetrics
+import android.util.SizeF
 import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.compose.ui.geometry.Rect
@@ -13,55 +15,77 @@ import androidx.core.graphics.scale
 import co.touchlab.kermit.Logger
 import io.github.sadellie.sukko.core.model.basic.ClickAction
 import io.github.sadellie.sukko.core.model.layer.Layer
+import io.github.sadellie.sukko.core.unglance.RenderResult
 import io.github.sadellie.sukko.core.unglance.RenderSubResult
-import kotlin.math.roundToInt
 import kotlinx.serialization.json.Json
+
+/**
+ * Turns [renderResult] into a [RemoteViews]. This method rescales render results to fit into memory
+ * usage limit (1.5 times of screen size). This limit is applied to entire [RemoteViews], not just
+ * one item so scaling is applied to all results.
+ */
+internal suspend fun processAllRenderSubResults(
+  context: Context,
+  renderResult: RenderResult.Ready,
+): RemoteViews {
+  val displayMetrics: DisplayMetrics = context.resources.displayMetrics
+  val screenWidth = displayMetrics.widthPixels
+  val screenHeight = displayMetrics.heightPixels
+  // 4 is for ARGB_8888 (4 bytes per pixel)
+  // to make this a bit safer limit is calculated with 1.4 instead of 1.5
+  val maxMemoryInBytes = screenWidth * screenHeight * 4 * 1.4f
+
+  var totalMemory = 0f
+  for (subResult in renderResult.subResults) {
+    val imageBitmap = subResult.graphicsLayer.toImageBitmap()
+    val subResultMemoryUsage = imageBitmap.width * imageBitmap.height * 4
+    totalMemory += subResultMemoryUsage
+  }
+
+  // do not upscale
+  val scaleFactor = (maxMemoryInBytes / totalMemory).coerceAtMost(1f)
+  val remoteViews =
+    RemoteViews(
+      renderResult.subResults.associate { subResult ->
+        subResult.widgetSize.toSizeF() to
+          processRenderSubResult(context, subResult, renderResult.layers, scaleFactor)
+      }
+    )
+
+  return remoteViews
+}
 
 internal suspend fun processRenderSubResult(
   context: Context,
   renderSubResult: RenderSubResult,
   evaluatedLayers: List<Layer.Evaluated>,
+  bitmapScaleFactor: Float,
 ): RemoteViews {
   val imageBitmap = renderSubResult.graphicsLayer.toImageBitmap()
-  val background = prepareRenderBackground(context, imageBitmap, renderSubResult.widgetSize)
+  val background =
+    imageBitmap
+      .asAndroidBitmap()
+      .scale(
+        (imageBitmap.width * bitmapScaleFactor).toInt(),
+        (imageBitmap.height * bitmapScaleFactor).toInt(),
+      )
   val hostLayout = RemoteViews(context.packageName, R.layout.render_host_main_layout)
+  hostLayout.setViewLayoutWidth(
+    R.id.host_main_view,
+    imageBitmap.width.toFloat(),
+    TypedValue.COMPLEX_UNIT_PX,
+  )
+  hostLayout.setViewLayoutHeight(
+    R.id.host_main_view,
+    imageBitmap.height.toFloat(),
+    TypedValue.COMPLEX_UNIT_PX,
+  )
+  hostLayout.setImageViewBitmap(R.id.host_main_view, background)
   val clickableAreas =
     prepareClickableAreas(context, evaluatedLayers, imageBitmap, renderSubResult.bounds)
   hostLayout.removeAllViews(R.id.host_main_view)
-  hostLayout.addView(R.id.host_main_view, background)
   hostLayout.addView(R.id.host_main_view, clickableAreas)
   return hostLayout
-}
-
-private fun prepareRenderBackground(
-  context: Context,
-  image: ImageBitmap,
-  widgetSize: DpSize,
-): RemoteViews {
-  val renderHostImage = RemoteViews(context.packageName, R.layout.render_host_image_layout)
-  renderHostImage.setViewLayoutWidth(
-    R.id.host_image_view,
-    image.width.toFloat(),
-    TypedValue.COMPLEX_UNIT_PX,
-  )
-  renderHostImage.setViewLayoutHeight(
-    R.id.host_image_view,
-    image.height.toFloat(),
-    TypedValue.COMPLEX_UNIT_PX,
-  )
-
-  // image is rendered with higher resolution
-  val androidBitmap = image.asAndroidBitmap()
-  val density = context.resources.displayMetrics.density
-  val scaledWidgetSize = widgetSize * density
-  val scaleImageBitmap =
-    androidBitmap.scale(
-      width = scaledWidgetSize.width.value.roundToInt(),
-      height = scaledWidgetSize.height.value.roundToInt(),
-    )
-  renderHostImage.setImageViewBitmap(R.id.host_image_view, scaleImageBitmap)
-
-  return renderHostImage
 }
 
 private fun prepareClickableAreas(
@@ -144,5 +168,7 @@ private fun createPendingIntentFromClickAction(
     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
   )
 }
+
+private fun DpSize.toSizeF(): SizeF = SizeF(width.value, height.value)
 
 private const val TAG = "UnglanceCompose"
