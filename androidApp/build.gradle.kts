@@ -22,8 +22,8 @@ android {
     applicationId = "io.github.sadellie.sukko"
     minSdk = 31
     targetSdk = 36
-    versionCode = 2
-    versionName = "experimental 2"
+    versionCode = 3
+    versionName = "experimental 3"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
