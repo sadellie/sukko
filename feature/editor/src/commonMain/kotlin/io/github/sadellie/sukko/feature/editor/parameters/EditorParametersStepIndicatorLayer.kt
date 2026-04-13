@@ -19,7 +19,6 @@ import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.BooleanSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ColorSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
-import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ShapeSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_fill
@@ -109,7 +108,7 @@ private fun EditorParametersFill(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(fill = it)) },
     value = layer.fill,
-    globals = globals.booleans,
+    globals = globals,
   )
 }
 
@@ -134,7 +133,7 @@ private fun EditorParametersTotalSteps(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(totalSteps = it)) },
     value = layer.totalSteps,
-    globals = globals.doubles,
+    globals = globals,
     allowFraction = false,
   )
 }
@@ -160,7 +159,7 @@ private fun EditorParametersCurrentStep(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(currentStep = it)) },
     value = layer.currentStep,
-    globals = globals.doubles,
+    globals = globals,
     allowFraction = false,
   )
 }
@@ -182,11 +181,12 @@ private fun EditorParametersIndicatorSize(
     shapes = shapes,
   )
 
-  DpSelectorSheet(
+  DoubleSelectorSheet(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(indicatorSize = it)) },
     value = layer.indicatorSize,
-    globals = globals.dps,
+    globals = globals,
+    allowFraction = true,
   )
 }
 
@@ -211,7 +211,7 @@ private fun EditorParametersActiveColor(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(activeColor = it)) },
     value = layer.activeColor,
-    globals = globals.colors,
+    globals = globals,
   )
 }
 
@@ -236,7 +236,7 @@ private fun EditorParametersInactiveColor(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(inactiveColor = it)) },
     value = layer.inactiveColor,
-    globals = globals.colors,
+    globals = globals,
   )
 }
 

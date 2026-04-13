@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
 import google.material.design.symbols.Symbols
 import google.material.design.symbols.TableRows
 import io.github.sadellie.sukko.core.model.basic.AlignmentSource
@@ -57,15 +57,14 @@ data class EvaluatedColumnLayer(
   val alignment: Alignment.Horizontal = Alignment.Start,
 ) : Layer.Evaluated {
   @Composable
-  override fun Render(
+  override fun BaseRender(
     modifier: Modifier,
     renderOption: RenderOption,
     childrenLayers: List<Layer.Evaluated>,
-    onGloballyPositioned: (Int, Rect) -> Unit,
-    scope: Any,
+    onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   ) {
     Column(
-      modifier = createModifier(modifier, renderOption, onGloballyPositioned, scope),
+      modifier = modifier,
       verticalArrangement = arrangement,
       horizontalAlignment = alignment,
     ) {

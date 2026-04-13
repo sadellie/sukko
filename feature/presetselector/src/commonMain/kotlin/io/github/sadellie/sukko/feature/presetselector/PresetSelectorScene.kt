@@ -14,6 +14,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import google.material.design.symbols.EmojiPeople
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
@@ -34,14 +39,13 @@ import io.github.sadellie.sukko.resources.common_preset_list_placeholder_text
 import io.github.sadellie.sukko.resources.common_preset_list_placeholder_title
 import io.github.sadellie.sukko.resources.preset_selector_title
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PresetSelectorScene(
   onNavigateUp: () -> Unit,
   onSelect: (presetId: Long, isBuiltIn: Boolean) -> Unit,
 ) {
-  val viewModel = koinViewModel<PresetSelectorViewModel>()
+  val viewModel = metroViewModel<PresetSelectorViewModel>()
   val presets = viewModel.presets.collectAsStateWithLifecycleKMP()
   PresetSelectorScreen(onNavigateUp = onNavigateUp, onSelect = onSelect, presets = presets.value)
 }
@@ -89,9 +93,11 @@ private fun PresetSelectorScreen(
   }
 }
 
-internal class PresetSelectorViewModel(
-  widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository
-) : ViewModel() {
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+class PresetSelectorViewModel(widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository) :
+  ViewModel() {
   val presets =
     widgetDataPresetCustomRepository
       .allWidgetDataPresets(decodeExtra = false)

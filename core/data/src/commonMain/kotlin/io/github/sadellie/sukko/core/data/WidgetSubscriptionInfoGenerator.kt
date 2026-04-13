@@ -6,8 +6,8 @@ import io.github.sadellie.sukko.core.model.basic.ClickAction
 import io.github.sadellie.sukko.core.model.basic.ImageUriSource
 import io.github.sadellie.sukko.core.model.layer.ColdImageLayer
 import io.github.sadellie.sukko.core.model.layer.Layer
-import io.github.sadellie.sukko.core.script.token.Token3
-import io.github.sadellie.sukko.core.script.token.tokenize
+import io.github.sadellie.sukko.core.data.script.token.Token3
+import io.github.sadellie.sukko.core.data.script.token.tokenize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -17,7 +17,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
 
-internal suspend fun generateWidgetSubscriptionInfo(widgetData: WidgetData): WidgetSubscriptionInfo =
+internal suspend fun generateWidgetSubscriptionInfo(
+  widgetData: WidgetData
+): WidgetSubscriptionInfo =
   withContext(Dispatchers.Default) {
     if (widgetData.layers.isEmpty()) {
       return@withContext WidgetSubscriptionInfo(isTime = false, isBattery = false, isMedia = false)
@@ -69,7 +71,9 @@ private fun isMediaSubscriber(layer: Layer.Cold, allScriptTokens: Set<Token3>): 
     if (layer.imageUriSource is ImageUriSource.AlbumCover) return true
     if (layer.imageUriSource is ImageUriSource.PlayerIcon) return true
   }
-  if (layer.clickActions.any { it is ClickAction.MediaOpenPlayer }) return true
+  val hasMediaActions =
+    layer.clickActions.any { clickAction -> clickAction is ClickAction.MediaAction }
+  if (hasMediaActions) return true
   val mediaTokens =
     setOf(
       Token3.Const.MediaTitle,
@@ -83,10 +87,8 @@ private fun isMediaSubscriber(layer: Layer.Cold, allScriptTokens: Set<Token3>): 
     )
   val hasMediaTokens = mediaTokens.any { it in allScriptTokens }
   if (hasMediaTokens) return true
-  val hasMediaActions =
-    layer.clickActions.any { clickAction -> clickAction is ClickAction.MediaAction }
 
-  return hasMediaActions
+  return false
 }
 
 private fun Layer.Cold.getAllScriptTokens(): Set<Token3> {

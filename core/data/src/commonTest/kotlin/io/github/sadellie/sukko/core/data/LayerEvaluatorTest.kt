@@ -23,7 +23,6 @@ import io.github.sadellie.sukko.core.model.basic.ImageUriSource
 import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
 import io.github.sadellie.sukko.core.model.basic.ScriptableColor
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
-import io.github.sadellie.sukko.core.model.basic.ScriptableDp
 import io.github.sadellie.sukko.core.model.basic.ScriptableString
 import io.github.sadellie.sukko.core.model.basic.ShapeSource
 import io.github.sadellie.sukko.core.model.basic.TextOverflowSource
@@ -46,7 +45,6 @@ import io.github.sadellie.sukko.core.model.layer.Layer
 import io.github.sadellie.sukko.core.model.layer.ProgressBarType
 import io.github.sadellie.sukko.core.model.modifier.ColdWidthModifier
 import io.github.sadellie.sukko.core.model.modifier.EvaluatedWidthModifier
-import io.github.sadellie.sukko.core.model.observeEvaluation
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -59,7 +57,7 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "layer 1",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(64.dp))),
+          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(64.0))),
           clickActions = listOf<ClickAction.Cold>(ClickAction.MediaPause(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           alignmentSource = AlignmentSource.Center,
@@ -88,7 +86,7 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "column layer",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(80.dp))),
+          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(80.0))),
           clickActions = listOf(ClickAction.MediaPlay(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           arrangementSource = ArrangementSource.Bottom,
@@ -119,7 +117,7 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "row layer",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(90.dp))),
+          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(90.0))),
           clickActions = listOf(ClickAction.MediaSkipToNext(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           arrangementSource = ArrangementSource.End,
@@ -150,7 +148,8 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "text layer",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(100.dp))),
+          widgetModifiers =
+            listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(100.0))),
           clickActions = listOf(ClickAction.MediaSkipToPrevious(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           textStyleSource = TextStyleSource.Local(),
@@ -196,7 +195,8 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "image layer",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(120.dp))),
+          widgetModifiers =
+            listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(120.0))),
           clickActions = listOf(ClickAction.MediaPause(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           imageUriSource = ImageUriSource.Gallery(null),
@@ -229,16 +229,17 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "progress bar layer",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(130.dp))),
+          widgetModifiers =
+            listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(130.0))),
           clickActions = listOf(ClickAction.MediaPause(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           progress = ScriptableDouble.Fixed(0.75),
           progressBarType = ProgressBarType.CIRCULAR,
           color = ScriptableColor.FixedCustom(Color.Blue),
           trackColor = ScriptableColor.FixedCustom(Color.Gray),
-          gapSize = ScriptableDp.Fixed(6.dp),
+          gapSize = ScriptableDouble.Fixed(6.0),
           amplitude = ScriptableDouble.Fixed(0.5),
-          waveLength = ScriptableDp.Fixed(20.dp),
+          waveLength = ScriptableDouble.Fixed(20.0),
         )
       )
     val expected =
@@ -270,13 +271,14 @@ class LayerEvaluatorTest {
           id = 0,
           parentId = null,
           name = "step indicator layer",
-          widgetModifiers = listOf(ColdWidthModifier(id = 0, width = ScriptableDp.Fixed(140.dp))),
+          widgetModifiers =
+            listOf(ColdWidthModifier(id = 0, width = ScriptableDouble.Fixed(140.0))),
           clickActions = listOf(ClickAction.MediaPlay(0)),
           isEnabled = ScriptableBoolean.Fixed(true),
           fill = ScriptableBoolean.Fixed(false),
           totalSteps = ScriptableDouble.Fixed(8.0),
           currentStep = ScriptableDouble.Fixed(3.0),
-          indicatorSize = ScriptableDp.Fixed(10.dp),
+          indicatorSize = ScriptableDouble.Fixed(10.0),
           activeColor = ScriptableColor.FixedCustom(Color.Green),
           inactiveColor = ScriptableColor.FixedCustom(Color.Yellow),
           shape = ShapeSource.CutCornersDp(isRounded = false, size = 0.dp),

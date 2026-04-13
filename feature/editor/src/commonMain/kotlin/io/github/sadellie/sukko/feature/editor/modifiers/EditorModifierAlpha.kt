@@ -33,6 +33,6 @@ internal fun ReorderableCollectionItemScope.EditorModifierAlpha(
     value = widgetModifier.alpha,
     range = ColdAlphaModifier.alphaRange,
     allowFraction = true,
-    globals = state.globals.doubles,
+    globals = state.globals,
   )
 }

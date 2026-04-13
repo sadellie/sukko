@@ -27,6 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.annotation.ExperimentalCoilApi
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import google.material.design.symbols.Add
 import google.material.design.symbols.EmojiPeople
 import google.material.design.symbols.Settings
@@ -56,7 +61,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun WidgetsScene(
@@ -65,7 +69,7 @@ internal fun WidgetsScene(
   toolBarNestedScrollConnection: NestedScrollConnection,
   onAddWidget: () -> Unit,
 ) {
-  val viewModel = koinViewModel<WidgetsViewModel>()
+  val viewModel = metroViewModel<WidgetsViewModel>()
   when (val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value) {
     null -> EmptyScreen()
     else ->
@@ -152,7 +156,10 @@ private fun WidgetsScreen(
   }
 }
 
-internal class WidgetsViewModel(
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+class WidgetsViewModel(
   widgetInfoRepository: WidgetInfoRepository,
   widgetDataRepository: WidgetDataRepository,
 ) : ViewModel() {

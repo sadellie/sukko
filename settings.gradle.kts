@@ -40,7 +40,6 @@ with(this) {
   include(":core:remote")
   include(":core:routes")
   include(":core:routes-ui")
-  include(":core:script")
   include(":core:ui")
   include(":core:unglance")
   include(":feature:editor")

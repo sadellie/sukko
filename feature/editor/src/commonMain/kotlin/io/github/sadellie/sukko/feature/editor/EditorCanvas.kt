@@ -18,6 +18,9 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import io.github.pingpongboss.explodedlayers.ExplodedLayersRoot
+import io.github.pingpongboss.explodedlayers.ExplodedLayersState
+import io.github.pingpongboss.explodedlayers.rememberExplodedLayersState
 import io.github.sadellie.sukko.core.model.layer.EvaluatedColumnLayer
 import io.github.sadellie.sukko.core.model.layer.EvaluatedTextLayer
 import io.github.sadellie.sukko.core.model.layer.Layer
@@ -34,6 +37,7 @@ fun EditorCanvas(
   canvasSize: DpSize,
   graphicsLayer: GraphicsLayer,
   renderOption: RenderOption.Editor,
+  explodedLayersState: ExplodedLayersState,
 ) {
   BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
     // scale to make widget fill bounds
@@ -47,20 +51,22 @@ fun EditorCanvas(
         min(widthFactor, heightFactor)
       }
 
-    Renderer(
-      modifier =
-        Modifier.graphicsLayer {
-            scaleX = scaleFactor
-            scaleY = scaleFactor
-          }
-          .drawWithContent {
-            graphicsLayer.record { this@drawWithContent.drawContent() }
-            drawLayer(graphicsLayer)
-          }
-          .requiredSize(canvasSize),
-      renderOption = renderOption,
-      layers = layers,
-    )
+    ExplodedLayersRoot(explodedLayersState) {
+      Renderer(
+        modifier =
+          Modifier.graphicsLayer {
+              scaleX = scaleFactor
+              scaleY = scaleFactor
+            }
+            .drawWithContent {
+              graphicsLayer.record { this@drawWithContent.drawContent() }
+              drawLayer(graphicsLayer)
+            }
+            .requiredSize(canvasSize),
+        renderOption = renderOption,
+        layers = layers,
+      )
+    }
   }
 }
 
@@ -93,5 +99,6 @@ private fun PreviewEditorCanvas() {
     canvasSize = DpSize(240.dp, 240.dp),
     graphicsLayer = rememberGraphicsLayer(),
     renderOption = RenderOption.Editor(selectedLayerId = 1, highlightSelectedLayer = false),
+    explodedLayersState = rememberExplodedLayersState(initialSpread = 0f, interactive = false),
   )
 }

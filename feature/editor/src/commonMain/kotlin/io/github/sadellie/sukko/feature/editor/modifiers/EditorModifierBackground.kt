@@ -10,7 +10,7 @@ import io.github.sadellie.sukko.core.model.modifier.ColdBackgroundColorModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
 import io.github.sadellie.sukko.core.ui.middleShapes
-import io.github.sadellie.sukko.feature.editor.selector.BrushSourceSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.brushsource.BrushSourceSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ShapeSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_shape

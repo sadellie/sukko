@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-plugins {
-  `kotlin-dsl`
-}
+plugins { `kotlin-dsl` }
 
 group = "io.github.sadellie.sukko.buildlogic"
 
 java.sourceCompatibility = JavaVersion.VERSION_21
+
 java.targetCompatibility = JavaVersion.VERSION_21
+
 kotlin.compilerOptions.jvmTarget = JvmTarget.JVM_21
 
 tasks {
@@ -21,6 +21,7 @@ dependencies {
   compileOnly(libs.android.gradlePlugin)
   compileOnly(libs.kotlin.gradlePlugin)
   compileOnly(libs.ksp.gradlePlugin)
+  compileOnly(libs.metro.gradlePlugin)
 }
 
 gradlePlugin {
@@ -29,9 +30,9 @@ gradlePlugin {
       id = "sukko.multiplatform.library"
       implementationClass = "SukkoMultiplatformLibraryPlugin"
     }
-    register("SukkoAndroidLibraryPlugin") {
-      id = "sukko.android.library"
-      implementationClass = "SukkoAndroidLibraryPlugin"
+    register("SukkoMetroPlugin") {
+      id = "sukko.metro"
+      implementationClass = "SukkoMetroPlugin"
     }
   }
 }

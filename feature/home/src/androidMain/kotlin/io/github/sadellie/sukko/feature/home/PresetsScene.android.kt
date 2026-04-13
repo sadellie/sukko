@@ -41,6 +41,11 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import google.material.design.symbols.Add
 import google.material.design.symbols.Check
 import google.material.design.symbols.DeleteForever
@@ -98,7 +103,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal actual fun PresetsScene(
@@ -108,7 +112,7 @@ internal actual fun PresetsScene(
   onAddWidget: () -> Unit,
   toolBarNestedScrollConnection: NestedScrollConnection,
 ) {
-  val viewModel = koinViewModel<PresetsViewModel>()
+  val viewModel = metroViewModel<PresetsViewModel>()
   val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value
 
   if (uiState == null) {
@@ -145,35 +149,10 @@ private fun PresetsScreen(
   ScaffoldWithLargeTopAppBar(
     title = { Text(stringResource(Res.string.home_presets_title)) },
     actions = {
-      val filePickerLauncher =
-        rememberFilePickerLauncher(FileKitType.File(EXPORT_EXTENSION)) {
-          if (it != null) onNavigateToImportPreset(it)
-        }
-      IconButton(
-        modifier = Modifier.size(IconButtonDefaults.smallContainerSize()),
-        shapes = IconButtonDefaults.shapes(),
-        onClick = filePickerLauncher::launch,
-      ) {
-        Icon(
-          imageVector = Symbols.Add,
-          contentDescription = null,
-          modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
-        )
-      }
-
-      Spacer(Modifier.width(2.dp))
-
-      FilledTonalIconButton(
-        modifier = Modifier.size(IconButtonDefaults.smallContainerSize()),
-        shapes = IconButtonDefaults.shapes(),
-        onClick = onNavigateToSettings,
-      ) {
-        Icon(
-          imageVector = Symbols.Settings,
-          contentDescription = null,
-          modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
-        )
-      }
+      PresetScreenTopBarActions(
+        onNavigateToImportPreset = onNavigateToImportPreset,
+        onNavigateToSettings = onNavigateToSettings,
+      )
     },
     scrollBehavior = scrollBehavior,
   ) { padding ->
@@ -218,15 +197,15 @@ private fun PresetsScreen(
           currentPresetSheet?.let { preset -> onExportPreset(preset, file) }
         }
       }
-    ModalBottomSheetWithButtons(sheetState) {
-      currentPresetSheet?.let { preset ->
+    currentPresetSheet?.let { preset ->
+      ModalBottomSheetWithButtons(sheetState) {
         PresetSheetContent(
           onRename = {
             onRename(preset, it)
             sheetState.hide()
           },
           onExport = {
-            launcher.launch(preset.name, EXPORT_EXTENSION)
+            launcher.launch(preset.name, defaultExtension = EXPORT_EXTENSION)
             sheetState.hide()
           },
           onDelete = {
@@ -241,6 +220,42 @@ private fun PresetsScreen(
         )
       }
     }
+  }
+}
+
+@Composable
+private fun PresetScreenTopBarActions(
+  onNavigateToImportPreset: (PlatformFile) -> Unit,
+  onNavigateToSettings: () -> Unit,
+) {
+  val filePickerLauncher =
+    rememberFilePickerLauncher(FileKitType.File(EXPORT_EXTENSION)) {
+      if (it != null) onNavigateToImportPreset(it)
+    }
+  IconButton(
+    modifier = Modifier.size(IconButtonDefaults.smallContainerSize()),
+    shapes = IconButtonDefaults.shapes(),
+    onClick = filePickerLauncher::launch,
+  ) {
+    Icon(
+      imageVector = Symbols.Add,
+      contentDescription = null,
+      modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
+    )
+  }
+
+  Spacer(Modifier.width(2.dp))
+
+  FilledTonalIconButton(
+    modifier = Modifier.size(IconButtonDefaults.smallContainerSize()),
+    shapes = IconButtonDefaults.shapes(),
+    onClick = onNavigateToSettings,
+  ) {
+    Icon(
+      imageVector = Symbols.Settings,
+      contentDescription = null,
+      modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
+    )
   }
 }
 
@@ -326,7 +341,10 @@ private fun PresetSheetContent(
   }
 }
 
-internal class PresetsViewModel(
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+class PresetsViewModel(
   private val widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository,
   private val widgetDataPresetExportImport: WidgetDataPresetExportImport,
 ) : ViewModel() {

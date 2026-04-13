@@ -5,11 +5,16 @@ import androidx.compose.ui.unit.DpSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import io.github.sadellie.sukko.core.common.combineBig
 import io.github.sadellie.sukko.core.common.defaultIODispatcher
 import io.github.sadellie.sukko.core.common.stateIn
-import io.github.sadellie.sukko.core.data.ImageProvider
-import io.github.sadellie.sukko.core.data.LayerContextProvider
 import io.github.sadellie.sukko.core.data.LayerEvaluator
 import io.github.sadellie.sukko.core.data.WidgetDataPresetCustomRepository
 import io.github.sadellie.sukko.core.data.WidgetDataRepository
@@ -27,21 +32,19 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 
+@AssistedInject
 class EditorViewModel(
-  private val appWidgetId: Int,
+  @Assisted private val appWidgetId: Int,
   private val widgetDataRepository: WidgetDataRepository,
   private val widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository,
   private val widgetInfoRepository: WidgetInfoRepository,
-  private val imageProvider: ImageProvider,
-) : ViewModel(), KoinComponent {
-  private val layerContextProvider = LayerContextProvider()
+  private val layerEvaluatorFactory: LayerEvaluator.LayerEvaluatorFactory,
+) : ViewModel() {
   private val _canvasSize = MutableStateFlow<DpSize?>(null)
   private val _currentWidgetData = MutableStateFlow<WidgetData?>(null)
   private val _currentlySelectedLayerId = MutableStateFlow<Int?>(null)
@@ -55,10 +58,10 @@ class EditorViewModel(
           widgetData?.layers
             ?: return@combine ViewerState(
               currentLayer = null,
+              highlightSelectedLayer = false,
               parentLayer = null,
               breadcrumbs = emptyList(),
               loadedLayers = emptyList(),
-              highlightSelectedLayer = false,
             )
         val newBreadcrumbs = generateBreadcrumbs(selectedId, currentLayers)
         val newLoadedLayers = currentLayers.filter { layer -> layer.parentId == selectedId }
@@ -79,24 +82,15 @@ class EditorViewModel(
       }
       .flowOn(Dispatchers.Default)
 
-  private val _layerContext =
-    flow {
-        while (true) {
-          val layerContext = layerContextProvider.provide()
-          emit(layerContext)
-          delay(EVALUATED_LAYERS_UPDATE_RATE_MS)
-        }
-      }
-      .flowOn(defaultIODispatcher)
-      .distinctUntilChanged()
+  private val refreshUpdateCounter = MutableStateFlow(0)
 
   @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
   private val _evaluatedLayers =
-    combine(_currentWidgetData, _layerContext) { currentWidgetData, layerContext ->
-        layerContext.globalValueCache.clear()
+    combine(_currentWidgetData, refreshUpdateCounter) { currentWidgetData, _ ->
         val layers = currentWidgetData?.layers ?: return@combine flowOf(emptyList())
-        LayerEvaluator(layers, imageProvider, layerContext, currentWidgetData.globals)
-          .evaluateEnabled()
+        val globals = currentWidgetData.globals
+        val layerEvaluator = layerEvaluatorFactory.create(layers = layers, globals = globals)
+        layerEvaluator.evaluateEnabled()
       }
       .debounce(LAYER_EVALUATION_DEBOUNCE)
       .flatMapLatest { it }
@@ -167,6 +161,14 @@ class EditorViewModel(
       }
       _currentWidgetData.update { it?.copy(layers = preset.layers, globals = preset.globals) }
     }
+
+  /* Launch from UI for periodic force updates */
+  internal suspend fun periodicLayerRefresh() {
+    while (true) {
+      refreshUpdateCounter.update { it + 1 }
+      delay(EVALUATED_LAYERS_UPDATE_RATE_MS)
+    }
+  }
 
   internal fun onUpdateWidgetSize() =
     viewModelScope.launch {
@@ -255,6 +257,13 @@ class EditorViewModel(
     }
 
     return result.asReversed()
+  }
+
+  @AssistedFactory
+  @ManualViewModelAssistedFactoryKey
+  @ContributesIntoMap(AppScope::class)
+  fun interface Factory : ManualViewModelAssistedFactory {
+    fun create(appWidgetId: Int): EditorViewModel
   }
 }
 

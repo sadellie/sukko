@@ -11,7 +11,7 @@ import io.github.sadellie.sukko.core.model.modifier.ColdPaddingAxisModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
 import io.github.sadellie.sukko.core.ui.middleShapes
-import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_modifiers_horizontal
 import io.github.sadellie.sukko.resources.editor_modifiers_vertical
@@ -42,12 +42,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingAxis(
       onClick = horizontalSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
+    DoubleSelectorSheet(
       state = horizontalSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(horizontal = it)) },
       value = widgetModifier.horizontal,
       range = ColdPaddingAxisModifier.valueRange,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
 
     val verticalSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
@@ -58,12 +59,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingAxis(
       onClick = verticalSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
+    DoubleSelectorSheet(
       state = verticalSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(vertical = it)) },
       value = widgetModifier.vertical,
       range = ColdPaddingAxisModifier.valueRange,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
   }
 }

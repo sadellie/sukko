@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.editor.selector
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -17,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.ModalBottomSheetState
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
+import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
 import io.github.sadellie.sukko.core.ui.InputTransformationDouble
@@ -24,9 +24,7 @@ import io.github.sadellie.sukko.core.ui.ModalBottomSheet2
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
 import io.github.sadellie.sukko.core.ui.SukkoOutlinedTextField
 import io.github.sadellie.sukko.core.ui.hide
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.OutOfRangeErrorMessage
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditor
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.SuccessMessage
+import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditorSheetContent
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_cancel
 import io.github.sadellie.sukko.resources.common_confirm
@@ -34,11 +32,55 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
+fun FixedDoubleSelectorSheet(
+  state: ModalBottomSheetState,
+  onValueSelected: (newValue: ScriptableDouble.Fixed) -> Unit,
+  value: ScriptableDouble.Fixed,
+  allowFraction: Boolean,
+  range: ClosedRange<Double> = DoubleSelectorSheetDefaults.valueRangeUnspecified,
+) {
+  ModalBottomSheet2(state) {
+    FixedDouble(
+      onDismiss = state::hide,
+      onConfirm = { if (it != null) onValueSelected(it) },
+      initialValue = value,
+      range = range,
+      allowFraction = allowFraction,
+      allowNullable = false,
+    )
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
 fun DoubleSelectorSheet(
   state: ModalBottomSheetState,
   onValueSelected: (newValue: ScriptableDouble) -> Unit,
   value: ScriptableDouble,
-  globals: List<GlobalValue.GlobalDouble>,
+  globals: Globals,
+  allowFraction: Boolean,
+  range: ClosedRange<Double> = DoubleSelectorSheetDefaults.valueRangeUnspecified,
+) {
+  ModalBottomSheet2(state) {
+    DoubleSelectorSheetContent(
+      onDismissRequest = state::hide,
+      onValueSelected = { if (it != null) onValueSelected(it) },
+      value = value,
+      range = range,
+      globals = globals,
+      allowFraction = allowFraction,
+      allowNullable = false,
+    )
+  }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun DoubleSelectorSheetNullable(
+  state: ModalBottomSheetState,
+  onValueSelected: (newValue: ScriptableDouble?) -> Unit,
+  value: ScriptableDouble?,
+  globals: Globals,
   allowFraction: Boolean,
   range: ClosedRange<Double> = DoubleSelectorSheetDefaults.valueRangeUnspecified,
 ) {
@@ -50,6 +92,7 @@ fun DoubleSelectorSheet(
       range = range,
       globals = globals,
       allowFraction = allowFraction,
+      allowNullable = true,
     )
   }
 }
@@ -57,22 +100,23 @@ fun DoubleSelectorSheet(
 @Composable
 internal fun DoubleSelectorSheetContent(
   onDismissRequest: () -> Unit,
-  onValueSelected: (ScriptableDouble) -> Unit,
-  value: ScriptableDouble,
+  onValueSelected: (ScriptableDouble?) -> Unit,
+  value: ScriptableDouble?,
   range: ClosedRange<Double>,
-  globals: List<GlobalValue.GlobalDouble>,
+  globals: Globals,
   allowFraction: Boolean,
+  allowNullable: Boolean,
   dismissLabel: String = stringResource(Res.string.common_cancel),
   confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
-  var currentInputMode by rememberSaveable { mutableStateOf(DefaultInputMode2.initialMode(value)) }
+  var currentInputMode by rememberSaveable { mutableStateOf(DefaultInputMode.initialMode(value)) }
   SelectorSheetTemplateContent(
     currentInputMode = currentInputMode,
     onInputModeUpdate = { currentInputMode = it },
-    inputModes = remember { DefaultInputMode2.entries },
+    inputModes = remember { DefaultInputMode.entries },
   ) { currentMode ->
     when (currentMode) {
-      DefaultInputMode2.FIXED ->
+      DefaultInputMode.FIXED ->
         FixedDouble(
           onDismiss = onDismissRequest,
           onConfirm = onValueSelected,
@@ -81,23 +125,24 @@ internal fun DoubleSelectorSheetContent(
           range = range,
           dismissLabel = dismissLabel,
           confirmLabel = confirmLabel,
+          allowNullable = allowNullable,
         )
-      DefaultInputMode2.SCRIPT ->
+      DefaultInputMode.SCRIPT ->
         ScriptDouble(
           onDismiss = onDismissRequest,
           onConfirm = onValueSelected,
           initialValue = value,
-          range = range,
+          globals = globals,
           dismissLabel = dismissLabel,
           confirmLabel = confirmLabel,
         )
 
-      DefaultInputMode2.GLOBAL ->
+      DefaultInputMode.GLOBAL ->
         GlobalDouble(
           onDismiss = onDismissRequest,
           onConfirm = onValueSelected,
           initialValue = value,
-          globals = globals,
+          globals = globals.doubles,
           dismissLabel = dismissLabel,
           confirmLabel = confirmLabel,
         )
@@ -108,10 +153,11 @@ internal fun DoubleSelectorSheetContent(
 @Composable
 internal fun FixedDouble(
   onDismiss: () -> Unit,
-  onConfirm: (value: ScriptableDouble.Fixed) -> Unit,
-  initialValue: ScriptableDouble,
+  onConfirm: (value: ScriptableDouble.Fixed?) -> Unit,
+  initialValue: ScriptableDouble?,
   range: ClosedRange<Double>,
   allowFraction: Boolean,
+  allowNullable: Boolean,
   dismissLabel: String = stringResource(Res.string.common_cancel),
   confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
@@ -127,13 +173,21 @@ internal fun FixedDouble(
     )
   val inputTransformation = InputTransformationDouble(range, allowFraction)
   val currentValue =
-    remember(textFieldState.text) { inputTransformation.toValue(textFieldState.text) }
+    remember(textFieldState.text) {
+      inputTransformation.toValue(textFieldState.text)?.let { ScriptableDouble.Fixed(it) }
+    }
+  val isConfirmButtonEnabled =
+    remember(allowNullable, currentValue, textFieldState.text) {
+      if (allowNullable && textFieldState.text.isEmpty()) return@remember true
+      if (currentValue != null) return@remember true
+      false
+    }
   SheetContentWithButtons(
     onDismiss = onDismiss,
-    onConfirm = { if (currentValue != null) onConfirm(ScriptableDouble.Fixed(currentValue)) },
+    onConfirm = { if (isConfirmButtonEnabled) onConfirm(currentValue) },
     dismissLabel = dismissLabel,
     confirmLabel = confirmLabel,
-    isConfirmButtonEnabled = currentValue != null,
+    isConfirmButtonEnabled = isConfirmButtonEnabled,
   ) {
     SukkoOutlinedTextField(
       state = textFieldState,
@@ -148,38 +202,27 @@ internal fun FixedDouble(
 internal fun ScriptDouble(
   onDismiss: () -> Unit,
   onConfirm: (value: ScriptableDouble.Script) -> Unit,
-  initialValue: ScriptableDouble,
-  range: ClosedRange<Double>,
+  initialValue: ScriptableDouble?,
+  globals: Globals,
   dismissLabel: String = stringResource(Res.string.common_cancel),
   confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
-  val textFieldState =
-    rememberTextFieldState(if (initialValue is ScriptableDouble.Script) initialValue.script else "")
-  SheetContentWithButtons(
+  ScriptEditorSheetContent(
+    initialInput =
+      remember { if (initialValue is ScriptableDouble.Script) initialValue.script else "" },
+    globals = globals,
     onDismiss = onDismiss,
-    onConfirm = {
-      val newValue = ScriptableDouble.Script(textFieldState.text.toString())
-      onConfirm(newValue)
-    },
+    onConfirm = { onConfirm(ScriptableDouble.Script(it)) },
     dismissLabel = dismissLabel,
     confirmLabel = confirmLabel,
-    isConfirmButtonEnabled = true,
-  ) {
-    ScriptEditor(
-      modifier = Modifier.fillMaxSize().padding(horizontal = Sizes.large),
-      textFieldState = textFieldState,
-      produceScriptable = { ScriptableDouble.Script(it) },
-    ) { value ->
-      if (value in range) SuccessMessage(value.toString()) else OutOfRangeErrorMessage(range)
-    }
-  }
+  )
 }
 
 @Composable
 private fun GlobalDouble(
   onDismiss: () -> Unit,
   onConfirm: (value: ScriptableDouble.Global) -> Unit,
-  initialValue: ScriptableDouble,
+  initialValue: ScriptableDouble?,
   globals: List<GlobalValue.GlobalDouble>,
   dismissLabel: String = stringResource(Res.string.common_cancel),
   confirmLabel: String = stringResource(Res.string.common_confirm),
@@ -206,7 +249,8 @@ private fun PreviewFixedDouble() {
     onValueSelected = {},
     value = remember { ScriptableDouble.Fixed(123.456) },
     range = DoubleSelectorSheetDefaults.valueRangeUnspecified,
-    globals = remember { emptyList() },
+    globals = remember { Globals() },
     allowFraction = true,
+    allowNullable = true,
   )
 }

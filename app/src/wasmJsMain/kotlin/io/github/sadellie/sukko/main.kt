@@ -2,6 +2,7 @@ package io.github.sadellie.sukko
 
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalDensity
@@ -13,21 +14,23 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.savedstate.serialization.SavedStateConfiguration
 import coil3.ImageLoader
 import coil3.compose.LocalPlatformContext
-import io.github.sadellie.sukko.core.data.dataModule
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Includes
+import dev.zacsweers.metro.createGraphFactory
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
+import io.github.sadellie.sukko.core.data.DataBindings
 import io.github.sadellie.sukko.core.routes.CommonRoute
 import io.github.sadellie.sukko.core.routes.ui.MainApp
-import io.github.sadellie.sukko.feature.editor.editorModule
-import io.github.sadellie.sukko.feature.home.homeModule
-import io.github.sadellie.sukko.feature.widgetinfo.widgetInfoModule
+import io.github.sadellie.sukko.feature.home.homeNavigation
 import kotlinx.browser.document
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import okio.Path.Companion.toPath
-import org.koin.core.context.startKoin
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
 fun main() {
-  setupKoin()
+  val appGraph = createGraphFactory<WasmAppGraph.Factory>().create(DataBindings())
   val navBackStackConfig = SavedStateConfiguration {
     this.serializersModule = SerializersModule {
       polymorphic(NavKey::class) {
@@ -47,16 +50,23 @@ fun main() {
           )
         }
       }
-    MainApp(
-      onLastRoutePop = {},
-      windowsSize = windowSizeClass,
-      imageLoader = ImageLoader.Builder(LocalPlatformContext.current).build(),
-      filesDirPath = "".toPath(),
-      backStack = rememberNavBackStack(navBackStackConfig, CommonRoute.HomeRoute),
-    )
+    CompositionLocalProvider(LocalMetroViewModelFactory provides appGraph.metroViewModelFactory) {
+      MainApp(
+        onLastRoutePop = {},
+        windowsSize = windowSizeClass,
+        imageLoader = ImageLoader.Builder(LocalPlatformContext.current).build(),
+        filesDirPath = "".toPath(),
+        backStack = rememberNavBackStack(navBackStackConfig, CommonRoute.HomeRoute),
+        entries = { homeNavigation(onAddWidget = { /* TODO Not implemented yet */ }) },
+      )
+    }
   }
 }
 
-private fun setupKoin() = startKoin {
-  modules(homeModule, editorModule, widgetInfoModule, dataModule)
+@DependencyGraph(AppScope::class)
+interface WasmAppGraph : AppGraph {
+  @DependencyGraph.Factory
+  fun interface Factory {
+    fun create(@Includes dataBindings: DataBindings): WasmAppGraph
+  }
 }

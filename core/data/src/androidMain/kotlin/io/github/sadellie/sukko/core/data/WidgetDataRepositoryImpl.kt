@@ -14,8 +14,10 @@ import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.WidgetData
 import io.github.sadellie.sukko.core.model.WidgetSubscriptionInfo
 import io.github.sadellie.sukko.core.model.WidgetUpdateException
+import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
+import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
+import io.github.sadellie.sukko.core.model.basic.ScriptableString
 import io.github.sadellie.sukko.core.model.layer.Layer
-import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -23,11 +25,13 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okio.Path
+import java.io.BufferedOutputStream
 
 internal class WidgetDataRepositoryImpl(
   private val dao: WidgetDataDao,
   private val context: Context,
   private val removeImageFromCache: (path: Path) -> Unit,
+  private val widgetDataStoreManager: WidgetDataStoreManager,
 ) : WidgetDataRepository {
   @OptIn(ExperimentalCoroutinesApi::class)
   override fun allWidgetData(decodeExtra: Boolean): Flow<List<WidgetData>> =
@@ -71,16 +75,60 @@ internal class WidgetDataRepositoryImpl(
   override suspend fun getPreview(widgetData: WidgetData) =
     widgetData.getPreviewPath(context.filesPath)
 
-  private fun WidgetDataBased.toDomain(decodeExtra: Boolean = true): WidgetData {
+  private suspend fun WidgetDataBased.toDomain(decodeExtra: Boolean = true): WidgetData {
     val parsedLayers =
       if (decodeExtra) Json.decodeFromString<List<Layer.Cold>>(layers) else emptyList()
-    val parsedGlobals = if (decodeExtra) Json.decodeFromString<Globals>(globals) else Globals()
+    val parsedGlobals =
+      if (decodeExtra) {
+        // decode globals from db and override values
+        updateGlobalsWithCurrentValues(appWidgetId, Json.decodeFromString<Globals>(globals))
+      } else {
+        Globals()
+      }
+
     return WidgetData(
       appWidgetId = appWidgetId,
       name = name,
       layers = parsedLayers,
       globals = parsedGlobals,
     )
+  }
+
+  private suspend fun updateGlobalsWithCurrentValues(appWidgetId: Int, globals: Globals): Globals {
+    val currentValueStore = GlobalCurrentValueStoreImpl(appWidgetId, widgetDataStoreManager)
+    var updatedGlobals = globals
+
+    // Update strings
+    globals.strings.forEach { global ->
+      currentValueStore.getCurrentStringValue(global.id)?.let { currentValue ->
+        updatedGlobals =
+          updatedGlobals.updateGlobal(
+            global.updateInitialValue(ScriptableString.Fixed(currentValue))
+          )
+      }
+    }
+
+    // Update booleans
+    globals.booleans.forEach { global ->
+      currentValueStore.getCurrentBooleanValue(global.id)?.let { currentValue ->
+        updatedGlobals =
+          updatedGlobals.updateGlobal(
+            global.updateInitialValue(ScriptableBoolean.Fixed(currentValue))
+          )
+      }
+    }
+
+    // Update doubles
+    globals.doubles.forEach { global ->
+      currentValueStore.getCurrentDoubleValue(global.id)?.let { currentValue ->
+        updatedGlobals =
+          updatedGlobals.updateGlobal(
+            global.updateInitialValue(ScriptableDouble.Fixed(currentValue))
+          )
+      }
+    }
+
+    return updatedGlobals
   }
 
   private fun WidgetData.toBased(): WidgetDataBased {
@@ -95,7 +143,9 @@ internal class WidgetDataRepositoryImpl(
   }
 
   /**
-   * @param forced When true will not throw on missing notification listener and other permission.
+   * Updates the widget with the given subscription info.
+   *
+   * @param forced When true, skips permission checks (e.g., notification listener access).
    */
   private suspend fun updateWidget(widgetData: WidgetData, forced: Boolean) {
     val widgetSubscriptionInfo = generateWidgetSubscriptionInfo(widgetData)

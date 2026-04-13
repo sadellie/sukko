@@ -33,6 +33,6 @@ internal fun ReorderableCollectionItemScope.EditorModifierFillMaxHeight(
     value = widgetModifier.fraction,
     range = ColdFillMaxHeightModifier.fractionRange,
     allowFraction = true,
-    globals = state.globals.doubles,
+    globals = state.globals,
   )
 }

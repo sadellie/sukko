@@ -21,6 +21,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import coil3.compose.AsyncImage
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import google.material.design.symbols.Save
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
@@ -50,13 +58,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.Path
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SaveAsPresetScene(onNavigateUp: () -> Unit, appWidgetId: Int) {
   val viewModel: SaveAsPresetViewModel =
-    koinViewModel(key = appWidgetId.toString()) { parametersOf(appWidgetId) }
+    assistedMetroViewModel<SaveAsPresetViewModel, SaveAsPresetViewModel.Factory> {
+      create(appWidgetId)
+    }
   val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value
 
   when (uiState) {
@@ -123,8 +131,9 @@ private fun SaveAsPresetScreen(
   }
 }
 
-internal class SaveAsPresetViewModel(
-  private val appWidgetId: Int,
+@AssistedInject
+class SaveAsPresetViewModel(
+  @Assisted private val appWidgetId: Int,
   private val widgetDataRepository: WidgetDataRepository,
   private val widgetDataPresetCustomRepository: WidgetDataPresetCustomRepository,
 ) : ViewModel() {
@@ -164,6 +173,13 @@ internal class SaveAsPresetViewModel(
         if (data == null) SaveAsPresetUIState.Error else SaveAsPresetUIState.Ready(previewPath)
       }
     }
+  }
+
+  @AssistedFactory
+  @ManualViewModelAssistedFactoryKey
+  @ContributesIntoMap(AppScope::class)
+  fun interface Factory : ManualViewModelAssistedFactory {
+    fun create(appWidgetId: Int): SaveAsPresetViewModel
   }
 }
 

@@ -1,5 +1,6 @@
 plugins {
   id("sukko.multiplatform.library")
+  id("sukko.metro")
   alias(libs.plugins.compose)
   alias(libs.plugins.compose.compiler)
 }
@@ -9,8 +10,6 @@ kotlin {
   sourceSets.commonMain.dependencies {
     implementation(libs.androidx.navigation3.navigation3.runtime)
     implementation(libs.io.coil.kt.coil3.coil.core)
-    implementation(libs.io.insert.koin.koin.compose.navigation3)
-    implementation(libs.io.insert.koin.koin.core)
     implementation(libs.org.jetbrains.androidx.lifecycle.lifecycle.viewmodel.navigation3)
     implementation(libs.org.jetbrains.androidx.navigation3.navigation3.ui)
     implementation(libs.org.jetbrains.compose.material3.material3)
@@ -18,6 +17,5 @@ kotlin {
     implementation(project(":core:designsystem"))
     implementation(project(":core:routes"))
     implementation(project(":themmo"))
-    implementation(project.dependencies.platform(libs.io.insert.koin.koin.bom))
   }
 }

@@ -48,7 +48,7 @@ internal fun ReorderableCollectionItemScope.EditorModifierAspectRatio(
       value = widgetModifier.ratio,
       range = ColdAspectRatioModifier.ratioRange,
       allowFraction = true,
-      globals = state.globals.doubles,
+      globals = state.globals,
     )
 
     val fillSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
@@ -67,7 +67,7 @@ internal fun ReorderableCollectionItemScope.EditorModifierAspectRatio(
       state = fillSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(matchHeightConstraintsFirst = it)) },
       value = widgetModifier.matchHeightConstraintsFirst,
-      globals = state.globals.booleans,
+      globals = state.globals,
     )
   }
 }

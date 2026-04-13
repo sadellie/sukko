@@ -1,65 +1,86 @@
 package io.github.sadellie.sukko
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
-import io.github.sadellie.sukko.core.data.dataModule
-import io.github.sadellie.sukko.core.importexport.importExportModule
+import coil3.ImageLoader
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.Includes
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
+import dev.zacsweers.metro.createGraphFactory
+import io.github.sadellie.sukko.core.common.filesPath
+import io.github.sadellie.sukko.core.data.DataBindings
+import io.github.sadellie.sukko.core.data.ImageProvider
+import io.github.sadellie.sukko.core.data.LayerEvaluator
+import io.github.sadellie.sukko.core.data.ScriptableEvaluator
+import io.github.sadellie.sukko.core.data.WidgetDataRepository
+import io.github.sadellie.sukko.core.data.WidgetSubscriptionsRepository
+import io.github.sadellie.sukko.core.database.DatabaseBindings
 import io.github.sadellie.sukko.core.medialistener.MediaListener
 import io.github.sadellie.sukko.core.medialistener.MediaListenerImpl
-import io.github.sadellie.sukko.feature.editor.editorModule
-import io.github.sadellie.sukko.feature.fontseditor.fontsEditorModule
-import io.github.sadellie.sukko.feature.home.homeModule
-import io.github.sadellie.sukko.feature.iconpackeditor.iconPackEditorModule
-import io.github.sadellie.sukko.feature.importpreset.importPresetModule
-import io.github.sadellie.sukko.feature.presetselector.presetSelectorModule
-import io.github.sadellie.sukko.feature.saveaspreset.saveAsPresetModule
-import io.github.sadellie.sukko.feature.settings.settingsModule
-import io.github.sadellie.sukko.feature.widget.MainWidgetProvider
-import io.github.sadellie.sukko.feature.widgetinfo.widgetInfoModule
-import org.koin.android.ext.koin.androidContext
-import org.koin.androix.startup.KoinStartup
-import org.koin.core.annotation.KoinExperimentalAPI
-import org.koin.core.lazyModules
-import org.koin.dsl.KoinConfiguration
-import org.koin.dsl.koinConfiguration
-import org.koin.dsl.lazyModule
+import okio.Path
 
-@OptIn(KoinExperimentalAPI::class)
-class SukkoApplication : Application(), KoinStartup {
+class SukkoApplication : Application() {
+  val appGraph by lazy {
+    createGraphFactory<AndroidAppGraph.Factory>()
+      .create(
+        application = this,
+        databaseBindings = DatabaseBindings(),
+        dataBindings = DataBindings(),
+      )
+  }
+
   override fun onCreate() {
     super.onCreate()
     // todo val logSeverity = if (BuildConfig.DEBUG) Severity.Verbose else Severity.Warn
     val logSeverity = Severity.Verbose
     Logger.setMinSeverity(logSeverity)
   }
-
-  override fun onKoinStartup(): KoinConfiguration = koinConfiguration {
-    androidContext(this@SukkoApplication)
-    lazyModules(
-      dataModule,
-      homeModule,
-      editorModule,
-      widgetInfoModule,
-      saveAsPresetModule,
-      iconPackEditorModule,
-      importPresetModule,
-      fontsEditorModule,
-      importPresetModule,
-      importExportModule,
-      settingsModule,
-      presetSelectorModule,
-      listeners,
-    )
-  }
 }
 
-private val listeners = lazyModule {
-  single<MediaListener> {
+@DependencyGraph(AppScope::class)
+interface AndroidAppGraph : AppGraph {
+  @DependencyGraph.Factory
+  fun interface Factory {
+    fun create(
+      @Provides application: Application,
+      @Includes databaseBindings: DatabaseBindings,
+      @Includes dataBindings: DataBindings,
+    ): AndroidAppGraph
+  }
+
+  val mediaListener: MediaListener
+  val imageLoader: ImageLoader
+  val widgetDataRepository: WidgetDataRepository
+  val imageProvider: ImageProvider
+  val layerEvaluatorFactory: LayerEvaluator.LayerEvaluatorFactory
+  val scriptableEvaluatorFactory: ScriptableEvaluator.ScriptableEvaluatorFactory
+  val widgetSubscriptionsRepository: WidgetSubscriptionsRepository
+
+  @Named("filesDirPath")
+  @Provides
+  private fun provideFilesDirPath(application: Application): Path = application.filesPath
+
+  @Provides
+  private fun provideContext(application: Application): Context = application.applicationContext
+
+  @SingleIn(AppScope::class)
+  @Provides
+  private fun provideMediaListener(context: Context, imageProvider: ImageProvider): MediaListener =
     MediaListenerImpl(
-      context = androidContext(),
-      onMetadataUpdate = { context, action -> MainWidgetProvider.sendBroadcast(context, action) },
-      imageProvider = get(),
+      context = context,
+      onMetadataUpdate = { context, action ->
+        val intent = Intent(context, MainWidgetProviderImpl::class.java).setAction(action)
+        context.sendBroadcast(intent)
+      },
+      imageProvider = imageProvider,
     )
-  }
 }
+
+internal fun getApplicationGraph(context: Context): AndroidAppGraph =
+  (context as? SukkoApplication)?.appGraph ?: error("wrong $context type")

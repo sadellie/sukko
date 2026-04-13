@@ -16,10 +16,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class NotificationListener : NotificationListenerService(), KoinComponent {
+abstract class NotificationListener : NotificationListenerService() {
   companion object {
     fun canAccessNotifications(context: Context): Boolean {
       return NotificationManagerCompat.getEnabledListenerPackages(context)
@@ -36,7 +34,6 @@ class NotificationListener : NotificationListenerService(), KoinComponent {
   private val latestPackagePoster = MutableStateFlow<String?>(null)
   private var coroutineScope = CoroutineScope(defaultIODispatcher)
   private var updateUriJob: Job? = null
-  private val imageProvider: ImageProvider by inject()
 
   override fun onNotificationPosted(sbn: StatusBarNotification?) {
     if (sbn?.notification == null) return
@@ -62,7 +59,9 @@ class NotificationListener : NotificationListenerService(), KoinComponent {
           Logger.w(tag = TAG) { "Drawable is not BitmapDrawable" }
           return@launch
         }
-        imageProvider.updatePlayerIcon(drawable.bitmap)
+        getImageProvider(applicationContext).updatePlayerIcon(drawable.bitmap)
       }
   }
+
+  abstract fun getImageProvider(context: Context): ImageProvider
 }

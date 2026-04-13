@@ -4,44 +4,75 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.Named
+import io.github.sadellie.sukko.core.fontfiles.FontFamilyLoader
+import io.github.sadellie.sukko.core.model.GlobalValueCache
 import io.github.sadellie.sukko.core.model.Globals
-import io.github.sadellie.sukko.core.model.LayerContext
 import io.github.sadellie.sukko.core.model.basic.TextStyleSource
 import io.github.sadellie.sukko.core.model.basic.TextStyleSource.Companion.fontSizeRange
 import io.github.sadellie.sukko.core.model.basic.TextStyleSource.Companion.fontWeightRange
+import okio.Path
 
 class TextStyleSourceEvaluator(
-  private val textStyleSource: TextStyleSource,
-  private val layerContext: LayerContext,
+  private val filesDirPath: Path,
+  private val fontFamilyLoader: FontFamilyLoader,
+  private val globalValueCache: GlobalValueCache,
+  private val scriptableEvaluator: ScriptableEvaluator,
   private val globals: Globals,
 ) {
-  suspend fun evaluate(): TextStyle {
+  @Inject
+  class Factory(
+    @param:Named("filesDirPath") private val filesDirPath: Path,
+    private val fontFamilyLoader: FontFamilyLoader,
+    private val scriptableEvaluatorFactory: ScriptableEvaluator.ScriptableEvaluatorFactory,
+  ) {
+    fun create(globals: Globals, globalValueCache: GlobalValueCache): TextStyleSourceEvaluator =
+      TextStyleSourceEvaluator(
+        filesDirPath = filesDirPath,
+        fontFamilyLoader = fontFamilyLoader,
+        globalValueCache = globalValueCache,
+        scriptableEvaluator = scriptableEvaluatorFactory.create(globals),
+        globals = globals,
+      )
+
+    fun create(
+      globals: Globals,
+      globalValueCache: GlobalValueCache,
+      scriptableEvaluator: ScriptableEvaluator,
+    ): TextStyleSourceEvaluator =
+      TextStyleSourceEvaluator(
+        filesDirPath = filesDirPath,
+        fontFamilyLoader = fontFamilyLoader,
+        globalValueCache = globalValueCache,
+        scriptableEvaluator = scriptableEvaluator,
+        globals = globals,
+      )
+  }
+
+  suspend fun evaluate(textStyleSource: TextStyleSource): TextStyle {
     return when (textStyleSource) {
       is TextStyleSource.Global -> {
         val globalTextStyle = globals.findTextStyle(textStyleSource.id) ?: return TextStyle()
-        layerContext.globalValueCache.getOrPut(globalTextStyle) {
+        globalValueCache.getOrPut(globalTextStyle) {
           Logger.d(tag = TAG) { "evaluate global: ${globalTextStyle.id} ${globalTextStyle.label}" }
-          TextStyleSourceEvaluator(globalTextStyle.value, layerContext, globals).evaluate()
-        } ?: TextStyle()
+          evaluate(globalTextStyle.initialValue)
+        }
       }
 
       is TextStyleSource.Local ->
         TextStyle(
           fontSize =
-            textStyleSource.fontSize
-              .getValue(layerContext, globals)
-              .value
-              .coerceIn(fontSizeRange)
-              .sp,
+            scriptableEvaluator.evaluateDouble(textStyleSource.fontSize).coerceIn(fontSizeRange).sp,
           textAlign = textStyleSource.textAlignSource.getTextAlign(),
           fontWeight =
             FontWeight(
-              textStyleSource.fontWeight
-                .getValue(layerContext, globals)
+              scriptableEvaluator
+                .evaluateDouble(textStyleSource.fontWeight)
                 .coerceIn(fontWeightRange)
                 .toInt()
             ),
-          fontFamily = layerContext.loadFontFamily(textStyleSource.fontFile),
+          fontFamily = fontFamilyLoader.loadFromFontFile(textStyleSource.fontFile, filesDirPath),
           fontStyle = textStyleSource.fontStyle.getFontStyle(),
         )
     }

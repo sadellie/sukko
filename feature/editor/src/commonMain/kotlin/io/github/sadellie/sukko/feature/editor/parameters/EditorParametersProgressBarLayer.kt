@@ -25,7 +25,6 @@ import io.github.sadellie.sukko.core.ui.lastShapes
 import io.github.sadellie.sukko.core.ui.middleShapes
 import io.github.sadellie.sukko.feature.editor.selector.ColorSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
-import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_parameters_amplitude
 import io.github.sadellie.sukko.resources.editor_parameters_color
@@ -114,7 +113,7 @@ internal fun EditorParametersProgress(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(progress = it)) },
     value = layer.progress,
-    globals = globals.doubles,
+    globals = globals,
     allowFraction = true,
     range = ColdProgressBarLayer.progressRange,
   )
@@ -170,7 +169,7 @@ internal fun EditorParametersColor(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(color = it)) },
     value = layer.color,
-    globals = globals.colors,
+    globals = globals,
   )
 }
 
@@ -195,7 +194,7 @@ internal fun EditorParametersTrackColor(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(trackColor = it)) },
     value = layer.trackColor,
-    globals = globals.colors,
+    globals = globals,
   )
 }
 
@@ -216,11 +215,12 @@ internal fun EditorParametersGapSize(
     shapes = shapes,
   )
 
-  DpSelectorSheet(
+  DoubleSelectorSheet(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(gapSize = it)) },
     value = layer.gapSize,
-    globals = globals.dps,
+    globals = globals,
+    allowFraction = true,
   )
 }
 
@@ -245,7 +245,7 @@ internal fun EditorParametersAmplitude(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(amplitude = it)) },
     value = layer.amplitude,
-    globals = globals.doubles,
+    globals = globals,
     allowFraction = true,
     range = ColdProgressBarLayer.amplitudeRange,
   )
@@ -268,11 +268,12 @@ internal fun EditorParametersWaveLength(
     shapes = shapes,
   )
 
-  DpSelectorSheet(
+  DoubleSelectorSheet(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(waveLength = it)) },
     value = layer.waveLength,
-    globals = globals.dps,
+    globals = globals,
+    allowFraction = true,
   )
 }
 

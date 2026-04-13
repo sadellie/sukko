@@ -22,8 +22,9 @@ import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
 import io.github.sadellie.sukko.core.ui.lastShapes
 import io.github.sadellie.sukko.core.ui.middleShapes
-import io.github.sadellie.sukko.feature.editor.selector.BrushSourceSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.brushsource.BrushSourceSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheetNullable
 import io.github.sadellie.sukko.feature.editor.selector.StringSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.TextStyleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
@@ -106,7 +107,7 @@ private fun EditorParametersText(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(text = it)) },
     value = layer.text,
-    globals = globals.strings,
+    globals = globals,
   )
 }
 
@@ -206,7 +207,7 @@ private fun EditorParametersMinLines(
     value = layer.minLines,
     range = ColdTextLayer.minLinesRange,
     allowFraction = false,
-    globals = globals.doubles,
+    globals = globals,
   )
 }
 
@@ -226,13 +227,13 @@ private fun EditorParametersMaxLines(
     onClick = weightSheetState::expand,
     shapes = shapes,
   )
-  DoubleSelectorSheet(
+  DoubleSelectorSheetNullable(
     state = weightSheetState,
     onValueSelected = { onUpdateLayer(layer.copy(maxLines = it)) },
     value = layer.maxLines,
     range = ColdTextLayer.maxLinesRange,
     allowFraction = false,
-    globals = globals.doubles,
+    globals = globals,
   )
 }
 

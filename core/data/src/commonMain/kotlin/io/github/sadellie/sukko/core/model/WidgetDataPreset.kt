@@ -1,7 +1,6 @@
 package io.github.sadellie.sukko.core.model
 
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.sadellie.sukko.core.common.ASSET_PATH
 import io.github.sadellie.sukko.core.iconfiles.IconFile
 import io.github.sadellie.sukko.core.iconfiles.IconPack
@@ -16,8 +15,6 @@ import io.github.sadellie.sukko.core.model.basic.M3Color
 import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
 import io.github.sadellie.sukko.core.model.basic.ScriptableColor
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
-import io.github.sadellie.sukko.core.model.basic.ScriptableDp
-import io.github.sadellie.sukko.core.model.basic.ScriptableSp
 import io.github.sadellie.sukko.core.model.basic.ScriptableString
 import io.github.sadellie.sukko.core.model.basic.ShapeSource
 import io.github.sadellie.sukko.core.model.basic.TextStyleSource
@@ -78,7 +75,7 @@ sealed interface WidgetDataPreset {
                   color = BrushSource.SolidColor(ScriptableColor.Global(2)),
                 ),
                 ColdFillMaxSizeModifier(id = 1),
-                ColdPaddingAllSidesModifier(id = 2, all = ScriptableDp.Global(0)),
+                ColdPaddingAllSidesModifier(id = 2, all = ScriptableDouble.Global(0)),
                 ColdClipModifier(id = 4),
                 ColdBackgroundColorModifier(
                   id = 3,
@@ -91,7 +88,7 @@ sealed interface WidgetDataPreset {
             parentId = 1,
             name = "device icon",
             widgetModifiers =
-              listOf(ColdSizeModifier(id = 0, size = ScriptableDp.Fixed(value = 24.dp))),
+              listOf(ColdSizeModifier(id = 0, size = ScriptableDouble.Fixed(value = 24.0))),
             imageUriSource =
               ImageUriSource.IconPack(
                 IconFile(fileName = "mobile_24px.svg", iconPack = IconPack.MaterialSymbolsRounded)
@@ -134,8 +131,8 @@ sealed interface WidgetDataPreset {
             parentId = 0,
             name = "device row",
             widgetModifiers =
-              listOf(ColdPaddingAllSidesModifier(id = 0, all = ScriptableDp.Global(0))),
-            arrangementSource = ArrangementSource.SpacedBy(space = 8.dp),
+              listOf(ColdPaddingAllSidesModifier(id = 0, all = ScriptableDouble.Global(0))),
+            arrangementSource = ArrangementSource.SpacedBy(space = ScriptableDouble.Fixed(8.0)),
             alignmentSource = AlignmentSource.CenterVertically,
           ),
           ColdTextLayer(
@@ -145,7 +142,7 @@ sealed interface WidgetDataPreset {
             widgetModifiers =
               listOf(
                 ColdBoxAlignmentModifier(id = 0, alignmentSource = AlignmentSource.BottomStart),
-                ColdPaddingAllSidesModifier(id = 1, all = ScriptableDp.Global(0)),
+                ColdPaddingAllSidesModifier(id = 1, all = ScriptableDouble.Global(0)),
               ),
             text =
               ScriptableString.Script(
@@ -166,7 +163,7 @@ sealed interface WidgetDataPreset {
             widgetModifiers =
               listOf(
                 ColdBoxAlignmentModifier(id = 0, alignmentSource = AlignmentSource.BottomEnd),
-                ColdPaddingAllSidesModifier(id = 1, all = ScriptableDp.Global(0)),
+                ColdPaddingAllSidesModifier(id = 1, all = ScriptableDouble.Global(0)),
               ),
           ),
         )
@@ -179,30 +176,30 @@ sealed interface WidgetDataPreset {
               GlobalValue.GlobalColor(
                 id = 0,
                 label = "content color",
-                value = ScriptableColor.FixedM3(M3Color.ON_SECONDARY_CONTAINER),
+                initialValue = ScriptableColor.FixedM3(M3Color.ON_SECONDARY_CONTAINER),
               ),
               GlobalValue.GlobalColor(
                 id = 1,
                 label = "charge indicator",
-                value = ScriptableColor.FixedM3(M3Color.SECONDARY_CONTAINER),
+                initialValue = ScriptableColor.FixedM3(M3Color.SECONDARY_CONTAINER),
               ),
               GlobalValue.GlobalColor(
                 id = 2,
                 label = "outer color",
-                value = ScriptableColor.FixedM3(M3Color.SURFACE_CONTAINER),
+                initialValue = ScriptableColor.FixedM3(M3Color.SURFACE_CONTAINER),
               ),
               GlobalValue.GlobalColor(
                 id = 3,
                 label = "charge indicator color",
-                value = ScriptableColor.FixedM3(M3Color.SURFACE_VARIANT),
+                initialValue = ScriptableColor.FixedM3(M3Color.SURFACE_VARIANT),
               ),
             ),
-          dps =
+          doubles =
             listOf(
-              GlobalValue.GlobalDp(
+              GlobalValue.GlobalDouble(
                 id = 0,
                 label = "item paddings",
-                value = ScriptableDp.Fixed(12.dp),
+                initialValue = ScriptableDouble.Fixed(12.0),
               )
             ),
         )
@@ -227,13 +224,13 @@ sealed interface WidgetDataPreset {
             name = "player icon",
             widgetModifiers =
               listOf(
-                ColdSizeModifier(id = 0, size = ScriptableDp.Fixed(value = 24.dp)),
+                ColdSizeModifier(id = 0, size = ScriptableDouble.Fixed(value = 24.0)),
                 ColdClipModifier(id = 2, shapeSource = ShapeSource.Circle),
                 ColdBackgroundColorModifier(
                   id = 1,
                   color = BrushSource.SolidColor(color = ScriptableColor.Global(id = 1)),
                 ),
-                ColdPaddingAllSidesModifier(id = 3, all = ScriptableDp.Fixed(value = 4.dp)),
+                ColdPaddingAllSidesModifier(id = 3, all = ScriptableDouble.Fixed(value = 4.0)),
               ),
             imageUriSource = ImageUriSource.PlayerIcon,
             tint = ScriptableColor.Global(id = 2),
@@ -251,12 +248,13 @@ sealed interface WidgetDataPreset {
                 ),
                 ColdPaddingAxisModifier(
                   id = 2,
-                  horizontal = ScriptableDp.Fixed(value = 8.dp),
-                  vertical = ScriptableDp.Fixed(value = 4.dp),
+                  horizontal = ScriptableDouble.Fixed(value = 8.0),
+                  vertical = ScriptableDouble.Fixed(value = 4.0),
                 ),
               ),
             clickActions = listOf(ClickAction.MediaOpenPlayer(id = 0)),
-            textStyleSource = TextStyleSource.Local(fontSize = ScriptableSp.Fixed(value = 12.sp)),
+            textStyleSource =
+              TextStyleSource.Local(fontSize = ScriptableDouble.Fixed(value = 12.0)),
             text = ScriptableString.Script(script = "playerName"),
             textColor = BrushSource.SolidColor(color = ScriptableColor.Global(id = 2)),
           ),
@@ -293,14 +291,15 @@ sealed interface WidgetDataPreset {
             id = 10,
             parentId = 1,
             name = "song controls",
-            arrangementSource = ArrangementSource.SpacedBy(space = 16.dp),
+            arrangementSource = ArrangementSource.SpacedBy(space = ScriptableDouble.Fixed(16.0)),
             alignmentSource = AlignmentSource.CenterVertically,
           ),
           ColdImageLayer(
             id = 11,
             parentId = 10,
             name = "rewind",
-            widgetModifiers = listOf(ColdSizeModifier(id = 0, size = ScriptableDp.Global(id = 1))),
+            widgetModifiers =
+              listOf(ColdSizeModifier(id = 0, size = ScriptableDouble.Global(id = 1))),
             clickActions = listOf(ClickAction.MediaSkipToPrevious(id = 0)),
             imageUriSource =
               ImageUriSource.IconPack(
@@ -321,13 +320,14 @@ sealed interface WidgetDataPreset {
             color = ScriptableColor.Global(id = 0),
             trackColor = ScriptableColor.Global(id = 0),
             amplitude = ScriptableDouble.Fixed(value = 0.6),
-            waveLength = ScriptableDp.Fixed(value = 25.dp),
+            waveLength = ScriptableDouble.Fixed(value = 25.0),
           ),
           ColdImageLayer(
             id = 13,
             parentId = 10,
             name = "forward",
-            widgetModifiers = listOf(ColdSizeModifier(id = 0, size = ScriptableDp.Global(id = 1))),
+            widgetModifiers =
+              listOf(ColdSizeModifier(id = 0, size = ScriptableDouble.Global(id = 1))),
             clickActions = listOf(ClickAction.MediaSkipToNext(id = 0)),
             imageUriSource =
               ImageUriSource.IconPack(
@@ -376,7 +376,7 @@ sealed interface WidgetDataPreset {
             name = "overlay content",
             widgetModifiers =
               listOf(
-                ColdPaddingAllSidesModifier(id = 0, all = ScriptableDp.Fixed(value = 16.dp)),
+                ColdPaddingAllSidesModifier(id = 0, all = ScriptableDouble.Fixed(value = 16.0)),
                 ColdFillMaxSizeModifier(id = 1),
               ),
             arrangementSource = ArrangementSource.SpaceBetween,
@@ -388,12 +388,12 @@ sealed interface WidgetDataPreset {
             widgetModifiers =
               listOf(
                 ColdClipModifier(id = 2, shapeSource = ShapeSource.Circle),
-                ColdSizeModifier(id = 0, size = ScriptableDp.Global(id = 0)),
+                ColdSizeModifier(id = 0, size = ScriptableDouble.Global(id = 0)),
                 ColdBackgroundColorModifier(
                   id = 1,
                   color = BrushSource.SolidColor(color = ScriptableColor.Global(id = 1)),
                 ),
-                ColdPaddingAllSidesModifier(id = 3, all = ScriptableDp.Fixed(value = 8.dp)),
+                ColdPaddingAllSidesModifier(id = 3, all = ScriptableDouble.Fixed(value = 8.0)),
               ),
             clickActions = listOf(ClickAction.MediaPlay(id = 0)),
             isEnabled = ScriptableBoolean.Script(script = "playerState!=\"PLAYING\""),
@@ -413,13 +413,13 @@ sealed interface WidgetDataPreset {
             name = "pause button",
             widgetModifiers =
               listOf(
-                ColdSizeModifier(id = 0, size = ScriptableDp.Global(id = 0)),
+                ColdSizeModifier(id = 0, size = ScriptableDouble.Global(id = 0)),
                 ColdClipModifier(id = 1, shapeSource = ShapeSource.CutCornersDp(size = 8.dp)),
                 ColdBackgroundColorModifier(
                   id = 2,
                   color = BrushSource.SolidColor(color = ScriptableColor.Global(id = 1)),
                 ),
-                ColdPaddingAllSidesModifier(id = 3, all = ScriptableDp.Fixed(value = 8.dp)),
+                ColdPaddingAllSidesModifier(id = 3, all = ScriptableDouble.Fixed(value = 8.0)),
               ),
             clickActions = listOf(ClickAction.MediaPause(id = 0)),
             isEnabled = ScriptableBoolean.Script(script = "playerState==\"PLAYING\""),
@@ -438,17 +438,17 @@ sealed interface WidgetDataPreset {
     override val globals: Globals
       get() =
         Globals(
-          dps =
+          doubles =
             listOf(
-              GlobalValue.GlobalDp(
+              GlobalValue.GlobalDouble(
                 id = 0,
                 label = "primary button size",
-                value = ScriptableDp.Fixed(value = 46.dp),
+                initialValue = ScriptableDouble.Fixed(value = 46.0),
               ),
-              GlobalValue.GlobalDp(
+              GlobalValue.GlobalDouble(
                 id = 1,
                 label = "secondary button size",
-                value = ScriptableDp.Fixed(value = 24.dp),
+                initialValue = ScriptableDouble.Fixed(value = 24.0),
               ),
             ),
           colors =
@@ -456,18 +456,18 @@ sealed interface WidgetDataPreset {
               GlobalValue.GlobalColor(
                 id = 0,
                 label = "content color",
-                value = ScriptableColor.FixedM3(value = M3Color.ON_SURFACE),
+                initialValue = ScriptableColor.FixedM3(value = M3Color.ON_SURFACE),
               ),
               GlobalValue.GlobalColor(
                 id = 1,
                 label = "container color",
-                value =
+                initialValue =
                   ScriptableColor.Script(script = "colorScheme(\"PRIMARY_CONTAINER\", mediaCover)"),
               ),
               GlobalValue.GlobalColor(
                 id = 2,
                 label = "on container color",
-                value =
+                initialValue =
                   ScriptableColor.Script(
                     script = "colorScheme(\"ON_PRIMARY_CONTAINER\", mediaCover)"
                   ),

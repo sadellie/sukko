@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -22,18 +21,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import com.composables.core.ModalBottomSheetState
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
+import io.github.sadellie.sukko.core.common.stateIn
 import io.github.sadellie.sukko.core.data.TextStyleSourceEvaluator
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.fontfiles.FontFile
+import io.github.sadellie.sukko.core.model.GlobalValueCache
 import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.basic.FontStyleSource
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
-import io.github.sadellie.sukko.core.model.basic.ScriptableSp
 import io.github.sadellie.sukko.core.model.basic.TextAlignSource
 import io.github.sadellie.sukko.core.model.basic.TextStyleSource
 import io.github.sadellie.sukko.core.ui.AlertDialogWithRadioItems
@@ -55,11 +66,15 @@ import io.github.sadellie.sukko.resources.editor_selector_text_style_font
 import io.github.sadellie.sukko.resources.editor_selector_text_style_preview
 import io.github.sadellie.sukko.resources.editor_selector_text_style_size
 import io.github.sadellie.sukko.resources.editor_selector_text_style_weight
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun TextStyleSelectorSheet(
+internal fun TextStyleSelectorSheet(
   state: ModalBottomSheetState,
   onValueSelected: (newValue: TextStyleSource) -> Unit,
   value: TextStyleSource,
@@ -101,20 +116,18 @@ private fun LocalTextStyle(
   initialValue: TextStyleSource,
   globals: Globals,
 ) {
+  val viewModel =
+    assistedMetroViewModel<TextStyleSelectorViewModel, TextStyleSelectorViewModel.Factory> {
+      create(initialValue, globals)
+    }
   var page by remember { mutableStateOf<SelectorPage>(SelectorPage.Parameters) }
   BackHandler(page != SelectorPage.Parameters) { page = SelectorPage.Parameters }
-  val layerContext = rememberLayerContext()
-  var textStyleSource by remember {
-    mutableStateOf(initialValue as? TextStyleSource.Local ?: TextStyleSource.Local())
-  }
-  val textStyle =
-    produceState(initialValue = TextStyle(), key1 = textStyleSource) {
-      value = TextStyleSourceEvaluator(textStyleSource, layerContext, globals).evaluate()
-    }
+  val textStyleSource = viewModel.textStyleSource.collectAsStateWithLifecycle().value
+  val textStyle = viewModel.evaluatedTextStyle.collectAsStateWithLifecycle().value
   Column(verticalArrangement = Arrangement.spacedBy(Sizes.small)) {
     Text(
       text = stringResource(Res.string.editor_selector_text_style_preview),
-      style = textStyle.value,
+      style = textStyle,
       color = MaterialTheme.colorScheme.onSurface,
       modifier =
         Modifier.padding(horizontal = Sizes.large)
@@ -129,38 +142,48 @@ private fun LocalTextStyle(
         is SelectorPage.FontFileSelector ->
           FontFileSelectorSheetContent(
             onDismissRequest = { page = SelectorPage.Parameters },
-            onValueSelected = { textStyleSource = textStyleSource.copy(fontFile = it) },
+            onValueSelected = {
+              viewModel.onTextStyleSourceUpdate(textStyleSource.copy(fontFile = it))
+            },
             value = textStyleSource.fontFile,
             dismissLabel = stringResource(Res.string.common_back),
             confirmLabel = stringResource(Res.string.common_select),
           )
         is SelectorPage.FontSizeSelector ->
-          SpSelectorSheetContent(
+          DoubleSelectorSheetContent(
             onDismissRequest = { page = SelectorPage.Parameters },
-            onValueSelected = { textStyleSource = textStyleSource.copy(fontSize = it) },
+            onValueSelected = {
+              if (it != null) viewModel.onTextStyleSourceUpdate(textStyleSource.copy(fontSize = it))
+            },
             value = currentPage.fonSize,
             range = TextStyleSource.fontSizeRange,
-            globals = globals.sps,
+            allowFraction = true,
+            allowNullable = false,
+            globals = globals,
             dismissLabel = stringResource(Res.string.common_back),
             confirmLabel = stringResource(Res.string.common_select),
           )
         is SelectorPage.FontWeightSelector ->
           DoubleSelectorSheetContent(
             onDismissRequest = { page = SelectorPage.Parameters },
-            onValueSelected = { textStyleSource = textStyleSource.copy(fontWeight = it) },
+            onValueSelected = {
+              if (it != null)
+                viewModel.onTextStyleSourceUpdate(textStyleSource.copy(fontWeight = it))
+            },
             value = currentPage.fontWeight,
             range = TextStyleSource.fontWeightRange,
             allowFraction = false,
-            globals = globals.doubles,
+            globals = globals,
             dismissLabel = stringResource(Res.string.common_back),
             confirmLabel = stringResource(Res.string.common_select),
+            allowNullable = false,
           )
         SelectorPage.Parameters ->
           LocalTextStyleParameters(
             onConfirm = { onConfirm(textStyleSource) },
             onDismiss = onDismiss,
             switchPage = { page = it },
-            onTextStyleSourceUpdate = { textStyleSource = it },
+            onTextStyleSourceUpdate = viewModel::onTextStyleSourceUpdate,
             textStyleSource = textStyleSource,
           )
       }
@@ -260,7 +283,7 @@ private sealed interface SelectorPage {
 
   data class FontFileSelector(val fontFile: FontFile) : SelectorPage
 
-  data class FontSizeSelector(val fonSize: ScriptableSp) : SelectorPage
+  data class FontSizeSelector(val fonSize: ScriptableDouble) : SelectorPage
 
   data class FontWeightSelector(val fontWeight: ScriptableDouble) : SelectorPage
 }
@@ -275,6 +298,34 @@ private enum class TextStyleInputMode(override val displayName: StringResource) 
         is TextStyleSource.Local -> LOCAL
         is TextStyleSource.Global -> GLOBAL
       }
+  }
+}
+
+@AssistedInject
+class TextStyleSelectorViewModel(
+  @Assisted initialValue: TextStyleSource,
+  @Assisted private val globals: Globals,
+  textStyleSourceEvaluatorFactory: TextStyleSourceEvaluator.Factory,
+) : ViewModel() {
+  private val _textStyleSource =
+    MutableStateFlow(initialValue as? TextStyleSource.Local ?: TextStyleSource.Local())
+  internal val textStyleSource = _textStyleSource.asStateFlow()
+  private val _textStyleSourceEvaluator =
+    textStyleSourceEvaluatorFactory.create(globals, GlobalValueCache())
+  internal val evaluatedTextStyle =
+    _textStyleSource
+      .mapLatest { source -> _textStyleSourceEvaluator.evaluate(textStyleSource = source) }
+      .stateIn(viewModelScope, TextStyle())
+
+  internal fun onTextStyleSourceUpdate(newSource: TextStyleSource.Local) {
+    _textStyleSource.update { newSource }
+  }
+
+  @AssistedFactory
+  @ManualViewModelAssistedFactoryKey
+  @ContributesIntoMap(AppScope::class)
+  interface Factory : ManualViewModelAssistedFactory {
+    fun create(initialValue: TextStyleSource, globals: Globals): TextStyleSelectorViewModel
   }
 }
 
@@ -305,7 +356,7 @@ private fun PreviewGlobalTextStyle() = Preview2 {
             GlobalValue.GlobalTextStyle(
               id = it.toLong(),
               label = "Text style $it",
-              value = TextStyleSource.Local(),
+              initialValue = TextStyleSource.Local(),
             )
           }
       ),

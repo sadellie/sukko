@@ -30,6 +30,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.annotation.ExperimentalCoilApi
 import com.composables.core.ModalBottomSheetState
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import dev.zacsweers.metrox.viewmodel.metroViewModel
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
 import io.github.sadellie.sukko.core.common.observe
 import io.github.sadellie.sukko.core.common.stateIn
@@ -58,7 +63,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun IconSelectorSheet(
@@ -67,7 +71,7 @@ internal fun IconSelectorSheet(
   value: IconFile?,
 ) {
   ModalBottomSheet2(state = state) {
-    val viewModel = koinViewModel<IconSelectorViewModel>()
+    val viewModel = metroViewModel<IconSelectorViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value
     LaunchedEffect(Unit) {
       viewModel.cleanUpSheet(value)
@@ -159,9 +163,11 @@ private fun IconSelectorSheetContent(
   }
 }
 
-internal class IconSelectorViewModel(
-  private val iconPackCustomRepository: IconPackCustomRepository
-) : ViewModel() {
+@Inject
+@ViewModelKey
+@ContributesIntoMap(AppScope::class)
+class IconSelectorViewModel(private val iconPackCustomRepository: IconPackCustomRepository) :
+  ViewModel() {
   val textFieldState = TextFieldState()
   private val _selectedIconFile = MutableStateFlow<IconFile?>(null)
   private val _selectedIconPack = MutableStateFlow<IconPack?>(null)

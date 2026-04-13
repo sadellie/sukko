@@ -135,7 +135,7 @@ private fun EditorParameterLinkSource(
     state = customUriSheetState,
     onValueSelected = { onUpdate(imageUriSource.copy(value = it)) },
     value = imageUriSource.value,
-    globals = globals.strings,
+    globals = globals,
   )
 }
 

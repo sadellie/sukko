@@ -52,8 +52,10 @@ sealed interface BrushSource {
   }
 
   @Serializable
-  data class RadialGradient(val colors: List<ScriptableColor>, val radius: ScriptableDouble) :
-    BrushSource {
+  data class RadialGradient(
+    val colors: List<Pair<Float, ScriptableColor>>,
+    val radius: ScriptableDouble,
+  ) : BrushSource {
     @Transient override val displayName = Res.string.core_model_brush_radial_gradient
   }
 }

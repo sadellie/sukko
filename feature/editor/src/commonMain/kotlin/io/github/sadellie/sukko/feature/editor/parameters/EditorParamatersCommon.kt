@@ -42,7 +42,7 @@ internal fun EditorParametersCommon(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.updateIsEnabled(it)) },
     value = layer.isEnabled,
-    globals = globals.booleans,
+    globals = globals,
   )
 }
 

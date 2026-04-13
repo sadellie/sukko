@@ -5,27 +5,4 @@
         android:name="android.permission.USE_EXACT_ALARM"
         tools:ignore="ExactAlarm" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-
-    <application>
-        <receiver
-            android:name=".PowerStateReceiver"
-            android:enabled="false"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
-                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".MainWidgetProvider"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="io.github.sadellie.sukko.ACTION_UPDATE_WITH_SUBSCRIPTION" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info" />
-        </receiver>
-    </application>
 </manifest>

@@ -1,6 +1,8 @@
 package io.github.sadellie.sukko.core.data
 
 import android.content.Context
+import coil3.ImageLoader
+import coil3.memory.MemoryCache
 import io.github.sadellie.sukko.core.common.fileObserverFlow
 import io.github.sadellie.sukko.core.common.filesPath
 import io.github.sadellie.sukko.core.common.listInFilesAssets
@@ -24,7 +26,7 @@ import kotlin.io.path.ExperimentalPathApi
 internal class IconPackCustomRepositoryImpl(
   private val dao: IconPackDao,
   private val context: Context,
-  private val removeImageFromCache: (path: Path) -> Unit,
+  private val imageLoader: ImageLoader,
 ) : IconPackCustomRepository {
   @OptIn(ExperimentalCoroutinesApi::class)
   override fun getAll(): Flow<List<IconPack.Custom>> =
@@ -96,7 +98,7 @@ internal class IconPackCustomRepositoryImpl(
           destinationFile.createNewFile()
           val destinationOutputStream = destinationFile.outputStream()
           inputStream?.copyTo(destinationOutputStream)
-          removeImageFromCache(destinationPath)
+          imageLoader.memoryCache?.remove(MemoryCache.Key(destinationPath.toString()))
         }
       }
     }

@@ -16,14 +16,14 @@ kotlin {
 
 android {
   namespace = "io.github.sadellie.sukko"
-  compileSdk = 36
+  compileSdk = 37
 
   defaultConfig {
     applicationId = "io.github.sadellie.sukko"
     minSdk = 31
-    targetSdk = 36
-    versionCode = 3
-    versionName = "experimental 3"
+    targetSdk = 37
+    versionCode = 4
+    versionName = "experimental $versionCode"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -32,6 +32,7 @@ android {
     debug {
       isDebuggable = true
       isMinifyEnabled = false
+      //noinspection NotShrinkingResources
       isShrinkResources = false
       applicationIdSuffix = ".debug"
     }

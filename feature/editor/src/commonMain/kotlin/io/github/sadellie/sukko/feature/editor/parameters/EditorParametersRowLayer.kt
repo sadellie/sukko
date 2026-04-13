@@ -15,6 +15,7 @@ import com.composables.core.SheetDetent
 import com.composables.core.rememberModalBottomSheetState
 import io.github.sadellie.sukko.core.model.basic.AlignmentSource
 import io.github.sadellie.sukko.core.model.basic.ArrangementSource
+import io.github.sadellie.sukko.core.model.basic.LocalScriptableDisplay
 import io.github.sadellie.sukko.core.model.layer.ColdRowLayer
 import io.github.sadellie.sukko.core.ui.ExpandableListItem
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
@@ -22,7 +23,7 @@ import io.github.sadellie.sukko.core.ui.ModalBottomSheetWithItems
 import io.github.sadellie.sukko.core.ui.expand
 import io.github.sadellie.sukko.core.ui.lastShapes
 import io.github.sadellie.sukko.core.ui.middleShapes
-import io.github.sadellie.sukko.feature.editor.selector.FixedDpSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.FixedDoubleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_parameters_alignment
 import io.github.sadellie.sukko.resources.editor_parameters_arrangement
@@ -105,18 +106,21 @@ private fun EditorArrangementSourceSpacedBy(
   val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
     content = { Text(stringResource(arrangementSource.displayName)) },
-    supportingContent = { Text(arrangementSource.space.toString()) },
+    supportingContent = {
+      Text(LocalScriptableDisplay.current.displayString(arrangementSource.space))
+    },
     compactListMode = compactListMode,
     onClick = sheetState::expand,
     shapes = ListItemDefaults.middleShapes,
   )
-  FixedDpSelectorSheet(
+  FixedDoubleSelectorSheet(
     state = sheetState,
     onValueSelected = {
       val updatedArrangement = arrangementSource.copy(space = it)
       onUpdate(updatedArrangement)
     },
     value = arrangementSource.space,
+    allowFraction = true,
   )
 }
 
@@ -130,7 +134,9 @@ private fun EditorArrangementSourceSpacedByHorizontal(
   val sheetAlignmentState = rememberModalBottomSheetState(SheetDetent.Hidden)
   ListItem2Compact(
     content = { Text(stringResource(arrangementSource.displayName)) },
-    supportingContent = { Text(arrangementSource.space.toString()) },
+    supportingContent = {
+      Text(LocalScriptableDisplay.current.displayString(arrangementSource.space))
+    },
     compactListMode = compactListMode,
     onClick = sheetSpaceState::expand,
     shapes = ListItemDefaults.middleShapes,
@@ -143,10 +149,11 @@ private fun EditorArrangementSourceSpacedByHorizontal(
     shapes = ListItemDefaults.middleShapes,
   )
 
-  FixedDpSelectorSheet(
+  FixedDoubleSelectorSheet(
     state = sheetSpaceState,
     onValueSelected = { onUpdate(arrangementSource.copy(space = it)) },
     value = arrangementSource.space,
+    allowFraction = true,
   )
   ModalBottomSheetWithItems(
     state = sheetAlignmentState,

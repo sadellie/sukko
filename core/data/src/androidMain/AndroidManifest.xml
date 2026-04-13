@@ -11,8 +11,5 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
-        <service
-            android:name="io.github.sadellie.sukko.core.medialistener.MediaListenerService"
-            android:exported="false" />
     </application>
 </manifest>

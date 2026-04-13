@@ -44,8 +44,7 @@ List can be outdated
   - Basic syntax and documentation
   - Constants, methods, local variables, conditions and equality checks
 - Global values
-  - Colors, Strings, Boolean, Text styles etc.
-  - Not available in scripts yet
+  - Colors, Strings, Boolean, Text styles etc
   - Concurrent evaluation. Global values are evaluated once even if used in multiple layers
 - Editor
   - Compact list mode
@@ -68,11 +67,11 @@ List can be outdated
 - Android 12 / API 31 and higher
 - vivo - no, lol
 - Pixel and close to AOSP ROMs
-- Anything else - visit [https://dontkillmyapp.com/](https://dontkillmyapp.com/?app=Sukko&?5) and follow instructions.  If that didn't help - open an issue or buy Pixel
+- Anything else - visit [https://dontkillmyapp.com/](https://dontkillmyapp.com/?app=Sukko&?5) and follow instructions. If that didn't help - open an issue or buy Pixel
 
 # Scripting
 
-Currently, scripting documentation is available at https://sadellie.github.io/sukko/scripting/
+Scripting documentation is available at https://sadellie.github.io/sukko/scripting/
 
 # Licenses
 

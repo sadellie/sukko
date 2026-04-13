@@ -1,6 +1,8 @@
 package io.github.sadellie.sukko.core.data
 
 import android.content.Context
+import coil3.ImageLoader
+import coil3.memory.MemoryCache
 import io.github.sadellie.sukko.core.common.filesPath
 import io.github.sadellie.sukko.core.database.WidgetDataPresetBased
 import io.github.sadellie.sukko.core.database.WidgetDataPresetDao
@@ -16,7 +18,7 @@ import okio.Path
 internal class WidgetDataPresetCustomRepositoryImpl(
   private val dao: WidgetDataPresetDao,
   private val context: Context,
-  private val removeImageFromCache: (path: Path) -> Unit,
+  private val imageLoader: ImageLoader,
 ) : WidgetDataPresetCustomRepository {
   @OptIn(ExperimentalCoroutinesApi::class)
   override fun allWidgetDataPresets(decodeExtra: Boolean): Flow<List<WidgetDataPreset.Custom>> =
@@ -39,7 +41,7 @@ internal class WidgetDataPresetCustomRepositoryImpl(
       val destinationFile =
         widgetDataPreset.copy(presetId = presetId).getPreviewPath(context.filesPath).toFile()
       previewFile.copyTo(target = destinationFile, overwrite = true)
-      removeImageFromCache(previewPath)
+      imageLoader.memoryCache?.remove(MemoryCache.Key(previewPath.toString()))
     }
     return presetId
   }

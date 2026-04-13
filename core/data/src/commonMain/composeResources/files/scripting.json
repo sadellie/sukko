@@ -1,0 +1,626 @@
+{
+  "constants": [
+    {
+      "name": {
+        "en": "Battery status"
+      },
+      "description": {
+        "en": "Current battery status: CHARGING, DISCHARGING, FULL, NOT_CHARGING, UNKNOWN"
+      },
+      "api": "batteryStatus",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Battery level"
+      },
+      "description": {
+        "en": "Current battery level. From 0 to 100"
+      },
+      "api": "batteryLevel",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Battery charge/discharge in seconds"
+      },
+      "description": {
+        "en": "How many seconds left until battery charges to 100% or discharges to 0%"
+      },
+      "api": "batteryFullEmpty",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Unix timestamp"
+      },
+      "description": {
+        "en": "How many seconds passed since Jan 1st 1970"
+      },
+      "api": "currentTimestamp",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media artist"
+      },
+      "description": {
+        "en": "The artist of the last playing media. Can be empty."
+      },
+      "api": "mediaArtist",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media title"
+      },
+      "description": {
+        "en": "The title of the last playing media. Can be empty."
+      },
+      "api": "mediaTitle",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media playback duration"
+      },
+      "description": {
+        "en": "Playback duration of the last playing media in seconds"
+      },
+      "api": "mediaDuration",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media playback position"
+      },
+      "description": {
+        "en": "Playback position of the last playing media in seconds"
+      },
+      "api": "mediaPosition",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media cover URI"
+      },
+      "description": {
+        "en": "URI (link) for currently media cover of currently playing media. Can be empty."
+      },
+      "api": "mediaCover",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media player name"
+      },
+      "description": {
+        "en": "Name of currently playing media source (app name). Can be empty."
+      },
+      "api": "playerName",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media player icon"
+      },
+      "description": {
+        "en": "Uri to icon of currently playing media source (app logo). Can be empty."
+      },
+      "api": "playerIcon",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Media player state"
+      },
+      "description": {
+        "en": "Current state of player. Possible values: NONE, STOPPED, PAUSED, PLAYING, FAST_FORWARDING, REWINDING, BUFFERING, ERROR, SKIPPING_TO_PREVIOUS, SKIPPING_TO_NEXT, SKIPPING_TO_QUEUE_ITEM"
+      },
+      "api": "playerState",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Device model"
+      },
+      "description": {
+        "en": "Current device model"
+      },
+      "api": "deviceModel",
+      "returnTypes": [
+        "TEXT"
+      ]
+    },
+    {
+      "name": {
+        "en": "Minimal music volume"
+      },
+      "description": {
+        "en": "Minimal volume of audio streams for music playback. Usually 0"
+      },
+      "api": "volumeMusicMin",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Current music volume"
+      },
+      "description": {
+        "en": "Current volume of audio streams for music playback"
+      },
+      "api": "volumeMusic",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    },
+    {
+      "name": {
+        "en": "Max music volume"
+      },
+      "description": {
+        "en": "Max volume of audio streams for music playback"
+      },
+      "api": "volumeMusicMax",
+      "returnTypes": [
+        "NUMBER"
+      ]
+    }
+  ],
+  "methods": [
+    {
+      "name": {
+        "en": "Get global string"
+      },
+      "description": {
+        "en": "Get current value of a global string"
+      },
+      "api": "globalString(id)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": {
+            "en": "Id of a global string, see Globals tab in editor"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Get global number"
+      },
+      "description": {
+        "en": "Get current value of a global number"
+      },
+      "api": "globalNumber(id)",
+      "returnTypes": [
+        "NUMBER"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": {
+            "en": "Id of a global number, see Globals tab in editor"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Get global boolean"
+      },
+      "description": {
+        "en": "Get current value of a global boolean"
+      },
+      "api": "globalBoolean(id)",
+      "returnTypes": [
+        "BOOL"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": {
+            "en": "Id of a global boolean, see Globals tab in editor"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Set global number"
+      },
+      "description": {
+        "en": "Set value for global number and return it. Doesn't change initial value."
+      },
+      "api": "setGlobalNumber(id, value)",
+      "returnTypes": [
+        "NUMBER"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": {
+            "en": "Id of a global number, see Globals tab in editor"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        },
+        {
+          "name": "value",
+          "description": {
+            "en": "New value"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Set global string"
+      },
+      "description": {
+        "en": "Set value for global text and return it. Doesn't change initial value."
+      },
+      "api": "setGlobalString(id, value)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": {
+            "en": "Id of a global text, see Globals tab in editor"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        },
+        {
+          "name": "value",
+          "description": {
+            "en": "New value"
+          },
+          "types": [
+            "TEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Set global boolean"
+      },
+      "description": {
+        "en": "Set value for global boolean and return it. Doesn't change initial value."
+      },
+      "api": "setGlobalBoolean(id, value)",
+      "returnTypes": [
+        "BOOL"
+      ],
+      "params": [
+        {
+          "name": "id",
+          "description": {
+            "en": "Id of a global boolean, see Globals tab in editor"
+          },
+          "types": [
+            "NUMBER"
+          ]
+        },
+        {
+          "name": "value",
+          "description": {
+            "en": "New value"
+          },
+          "types": [
+            "BOOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Conditional check"
+      },
+      "description": {
+        "en": "Methods accept parameters and return a new value"
+      },
+      "api": "if (condition, ifTrue, ifFalse)",
+      "returnTypes": [
+        "TEXT",
+        "NUMBER",
+        "BOOL"
+      ],
+      "params": [
+        {
+          "name": "condition",
+          "description": {
+            "en": "condition expression"
+          },
+          "types": [
+            "BOOL"
+          ]
+        },
+        {
+          "name": "ifTrue",
+          "description": {
+            "en": "returning value if `condition` is true"
+          },
+          "types": [
+            "TEXT",
+            "NUMBER",
+            "BOOL"
+          ]
+        },
+        {
+          "name": "ifFalse",
+          "description": {
+            "en": "returning value if `condition` is false"
+          },
+          "types": [
+            "TEXT",
+            "NUMBER",
+            "BOOL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Current date"
+      },
+      "description": {
+        "en": "Current formatted date"
+      },
+      "api": "currentDate(format)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "format",
+          "description": {
+            "en": "Formatting pattern"
+          },
+          "types": [
+            "TEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Format timestamp"
+      },
+      "description": {
+        "en": "Format timestamp using specified pattern. Timestamp is converted to system time zone."
+      },
+      "api": "formatTimestamp(timestamp, format)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "timestamp",
+          "description": {
+            "en": "timestamp in seconds"
+          },
+          "types": [
+            "TEXT"
+          ]
+        },
+        {
+          "name": "format",
+          "description": {
+            "en": "Formatting pattern"
+          },
+          "types": [
+            "TEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Current date in time zone"
+      },
+      "description": {
+        "en": "Current formatted date in a specified time zone"
+      },
+      "api": "currentDateWitTimeZone(format, timeZoneId)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "format",
+          "description": {
+            "en": "Formatting pattern"
+          },
+          "types": [
+            "TEXT"
+          ]
+        },
+        {
+          "name": "timeZoneId",
+          "description": {
+            "en": "ID of a time zone"
+          },
+          "types": [
+            "TEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Dynamic color"
+      },
+      "description": {
+        "en": "Extract a HEX value for a color from dynamic color scheme generated by system"
+      },
+      "api": "dynamicColor(colorName)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "colorName",
+          "description": {
+            "en": "Color token, case-insensitive. Allowed values: PRIMARY, ON_PRIMARY, PRIMARY_CONTAINER, ON_PRIMARY_CONTAINER, INVERSE_PRIMARY, SECONDARY, ON_SECONDARY, SECONDARY_CONTAINER, ON_SECONDARY_CONTAINER, TERTIARY, ON_TERTIARY, TERTIARY_CONTAINER, ON_TERTIARY_CONTAINER, BACKGROUND, ON_BACKGROUND, SURFACE, ON_SURFACE, SURFACE_VARIANT, ON_SURFACE_VARIANT, SURFACE_TINT, INVERSE_SURFACE, INVERSE_ON_SURFACE, ERROR, ON_ERROR, ERROR_CONTAINER, ON_ERROR_CONTAINER, OUTLINE, OUTLINE_VARIANT, SCRIM, SURFACE_BRIGHT, SURFACE_DIM, SURFACE_CONTAINER, SURFACE_CONTAINER_HIGH, SURFACE_CONTAINER_HIGHEST, SURFACE_CONTAINER_LOW, SURFACE_CONTAINER_LOWEST, PRIMARY_FIXED, PRIMARY_FIXED_DIM, ON_PRIMARY_FIXED, ON_PRIMARY_FIXED_VARIANT, SECONDARY_FIXED, SECONDARY_FIXED_DIM, ON_SECONDARY_FIXED, ON_SECONDARY_FIXED_VARIANT, TERTIARY_FIXED, TERTIARY_FIXED_DIM, ON_TERTIARY_FIXED, ON_TERTIARY_FIXED_VARIANT"
+          },
+          "types": [
+            "TEXT"
+          ]
+        }
+      ]
+    },
+    {
+      "name": {
+        "en": "Color scheme from image"
+      },
+      "description": {
+        "en": "Extract a HEX value for a color from color scheme generated from image"
+      },
+      "api": "colorScheme(colorName, source)",
+      "returnTypes": [
+        "TEXT"
+      ],
+      "params": [
+        {
+          "name": "colorName",
+          "description": {
+            "en": "Color token, case-insensitive. Allowed values: PRIMARY, ON_PRIMARY, PRIMARY_CONTAINER, ON_PRIMARY_CONTAINER, INVERSE_PRIMARY, SECONDARY, ON_SECONDARY, SECONDARY_CONTAINER, ON_SECONDARY_CONTAINER, TERTIARY, ON_TERTIARY, TERTIARY_CONTAINER, ON_TERTIARY_CONTAINER, BACKGROUND, ON_BACKGROUND, SURFACE, ON_SURFACE, SURFACE_VARIANT, ON_SURFACE_VARIANT, SURFACE_TINT, INVERSE_SURFACE, INVERSE_ON_SURFACE, ERROR, ON_ERROR, ERROR_CONTAINER, ON_ERROR_CONTAINER, OUTLINE, OUTLINE_VARIANT, SCRIM, SURFACE_BRIGHT, SURFACE_DIM, SURFACE_CONTAINER, SURFACE_CONTAINER_HIGH, SURFACE_CONTAINER_HIGHEST, SURFACE_CONTAINER_LOW, SURFACE_CONTAINER_LOWEST, PRIMARY_FIXED, PRIMARY_FIXED_DIM, ON_PRIMARY_FIXED, ON_PRIMARY_FIXED_VARIANT, SECONDARY_FIXED, SECONDARY_FIXED_DIM, ON_SECONDARY_FIXED, ON_SECONDARY_FIXED_VARIANT, TERTIARY_FIXED, TERTIARY_FIXED_DIM, ON_TERTIARY_FIXED, ON_TERTIARY_FIXED_VARIANT"
+          },
+          "types": [
+            "TEXT"
+          ]
+        },
+        {
+          "name": "source",
+          "description": {
+            "en": "URI to image. Can be local (file://) or network (https://, http://) link"
+          },
+          "types": [
+            "TEXT"
+          ]
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "name": {
+        "en": "Text based on battery status"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "if (batteryStatus == \"CHARGING\", \"Phone is charging\", \"Phone is not charging\")"
+    },
+    {
+      "name": {
+        "en": "Battery charge percentage"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "batteryLevel\"%\""
+    },
+    {
+      "name": {
+        "en": "Text based battery charge"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "if (batteryLevel == 100, \"Battery is full\", if(batteryLevel > 30, \"Battery is ok\", \"Battery is low\"))"
+    },
+    {
+      "name": {
+        "en": "Current time"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "currentDate(\"HH:mm\")"
+    },
+    {
+      "name": {
+        "en": "Time of device battery charge or discharge"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "formatTimestamp(currentTimestamp + batteryFullEmpty, \"HH:mm\")"
+    },
+    {
+      "name": {
+        "en": "Time in UTC"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "currentDateWithTimeZone(\"HH:mm\", \"UTC\")"
+    },
+    {
+      "name": {
+        "en": "Primary dynamic color"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "m3Color(\"PRIMARY\")"
+    },
+    {
+      "name": {
+        "en": "Outline dynamic color"
+      },
+      "returnTypes": [
+        "TEXT"
+      ],
+      "script": "m3Color(\"OUTLINE\")"
+    }
+  ]
+}

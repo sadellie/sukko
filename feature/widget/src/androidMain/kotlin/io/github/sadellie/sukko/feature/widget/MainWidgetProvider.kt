@@ -2,7 +2,6 @@ package io.github.sadellie.sukko.feature.widget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,51 +9,42 @@ import androidx.glance.appwidget.goAsync
 import androidx.glance.session.SessionManagerScope
 import androidx.glance.session.UnglanceSessionManager
 import co.touchlab.kermit.Logger
+import coil3.ImageLoader
 import io.github.sadellie.sukko.core.common.MainWidgetAction
-import io.github.sadellie.sukko.core.common.getAppLaunchIntent
-import io.github.sadellie.sukko.core.common.toViewIntent
+import io.github.sadellie.sukko.core.data.LayerEvaluator
+import io.github.sadellie.sukko.core.data.ScriptableEvaluator
 import io.github.sadellie.sukko.core.data.WidgetDataRepository
 import io.github.sadellie.sukko.core.data.WidgetSubscriptionsRepository
-import io.github.sadellie.sukko.core.data.WidgetSubscriptionsRepositoryImpl
 import io.github.sadellie.sukko.core.medialistener.MediaListener
-import io.github.sadellie.sukko.core.medialistener.MediaListenerService
-import io.github.sadellie.sukko.core.model.basic.ClickAction
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import kotlin.coroutines.CoroutineContext
 
-class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
+abstract class MainWidgetProvider : AppWidgetProvider() {
   private val coroutineContext: CoroutineContext = Dispatchers.Default
-  private val mediaListener by inject<MediaListener>()
+
+  abstract fun getMediaListener(context: Context): MediaListener
+
+  abstract fun getImageLoader(context: Context): ImageLoader
+
+  abstract fun getWidgetDataRepository(context: Context): WidgetDataRepository
+
+  abstract fun startMediaListenerService(context: Context)
+
+  abstract fun stopMediaListenerService(context: Context)
+
+  abstract fun getWidgetSubscriptionsRepository(context: Context): WidgetSubscriptionsRepository
+
+  abstract fun getLayerEvaluatorFactory(context: Context): LayerEvaluator.LayerEvaluatorFactory
+
+  abstract fun getScriptableEvaluatorFactory(
+    context: Context
+  ): ScriptableEvaluator.ScriptableEvaluatorFactory
 
   companion object {
     private const val TAG = "MainWidgetProvider"
 
     /** Send when power state changes. */
     const val ACTION_POWER_UPDATE = "ACTION_POWER_UPDATE"
-
-    /** Send when clicking on a clickable layer */
-    const val ACTION_CLICK = "ACTION_CLICK"
-    const val EXTRA_ACTION_CLICKS_ARRAY = "EXTRA_ACTION_CLICKS_ARRAY"
-
-    fun sendBroadcast(context: Context, action: String) {
-      val intent = Intent(context, MainWidgetProvider::class.java).setAction(action)
-      context.sendBroadcast(intent)
-    }
-
-    fun pin(context: Context) {
-      val appWidgetManager = AppWidgetManager.getInstance(context)
-      val componentName = ComponentName(context, MainWidgetProvider::class.java)
-      if (!appWidgetManager.isRequestPinAppWidgetSupported) {
-        Logger.d(tag = TAG) { "Not allowed to pin app widget" }
-        return
-      }
-      appWidgetManager.requestPinAppWidget(componentName, null, null)
-    }
   }
 
   override fun onEnabled(context: Context?) {
@@ -70,9 +60,9 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
   override fun onDisabled(context: Context?) {
     context ?: return
     goAsync(coroutineContext) {
-      WidgetSubscriptionsRepositoryImpl(context).clearSubscriptions()
-      AlarmController.cancelCurrentAlarm(context)
-      MediaListenerService.stop(context)
+      getWidgetSubscriptionsRepository(context).clearSubscriptions()
+      AlarmController.cancelCurrentAlarm(context, getWidgetProviderIntent(context))
+      stopMediaListenerService(context)
     }
   }
 
@@ -80,9 +70,8 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
     context ?: return
     appWidgetIds ?: return
     goAsync(coroutineContext) {
-      WidgetSubscriptionsRepositoryImpl(context).removeFromAllSubscribers(appWidgetIds)
-      val repo by inject<WidgetDataRepository>()
-      appWidgetIds.forEach { repo.delete(it) }
+      getWidgetSubscriptionsRepository(context).removeFromAllSubscribers(appWidgetIds)
+      appWidgetIds.forEach { getWidgetDataRepository(context).delete(it) }
       setupAllListeners(context)
     }
   }
@@ -127,7 +116,7 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
         ACTION_POWER_UPDATE -> {} // reset alarm manager to update delay
         AlarmController.ACTION_ALARM_UPDATE -> receiveAlarmUpdate(context)
         MediaListener.MEDIA_METADATA_UPDATE -> receiveMediaMetadataUpdate(context)
-        ACTION_CLICK -> receiveClick(context, intent)
+        MainWidgetAction.ACTION_CLICK -> receiveClick(context, intent)
       }
     }
   }
@@ -135,7 +124,7 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
   private suspend fun receiveUpdateWithSubscription(context: Context, intent: Intent) {
     val appWidgetId = intent.getIntExtra(MainWidgetAction.EXTRA_APPWIDGET_ID, -1)
     if (appWidgetId == -1) return
-    val widgetSubscriptions = WidgetSubscriptionsRepositoryImpl(context)
+    val widgetSubscriptions = getWidgetSubscriptionsRepository(context)
     widgetSubscriptions.updateSubscribers(
       type = WidgetSubscriptionsRepository.TIME_SUBSCRIBERS,
       appWidgetId = appWidgetId,
@@ -160,50 +149,47 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
     val alarmSubscribers = getAlarmSubscribers(context)
     if (alarmSubscribers.isNotEmpty()) {
       alarmSubscribers.forEach { updateFromAlarm(context, it) }
-      AlarmController.rescheduleNewAlarm(context)
+      AlarmController.rescheduleNewAlarm(context, getWidgetProviderIntent(context))
     }
   }
 
   private suspend fun receiveMediaMetadataUpdate(context: Context) {
-    WidgetSubscriptionsRepositoryImpl(context)
+    getWidgetSubscriptionsRepository(context)
       .getSubscribers(WidgetSubscriptionsRepository.MEDIA_SUBSCRIBERS)
       .forEach { updateMediaInfo(context, it) }
   }
 
-  private suspend fun receiveClick(context: Context, intent: Intent) =
-    withContext(Dispatchers.Default) {
-      // get list of action and perform calls on them
-      val extraActionClicksArray = intent.getStringArrayExtra(EXTRA_ACTION_CLICKS_ARRAY)
-      if (extraActionClicksArray == null) {
-        Logger.w(tag = TAG) { "EXTRA_ACTION_CLICKS_ARRAY was empty" }
-        return@withContext
-      }
-
-      for (clickActionJsonString in extraActionClicksArray) {
-        try {
-          val clickAction = Json.decodeFromString<ClickAction.Evaluated>(clickActionJsonString)
-          performClickActionEvent(clickAction, context)
-        } catch (e: SerializationException) {
-          Logger.d(throwable = e, tag = TAG) { "Failed to decode: $clickActionJsonString" }
-        } catch (e: IllegalArgumentException) {
-          Logger.d(throwable = e, tag = TAG) { "Failed to decode: $clickActionJsonString" }
-        }
-      }
+  private suspend fun receiveClick(context: Context, intent: Intent) {
+    // get list of action and perform calls on them
+    val extraActionClicksArray =
+      intent.getStringArrayExtra(MainWidgetAction.EXTRA_ACTION_CLICKS_ARRAY)
+    val appWidgetId = intent.getIntExtra(MainWidgetAction.EXTRA_APPWIDGET_ID, -1)
+    if (appWidgetId == -1) {
+      Logger.w(tag = TAG) { "EXTRA_APPWIDGET_ID was empty" }
+      return
     }
+    if (extraActionClicksArray == null) {
+      Logger.w(tag = TAG) { "EXTRA_ACTION_CLICKS_ARRAY was empty" }
+      return
+    }
+    getOrCreateAppWidgetSession(context, appWidgetId) { session, _ ->
+      session.updateClickActions(extraActionClicksArray)
+    }
+  }
 
   /** Refresh and start/stop services based on need. */
   private fun setupAllListeners(context: Context) {
     if (getAlarmSubscribers(context).isNotEmpty()) {
-      AlarmController.rescheduleNewAlarm(context)
+      AlarmController.rescheduleNewAlarm(context, getWidgetProviderIntent(context))
     }
     val mediaSubscribers =
-      WidgetSubscriptionsRepositoryImpl(context)
+      getWidgetSubscriptionsRepository(context)
         .getSubscribers(WidgetSubscriptionsRepository.MEDIA_SUBSCRIBERS)
     if (mediaSubscribers.isNotEmpty()) {
       // start service only when needed
-      MediaListenerService.start(context)
+      startMediaListenerService(context)
     } else {
-      MediaListenerService.stop(context)
+      stopMediaListenerService(context)
     }
   }
 
@@ -215,7 +201,19 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
     UnglanceSessionManager.runWithLock {
       val wasRunning = isSessionRunning(context, appWidgetId.toString())
       if (!wasRunning) {
-        startSession(context, AppWidgetSession(appWidgetId))
+        startSession(
+          context = context,
+          session =
+            AppWidgetSession(
+              appWidgetId = appWidgetId,
+              widgetDataRepository = getWidgetDataRepository(context),
+              mediaListener = getMediaListener(context),
+              imageLoader = getImageLoader(context),
+              widgetProviderIntent = getWidgetProviderIntent(context),
+              scriptableEvaluatorFactory = getScriptableEvaluatorFactory(context),
+              layerEvaluatorFactory = getLayerEvaluatorFactory(context),
+            ),
+        )
       }
       val session = getSession(appWidgetId.toString()) as AppWidgetSession
       return@runWithLock block(session, wasRunning)
@@ -239,15 +237,12 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
     }
   }
 
-  private fun getAllWidgetIds(context: Context): List<Int> {
-    val componentName = ComponentName(context, MainWidgetProvider::class.java)
-    val appWidgetManager = AppWidgetManager.getInstance(context)
-    val allWidgetIds = appWidgetManager.getAppWidgetIds(componentName).toList()
-    return allWidgetIds
-  }
+  abstract fun getAllWidgetIds(context: Context): List<Int>
+
+  abstract fun getWidgetProviderIntent(context: Context): Intent
 
   private fun getAlarmSubscribers(context: Context): Set<Int> {
-    val widgetSubscriptions = WidgetSubscriptionsRepositoryImpl(context)
+    val widgetSubscriptions = getWidgetSubscriptionsRepository(context)
     // alarm updates trigger time and battery subscribers
     val timeSubscribers =
       widgetSubscriptions.getSubscribers(WidgetSubscriptionsRepository.TIME_SUBSCRIBERS)
@@ -255,44 +250,4 @@ class MainWidgetProvider : AppWidgetProvider(), KoinComponent {
       widgetSubscriptions.getSubscribers(WidgetSubscriptionsRepository.BATTERY_SUBSCRIBERS)
     return timeSubscribers + batterySubscribers
   }
-
-  private fun performClickActionEvent(clickAction: ClickAction.Evaluated, context: Context) {
-    when (clickAction) {
-      is ClickAction.Evaluated.OpenLink -> {
-        val intent = clickAction.url.toViewIntent() ?: return
-        context.startActivity(intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-      }
-      is ClickAction.LaunchApp -> {
-        val packageName = clickAction.packageName ?: return
-        val appLaunchIntent = context.getAppLaunchIntent(packageName) ?: return
-        context.startActivity(appLaunchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-      }
-      is ClickAction.MediaPause -> mediaListener.pause()
-      is ClickAction.MediaPlay -> mediaListener.play()
-      is ClickAction.MediaSkipToNext -> mediaListener.skipToNext()
-      is ClickAction.MediaSkipToPrevious -> mediaListener.skipToPrevious()
-      is ClickAction.MediaOpenPlayer -> mediaListener.openPlayer()
-    }
-  }
-}
-
-/**
- * Calculate next millis for next [minute].
- *
- * Example 1:
- * - current time is 14:15
- * - [minute] is 1
- * - will return millis for 14:16
- *
- * Example 2:
- * - current time is 14:15
- * - [minute] is 15
- * - will return millis for 14:30
- */
-internal fun nextMinuteStartMillis(currentTimeMillis: Long, minute: Int): Long {
-  // lose seconds on purpose
-  val currentMinute = currentTimeMillis / 60_000
-  val nextMinute = currentMinute + minute
-  val nextMillis = nextMinute * 60_000
-  return nextMillis
 }

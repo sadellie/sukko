@@ -8,6 +8,7 @@ import io.github.sadellie.sukko.resources.core_model_click_action_media_play
 import io.github.sadellie.sukko.resources.core_model_click_action_media_skip_to_next
 import io.github.sadellie.sukko.resources.core_model_click_action_media_skip_to_previous
 import io.github.sadellie.sukko.resources.core_model_click_action_open_link
+import io.github.sadellie.sukko.resources.core_model_click_action_run_script
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
@@ -27,6 +28,7 @@ sealed interface ClickAction {
         listOf(
           OpenLink(id = 0),
           LaunchApp(id = 0),
+          RunScript(id = 0),
           MediaPause(id = 0),
           MediaPlay(id = 0),
           MediaSkipToNext(id = 0),
@@ -51,7 +53,15 @@ sealed interface ClickAction {
     @Serializable data class OpenLink(override val id: Int, val url: String) : Evaluated
   }
 
-  @Serializable sealed interface MediaAction
+  @Serializable
+  data class RunScript(override val id: Int, val script: String = "") : Cold, Evaluated {
+    @Transient
+    override val displayName: StringResource = Res.string.core_model_click_action_run_script
+
+    override fun updateId(newId: Int) = this.copy(id = newId)
+  }
+
+  @Serializable sealed interface MediaAction : Cold, Evaluated
 
   @Serializable
   data class LaunchApp(
@@ -65,35 +75,35 @@ sealed interface ClickAction {
   }
 
   @Serializable
-  data class MediaPause(override val id: Int) : Cold, Evaluated, MediaAction {
+  data class MediaPause(override val id: Int) : MediaAction {
     @Transient override val displayName = Res.string.core_model_click_action_media_pause
 
     override fun updateId(newId: Int) = this.copy(id = newId)
   }
 
   @Serializable
-  data class MediaPlay(override val id: Int) : Cold, Evaluated, MediaAction {
+  data class MediaPlay(override val id: Int) : MediaAction {
     @Transient override val displayName = Res.string.core_model_click_action_media_play
 
     override fun updateId(newId: Int) = this.copy(id = newId)
   }
 
   @Serializable
-  data class MediaSkipToNext(override val id: Int) : Cold, Evaluated, MediaAction {
+  data class MediaSkipToNext(override val id: Int) : MediaAction {
     @Transient override val displayName = Res.string.core_model_click_action_media_skip_to_next
 
     override fun updateId(newId: Int) = this.copy(id = newId)
   }
 
   @Serializable
-  data class MediaSkipToPrevious(override val id: Int) : Cold, Evaluated, MediaAction {
+  data class MediaSkipToPrevious(override val id: Int) : MediaAction {
     @Transient override val displayName = Res.string.core_model_click_action_media_skip_to_previous
 
     override fun updateId(newId: Int) = this.copy(id = newId)
   }
 
   @Serializable
-  data class MediaOpenPlayer(override val id: Int) : Cold, Evaluated, MediaAction {
+  data class MediaOpenPlayer(override val id: Int) : MediaAction {
     @Transient override val displayName = Res.string.core_model_click_action_media_open_player
 
     override fun updateId(newId: Int) = this.copy(id = newId)

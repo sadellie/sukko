@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.DpSize
 import androidx.core.graphics.scale
 import co.touchlab.kermit.Logger
+import io.github.sadellie.sukko.core.common.MainWidgetAction
 import io.github.sadellie.sukko.core.model.basic.ClickAction
 import io.github.sadellie.sukko.core.model.layer.Layer
 import io.github.sadellie.sukko.core.unglance.RenderResult
@@ -26,7 +27,9 @@ import kotlinx.serialization.json.Json
  */
 internal suspend fun processAllRenderSubResults(
   context: Context,
+  appWidgetId: Int,
   renderResult: RenderResult.Ready,
+  widgetProviderIntent: Intent,
 ): RemoteViews {
   val displayMetrics: DisplayMetrics = context.resources.displayMetrics
   val screenWidth = displayMetrics.widthPixels
@@ -48,7 +51,14 @@ internal suspend fun processAllRenderSubResults(
     RemoteViews(
       renderResult.subResults.associate { subResult ->
         subResult.widgetSize.toSizeF() to
-          processRenderSubResult(context, subResult, renderResult.layers, scaleFactor)
+          processRenderSubResult(
+            context = context,
+            appWidgetId = appWidgetId,
+            renderSubResult = subResult,
+            evaluatedLayers = renderResult.layers,
+            bitmapScaleFactor = scaleFactor,
+            widgetProviderIntent = widgetProviderIntent,
+          )
       }
     )
 
@@ -57,55 +67,77 @@ internal suspend fun processAllRenderSubResults(
 
 internal suspend fun processRenderSubResult(
   context: Context,
+  appWidgetId: Int,
   renderSubResult: RenderSubResult,
   evaluatedLayers: List<Layer.Evaluated>,
   bitmapScaleFactor: Float,
+  widgetProviderIntent: Intent,
 ): RemoteViews {
   val imageBitmap = renderSubResult.graphicsLayer.toImageBitmap()
-  val background =
-    imageBitmap
-      .asAndroidBitmap()
-      .scale(
-        (imageBitmap.width * bitmapScaleFactor).toInt(),
-        (imageBitmap.height * bitmapScaleFactor).toInt(),
-      )
+  val background = prepareRenderBackground(context, imageBitmap, bitmapScaleFactor)
   val hostLayout = RemoteViews(context.packageName, R.layout.render_host_main_layout)
-  hostLayout.setViewLayoutWidth(
-    R.id.host_main_view,
-    imageBitmap.width.toFloat(),
-    TypedValue.COMPLEX_UNIT_PX,
-  )
-  hostLayout.setViewLayoutHeight(
-    R.id.host_main_view,
-    imageBitmap.height.toFloat(),
-    TypedValue.COMPLEX_UNIT_PX,
-  )
-  hostLayout.setImageViewBitmap(R.id.host_main_view, background)
   val clickableAreas =
-    prepareClickableAreas(context, evaluatedLayers, imageBitmap, renderSubResult.bounds)
+    prepareClickableAreas(
+      context = context,
+      appWidgetId = appWidgetId,
+      evaluatedLayers = evaluatedLayers,
+      widthPx = imageBitmap.width.toFloat(),
+      heightPx = imageBitmap.height.toFloat(),
+      bounds = renderSubResult.bounds,
+      widgetProviderIntent = widgetProviderIntent,
+    )
   hostLayout.removeAllViews(R.id.host_main_view)
+  hostLayout.addView(R.id.host_main_view, background)
   hostLayout.addView(R.id.host_main_view, clickableAreas)
   return hostLayout
 }
 
-private fun prepareClickableAreas(
+private fun prepareRenderBackground(
   context: Context,
-  evaluatedLayers: List<Layer.Evaluated>,
   image: ImageBitmap,
-  bounds: Map<Int, Rect>,
+  bitmapScaleFactor: Float,
 ): RemoteViews {
-  val clickableHost = RemoteViews(context.packageName, R.layout.render_host_clickable_layout)
-  clickableHost.setViewLayoutWidth(
-    R.id.host_clickable_view,
+  val renderHostImage = RemoteViews(context.packageName, R.layout.render_host_image_layout)
+  renderHostImage.setViewLayoutWidth(
+    R.id.host_image_view,
     image.width.toFloat(),
     TypedValue.COMPLEX_UNIT_PX,
   )
-  clickableHost.setViewLayoutHeight(
-    R.id.host_clickable_view,
+  renderHostImage.setViewLayoutHeight(
+    R.id.host_image_view,
     image.height.toFloat(),
     TypedValue.COMPLEX_UNIT_PX,
   )
 
+  // image is rendered with higher resolution
+  val androidBitmap =
+    image
+      .asAndroidBitmap()
+      .scale(
+        width = (image.width * bitmapScaleFactor).toInt(),
+        height = (image.height * bitmapScaleFactor).toInt(),
+      )
+  renderHostImage.setImageViewBitmap(R.id.host_image_view, androidBitmap)
+
+  return renderHostImage
+}
+
+private fun prepareClickableAreas(
+  context: Context,
+  appWidgetId: Int,
+  evaluatedLayers: List<Layer.Evaluated>,
+  widthPx: Float,
+  heightPx: Float,
+  bounds: Map<Int, Rect>,
+  widgetProviderIntent: Intent,
+): RemoteViews {
+  val clickableHost = RemoteViews(context.packageName, R.layout.render_host_clickable_layout)
+  clickableHost.setViewLayoutWidth(R.id.host_clickable_view, widthPx, TypedValue.COMPLEX_UNIT_PX)
+  clickableHost.setViewLayoutHeight(R.id.host_clickable_view, heightPx, TypedValue.COMPLEX_UNIT_PX)
+
+  // rendering is done on a 1x1 display, bounds are shifted by (approximately) half of widget size
+  val offsetX = widthPx / 2
+  val offsetY = heightPx / 2
   for (layer in evaluatedLayers) {
     val clickActions = layer.clickActions
     if (clickActions.isEmpty()) continue
@@ -131,17 +163,24 @@ private fun prepareClickableAreas(
     clickableRemoteViews.setViewLayoutMargin(
       R.id.host_clickable_area_view,
       RemoteViews.MARGIN_START,
-      layerBounds.left,
+      layerBounds.left + offsetX,
       TypedValue.COMPLEX_UNIT_PX,
     )
     clickableRemoteViews.setViewLayoutMargin(
       R.id.host_clickable_area_view,
       RemoteViews.MARGIN_TOP,
-      layerBounds.top,
+      layerBounds.top + offsetY,
       TypedValue.COMPLEX_UNIT_PX,
     )
 
-    val intentOnClick = createPendingIntentFromClickAction(context, layer.id, clickActions)
+    val intentOnClick =
+      createPendingIntentFromClickAction(
+        context,
+        appWidgetId,
+        layer.id,
+        clickActions,
+        widgetProviderIntent,
+      )
     clickableRemoteViews.setOnClickPendingIntent(R.id.host_clickable_area_view, intentOnClick)
 
     clickableHost.addView(R.id.host_clickable_view, clickableRemoteViews)
@@ -152,14 +191,17 @@ private fun prepareClickableAreas(
 
 private fun createPendingIntentFromClickAction(
   context: Context,
+  appWidgetId: Int,
   layerId: Int,
   clickActions: List<ClickAction.Evaluated>,
+  widgetProviderIntent: Intent,
 ): PendingIntent {
   val clickActionsArray = clickActions.map { Json.encodeToString(it) }.toTypedArray()
   val intent =
-    Intent(context, MainWidgetProvider::class.java)
-      .setAction(MainWidgetProvider.ACTION_CLICK)
-      .putExtra(MainWidgetProvider.EXTRA_ACTION_CLICKS_ARRAY, clickActionsArray)
+    widgetProviderIntent
+      .setAction(MainWidgetAction.ACTION_CLICK)
+      .putExtra(MainWidgetAction.EXTRA_ACTION_CLICKS_ARRAY, clickActionsArray)
+      .putExtra(MainWidgetAction.EXTRA_APPWIDGET_ID, appWidgetId)
 
   return PendingIntent.getBroadcast(
     context,

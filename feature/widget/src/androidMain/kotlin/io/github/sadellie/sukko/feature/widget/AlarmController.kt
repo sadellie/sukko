@@ -13,23 +13,44 @@ internal object AlarmController {
   // how many minutes between alarms
   private const val ALARM_DELAY_MINUTE = 1
 
-  fun rescheduleNewAlarm(context: Context) {
+  fun rescheduleNewAlarm(context: Context, widgetProviderIntent: Intent) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    cancelCurrentAlarm(context)
+    cancelCurrentAlarm(context, widgetProviderIntent)
     val currentTimeMillis = Clock.System.now().toEpochMilliseconds()
     val nextMinuteMillis = nextMinuteStartMillis(currentTimeMillis, ALARM_DELAY_MINUTE)
-    val pendingIntent = getPendingAlarmIntent(context)
+    val pendingIntent = getPendingAlarmIntent(context, widgetProviderIntent)
     alarmManager.setExact(AlarmManager.RTC, nextMinuteMillis, pendingIntent)
   }
 
-  fun cancelCurrentAlarm(context: Context) {
+  fun cancelCurrentAlarm(context: Context, widgetProviderIntent: Intent) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val pendingIntent = getPendingAlarmIntent(context)
+    val pendingIntent = getPendingAlarmIntent(context, widgetProviderIntent)
     alarmManager.cancel(pendingIntent)
   }
 
-  private fun getPendingAlarmIntent(context: Context): PendingIntent {
-    val intent = Intent(context, MainWidgetProvider::class.java).setAction(ACTION_ALARM_UPDATE)
+  /**
+   * Calculate next millis for next [minute].
+   *
+   * Example 1:
+   * - current time is 14:15
+   * - [minute] is 1
+   * - will return millis for 14:16
+   *
+   * Example 2:
+   * - current time is 14:15
+   * - [minute] is 15
+   * - will return millis for 14:30
+   */
+  internal fun nextMinuteStartMillis(currentTimeMillis: Long, minute: Int): Long {
+    // lose seconds on purpose
+    val currentMinute = currentTimeMillis / 60_000
+    val nextMinute = currentMinute + minute
+    val nextMillis = nextMinute * 60_000
+    return nextMillis
+  }
+
+  private fun getPendingAlarmIntent(context: Context, widgetProviderIntent: Intent): PendingIntent {
+    val intent = widgetProviderIntent.setAction(ACTION_ALARM_UPDATE)
     val pendingIntent =
       PendingIntent.getBroadcast(
         context.applicationContext,

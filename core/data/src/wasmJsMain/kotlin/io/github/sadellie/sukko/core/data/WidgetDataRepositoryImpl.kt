@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
 
-class WidgetDataRepositoryImpl : WidgetDataRepository {
+internal class WidgetDataRepositoryImpl : WidgetDataRepository {
   override fun allWidgetData(decodeExtra: Boolean): Flow<List<WidgetData>> = flowOf(emptyList())
 
   override suspend fun loadByAppWidgetId(appWidgetId: Int): WidgetData? = null

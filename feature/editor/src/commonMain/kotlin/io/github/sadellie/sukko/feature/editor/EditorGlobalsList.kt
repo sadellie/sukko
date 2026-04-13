@@ -1,7 +1,9 @@
 package io.github.sadellie.sukko.feature.editor
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -25,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -35,6 +38,7 @@ import google.material.design.symbols.Add
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
+import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.ui.AlertDialogWithText
@@ -48,8 +52,6 @@ import io.github.sadellie.sukko.core.ui.listedShapes
 import io.github.sadellie.sukko.feature.editor.selector.BooleanSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ColorSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
-import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
-import io.github.sadellie.sukko.feature.editor.selector.SpSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.StringSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.TextStyleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
@@ -60,11 +62,9 @@ import io.github.sadellie.sukko.resources.editor_globals_list_boolean
 import io.github.sadellie.sukko.resources.editor_globals_list_color
 import io.github.sadellie.sukko.resources.editor_globals_list_delete_global
 import io.github.sadellie.sukko.resources.editor_globals_list_delete_global_text
-import io.github.sadellie.sukko.resources.editor_globals_list_dp
 import io.github.sadellie.sukko.resources.editor_globals_list_label
 import io.github.sadellie.sukko.resources.editor_globals_list_number
 import io.github.sadellie.sukko.resources.editor_globals_list_rename_global
-import io.github.sadellie.sukko.resources.editor_globals_list_sp
 import io.github.sadellie.sukko.resources.editor_globals_list_string
 import io.github.sadellie.sukko.resources.editor_globals_list_text_style
 import org.jetbrains.compose.resources.StringResource
@@ -83,7 +83,8 @@ internal fun EditorGlobalsList(
       onAddGlobal = { onEvent(EditorEvent.GlobalAction.Add(it)) },
     )
 
-    if (globals.isEmpty()) return@Column
+    val isGlobalsEmpty = remember(globals) { globals.isEmpty() }
+    if (isGlobalsEmpty) return@Column
     LazyColumn(
       modifier = Modifier.fillMaxWidth(),
       contentPadding = contentPadding,
@@ -114,20 +115,6 @@ internal fun EditorGlobalsList(
         items = globals.doubles,
         keyPrefix = "doubles",
         header = Res.string.editor_globals_list_number,
-        onEvent = onEvent,
-        globals = globals,
-      )
-      globalItems(
-        items = globals.dps,
-        keyPrefix = "dps",
-        header = Res.string.editor_globals_list_dp,
-        onEvent = onEvent,
-        globals = globals,
-      )
-      globalItems(
-        items = globals.sps,
-        keyPrefix = "sps",
-        header = Res.string.editor_globals_list_sp,
         onEvent = onEvent,
         globals = globals,
       )
@@ -183,8 +170,6 @@ private fun AddGlobalButton(modifier: Modifier, onAddGlobal: (newGlobal: GlobalV
               GlobalType.STRING -> GlobalValue.GlobalString(label = label)
               GlobalType.BOOLEAN -> GlobalValue.GlobalBoolean(label = label)
               GlobalType.NUMBER -> GlobalValue.GlobalDouble(label = label)
-              GlobalType.DP -> GlobalValue.GlobalDp(label = label)
-              GlobalType.SP -> GlobalValue.GlobalSp(label = label)
               GlobalType.TEXT_STYLE -> GlobalValue.GlobalTextStyle(label = label)
             }
           onAddGlobal(globalToAdd)
@@ -229,7 +214,12 @@ private fun <T> GlobalListItem(
   ListItem2(
     modifier = modifier,
     onClick = { sheetState.expand() },
-    content = { Text(global.label) },
+    content = {
+      Row(horizontalArrangement = Arrangement.spacedBy(Sizes.small)) {
+        Text("${global.id}", modifier = Modifier.alpha(ID_LABEL_ALPHA))
+        Text(global.label)
+      }
+    },
     trailingContent = {
       GlobalListItemMenu(
         globalLabel = global.label,
@@ -244,51 +234,41 @@ private fun <T> GlobalListItem(
     is GlobalValue.GlobalColor ->
       ColorSelectorSheet(
         state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
-        globals = remember(globals.colors, global) { globals.colors - global },
+        onValueSelected = { newValue -> onUpdate(global.updateInitialValue(newValue)) },
+        value = global.initialValue,
+        globals =
+          remember(globals.colors, global) { globals.copy(colors = globals.colors - global) },
       )
     is GlobalValue.GlobalString ->
       StringSelectorSheet(
         state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
-        globals = remember(globals.strings, global) { globals.strings - global },
+        onValueSelected = { newValue -> onUpdate(global.updateInitialValue(newValue)) },
+        value = global.initialValue,
+        globals =
+          remember(globals.strings, global) { globals.copy(strings = globals.strings - global) },
       )
     is GlobalValue.GlobalBoolean ->
       BooleanSelectorSheet(
         state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
-        globals = remember(globals.booleans, global) { globals.booleans - global },
+        onValueSelected = { newValue -> onUpdate(global.updateInitialValue(newValue)) },
+        value = global.initialValue,
+        globals =
+          remember(globals.booleans, global) { globals.copy(booleans = globals.booleans - global) },
       )
     is GlobalValue.GlobalDouble ->
       DoubleSelectorSheet(
         state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
+        onValueSelected = { newValue -> onUpdate(global.updateInitialValue(newValue)) },
+        value = global.initialValue,
         allowFraction = true,
-        globals = remember(globals.doubles, global) { globals.doubles - global },
-      )
-    is GlobalValue.GlobalDp ->
-      DpSelectorSheet(
-        state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
-        globals = remember(globals.dps, global) { globals.dps - global },
-      )
-    is GlobalValue.GlobalSp ->
-      SpSelectorSheet(
-        state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
-        globals = remember(globals.sps, global) { globals.sps - global },
+        globals =
+          remember(globals.doubles, global) { globals.copy(doubles = globals.doubles - global) },
       )
     is GlobalValue.GlobalTextStyle ->
       TextStyleSelectorSheet(
         state = sheetState,
-        onValueSelected = { newValue -> onUpdate(global.updateValue(newValue)) },
-        value = global.value,
+        onValueSelected = { newValue -> onUpdate(global.updateInitialValue(newValue)) },
+        value = global.initialValue,
         globals = globals,
       )
   }
@@ -345,10 +325,10 @@ private enum class GlobalType(val displayName: StringResource) {
   STRING(Res.string.editor_globals_list_string),
   BOOLEAN(Res.string.editor_globals_list_boolean),
   NUMBER(Res.string.editor_globals_list_number),
-  DP(Res.string.editor_globals_list_dp),
-  SP(Res.string.editor_globals_list_sp),
   TEXT_STYLE(Res.string.editor_globals_list_text_style),
 }
+
+private const val ID_LABEL_ALPHA = 0.6f
 
 @Composable
 @Preview
@@ -388,8 +368,6 @@ private class GlobalsListPreviewProvider : PreviewParameterProvider<Globals> {
         textStyles = List(4) { GlobalValue.GlobalTextStyle(id = it.toLong(), label = "Item $it") },
         booleans = List(4) { GlobalValue.GlobalBoolean(id = it.toLong(), label = "Item $it") },
         doubles = List(4) { GlobalValue.GlobalDouble(id = it.toLong(), label = "Item $it") },
-        dps = List(4) { GlobalValue.GlobalDp(id = it.toLong(), label = "Item $it") },
-        sps = List(4) { GlobalValue.GlobalSp(id = it.toLong(), label = "Item $it") },
         colors = List(4) { GlobalValue.GlobalColor(id = it.toLong(), label = "Item $it") },
       ),
     )

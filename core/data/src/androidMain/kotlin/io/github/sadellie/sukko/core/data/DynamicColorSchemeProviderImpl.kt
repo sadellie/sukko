@@ -16,13 +16,12 @@ import com.materialkolor.hct.Hct
 import com.materialkolor.scheme.DynamicScheme
 import com.materialkolor.scheme.SchemeExpressive
 import io.github.sadellie.sukko.core.model.basic.M3Color
-import io.github.sadellie.sukko.core.model.provider.DynamicColorSchemeProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-class DynamicColorSchemeProviderImpl(
+internal class DynamicColorSchemeProviderImpl(
   private val context: Context,
   private val imageProvider: ImageProvider,
 ) : DynamicColorSchemeProvider {

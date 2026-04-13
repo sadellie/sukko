@@ -33,6 +33,7 @@ import io.github.sadellie.sukko.feature.editor.EditorEvent
 import io.github.sadellie.sukko.feature.editor.EditorList
 import io.github.sadellie.sukko.feature.editor.LayerListItemDragHandle
 import io.github.sadellie.sukko.feature.editor.selector.AppSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.ScriptActionSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.StringSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_not_selected
@@ -130,7 +131,26 @@ private fun ReorderableCollectionItemScope.EditorClickActionsListItem(
         state = sheetState,
         onValueSelected = { onUpdate(clickAction.copy(url = it)) },
         value = clickAction.url,
-        globals = globals.strings,
+        globals = globals,
+      )
+    }
+    is ClickAction.RunScript -> {
+      val sheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
+      EditorClickActionsListItemBasic(
+        modifier = modifier,
+        onClick = { sheetState.expand() },
+        onRemoveClick = onRemoveClick,
+        compactListMode = compactListMode,
+        isInEditingMode = isInEditingMode,
+        headlineText = stringResource(clickAction.displayName),
+        onDragStopped = onDragStopped,
+        shapes = shapes,
+      )
+      ScriptActionSelectorSheet(
+        state = sheetState,
+        onConfirm = { onUpdate(clickAction.copy(script = it)) },
+        script = clickAction.script,
+        globals = globals,
       )
     }
     is ClickAction.MediaPause,

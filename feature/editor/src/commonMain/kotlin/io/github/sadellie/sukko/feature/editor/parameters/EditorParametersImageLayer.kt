@@ -105,7 +105,7 @@ private fun EditorParametersContentScale(
       value = scaleSource.scale,
       range = ContentScaleSource.FixedScale.scaleRange,
       allowFraction = true,
-      globals = globals.doubles,
+      globals = globals,
     )
   }
 }
@@ -133,6 +133,6 @@ private fun EditorParametersTint(
     state = sheetState,
     onValueSelected = { onUpdateLayer(layer.copy(tint = it)) },
     value = layer.tint,
-    globals = globals.colors,
+    globals = globals,
   )
 }

@@ -16,8 +16,6 @@ import coil3.request.ImageRequest
 import coil3.toBitmap
 import coil3.toUri
 import io.github.sadellie.sukko.core.data.ImageProvider.Companion.ALBUM_COVER_URI
-import io.github.sadellie.sukko.core.model.Globals
-import io.github.sadellie.sukko.core.model.LayerContext
 import io.github.sadellie.sukko.core.model.basic.ImageUriSource
 import okio.Path
 
@@ -56,19 +54,19 @@ interface ImageProvider {
 
   suspend fun getBitmap(
     imageUriSource: ImageUriSource,
-    layerContext: LayerContext,
-    globals: Globals,
+    filesDirPath: Path,
+    scriptableEvaluator: ScriptableEvaluator,
   ): Bitmap? {
     return when (imageUriSource) {
       ImageUriSource.AlbumCover -> getAlbumCoverImage(imageLoader)
       is ImageUriSource.Gallery -> imageUriSource.imageUri?.let { getImageFromUri(it) }
       is ImageUriSource.IconPack -> {
         if (imageUriSource.iconFile == null) return null
-        val uri = imageUriSource.iconFile.getFullPath(layerContext.filesDirPath).toString()
+        val uri = imageUriSource.iconFile.getFullPath(filesDirPath).toString()
         getImageFromUri(uri)
       }
       is ImageUriSource.Link -> {
-        val uri = imageUriSource.value.getValue(layerContext, globals)
+        val uri = scriptableEvaluator.evaluateString(imageUriSource.value)
         if (uri.isEmpty()) return null
         getImageFromUri(uri)
       }
@@ -79,8 +77,10 @@ interface ImageProvider {
   suspend fun getBitmap(uri: String): Bitmap? = getImageFromUri(uri)?.toBitmap()
 }
 
-class ImageProviderImpl(private val platformContext: PlatformContext, private val cacheDir: Path) :
-  ImageProvider {
+internal class ImageProviderImpl(
+  private val platformContext: PlatformContext,
+  private val cacheDir: Path,
+) : ImageProvider {
 
   @OptIn(ExperimentalCoilApi::class)
   override val imageLoader =

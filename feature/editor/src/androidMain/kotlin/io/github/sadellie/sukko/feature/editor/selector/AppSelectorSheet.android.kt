@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.composables.core.ModalBottomSheetState
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import google.material.design.symbols.SearchOff
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
@@ -48,8 +49,6 @@ import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_selector_app_empty_placeholder
 import io.github.sadellie.sukko.resources.editor_selector_app_empty_placeholder_text
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +59,10 @@ actual fun AppSelectorSheet(
 ) {
   ModalBottomSheet2(state = state) {
     // do not use ModalBottomSheetWithButtons to have VM in modal sheet
-    val viewModel = koinViewModel<AppSelectorViewModel> { parametersOf(packageName) }
+    val viewModel =
+      assistedMetroViewModel<AppSelectorViewModel, AppSelectorViewModel.Factory> {
+        create(packageName)
+      }
     val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value
     SheetContentWithButtons(
       onDismiss = state::hide,

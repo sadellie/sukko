@@ -4,10 +4,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import google.material.design.symbols.Symbols
@@ -41,7 +41,7 @@ data class ColdTextLayer(
   val textColor: BrushSource =
     BrushSource.SolidColor(ScriptableColor.FixedM3(M3Color.ON_BACKGROUND)),
   val minLines: ScriptableDouble = ScriptableDouble.Fixed(1.0),
-  val maxLines: ScriptableDouble = ScriptableDouble.Fixed(Int.MAX_VALUE.toDouble()),
+  val maxLines: ScriptableDouble? = null,
   val textOverflowSource: TextOverflowSource = TextOverflowSource.Clip,
 ) : Layer.Cold {
   @Transient override val displayName = Res.string.core_model_layer_text
@@ -80,15 +80,14 @@ data class EvaluatedTextLayer(
   val overflow: TextOverflow = TextOverflow.Clip,
 ) : Layer.Evaluated {
   @Composable
-  override fun Render(
+  override fun BaseRender(
     modifier: Modifier,
     renderOption: RenderOption,
     childrenLayers: List<Layer.Evaluated>,
-    onGloballyPositioned: (Int, Rect) -> Unit,
-    scope: Any,
+    onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   ) {
     Text(
-      modifier = createModifier(modifier, renderOption, onGloballyPositioned, scope),
+      modifier = modifier,
       text = text,
       style = remember(textStyle, textColor) { textStyle.copy(textColor) },
       minLines = minLines,

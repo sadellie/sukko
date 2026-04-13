@@ -2,20 +2,22 @@ package io.github.sadellie.sukko.feature.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.util.fastForEach
 import androidx.glance.session.Session
 import co.touchlab.kermit.Logger
+import coil3.ImageLoader
 import io.github.sadellie.sukko.core.common.appWidgetSizes
 import io.github.sadellie.sukko.core.common.getWidgetSizes
-import io.github.sadellie.sukko.core.data.ImageProvider
-import io.github.sadellie.sukko.core.data.LayerContextProvider
 import io.github.sadellie.sukko.core.data.LayerEvaluator
+import io.github.sadellie.sukko.core.data.ScriptableEvaluator
 import io.github.sadellie.sukko.core.data.WidgetDataRepository
-import io.github.sadellie.sukko.core.model.LayerContext
-import io.github.sadellie.sukko.core.model.WidgetData
+import io.github.sadellie.sukko.core.data.invalidateMediaProvider
+import io.github.sadellie.sukko.core.data.invalidateOnAlarmProviders
+import io.github.sadellie.sukko.core.medialistener.MediaListener
 import io.github.sadellie.sukko.core.unglance.RenderResult
 import io.github.sadellie.sukko.core.unglance.renderAllWidgetConfigurations
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,12 +29,18 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-internal class AppWidgetSession(private val appWidgetId: Int) :
-  Session(appWidgetId.toString()), KoinComponent {
+internal class AppWidgetSession(
+  private val appWidgetId: Int,
+  private val widgetDataRepository: WidgetDataRepository,
+  private val mediaListener: MediaListener,
+  private val imageLoader: ImageLoader,
+  private val widgetProviderIntent: Intent,
+  private val layerEvaluatorFactory: LayerEvaluator.LayerEvaluatorFactory,
+  private val scriptableEvaluatorFactory: ScriptableEvaluator.ScriptableEvaluatorFactory,
+) : Session(appWidgetId.toString()) {
   companion object {
     private const val TAG = "AppWidgetSession"
     // avoid processing all events and short initial renders (throttle all render steps)
@@ -67,24 +75,38 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
 
     /** Keep layer context and widget data, but update widget size. */
     data class UpdateWidgetOptions(val newOptions: Bundle) : UnglanceEvent
+
+    data class ProcessClick(val clickActions: Array<String>) : UnglanceEvent {
+      override fun equals(other: Any?) =
+        when {
+          this === other -> true
+          javaClass != other?.javaClass -> false
+          other is ProcessClick -> clickActions.contentEquals(other.clickActions)
+          else -> false
+        }
+
+      override fun hashCode() = clickActions.contentHashCode()
+    }
   }
 
-  private val _widgetDataRepository: WidgetDataRepository by inject()
-  private val _imageProvider: ImageProvider by inject()
   // render inputs
-  private val _layerContext = MutableStateFlow<LayerContext?>(null)
-  private val _widgetData = MutableStateFlow<WidgetData?>(null)
+  private val _layerEvaluator = MutableStateFlow<LayerEvaluator?>(null)
   private val _widgetSizes = MutableStateFlow<List<DpSize>?>(null)
+  private val _clickActionProcessor =
+    ClickActionProcessor(
+      mediaListener = mediaListener,
+      widgetDataRepository = widgetDataRepository,
+      appWidgetId = appWidgetId,
+      scriptableEvaluatorFactory = scriptableEvaluatorFactory,
+    )
 
   @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
   override suspend fun provideUnglance(context: Context): Flow<RenderResult> =
     // evaluate layers
-    combine(_layerContext, _widgetData) { layerContext, widgetData ->
+    _layerEvaluator
+      .mapLatest { layerEvaluator ->
         // null if loading
-        if (layerContext == null || widgetData == null) flowOf(null)
-        else
-          LayerEvaluator(widgetData.layers, _imageProvider, layerContext, widgetData.globals)
-            .evaluateEnabled()
+        layerEvaluator?.evaluateEnabled() ?: flowOf(null)
       }
       .distinctUntilChanged()
       .debounce(EVALUATE_LAYER_DEBOUNCE_MS)
@@ -94,7 +116,7 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
       .combine(_widgetSizes) { evaluatedLayers, widgetSizes ->
         // loading, do not render yet
         if (widgetSizes == null || evaluatedLayers == null) flowOf(RenderResult.Ignore)
-        else renderAllWidgetConfigurations(context, widgetSizes, evaluatedLayers)
+        else renderAllWidgetConfigurations(context, widgetSizes, evaluatedLayers, imageLoader)
       }
       .distinctUntilChanged()
       .debounce(RENDER_DEBOUNCE_MS)
@@ -108,7 +130,13 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
       when (renderResult) {
         RenderResult.Ignore -> return
         RenderResult.Error -> RemoteViews(context.packageName, R.layout.error_layout)
-        is RenderResult.Ready -> processAllRenderSubResults(context, renderResult)
+        is RenderResult.Ready ->
+          processAllRenderSubResults(
+            context = context,
+            appWidgetId = appWidgetId,
+            renderResult = renderResult,
+            widgetProviderIntent = widgetProviderIntent,
+          )
       }
     val appWidgetManager = AppWidgetManager.getInstance(context)
     appWidgetManager.updateAppWidget(appWidgetId, remoteViews)
@@ -119,41 +147,65 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
     Logger.d(tag = TAG) { "processEvent($appWidgetId): $event" }
     // update property only when it's null or specifically requested
     // duplicated code, but readable and flexible
-    val layerContextProvider = LayerContextProvider()
-
     when (event) {
-      UnglanceEvent.UpdateWidget -> {
-        // reload everything
-        _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
-        _layerContext.update { layerContextProvider.provide() }
-        _widgetData.update { _widgetDataRepository.loadByAppWidgetId(appWidgetId) }
-      }
-
-      is UnglanceEvent.UpdateWidgetOptions -> {
-        _widgetSizes.update { event.newOptions.getWidgetSizes() }
-        _layerContext.update { layerContextProvider.provide() }
-        _widgetData.update { it ?: _widgetDataRepository.loadByAppWidgetId(appWidgetId) }
-      }
-
-      UnglanceEvent.UpdateFromAlarm -> {
-        _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
-        _layerContext.update { it?.invalidateOnAlarmProviders() ?: layerContextProvider.provide() }
-        _widgetData.update { it ?: _widgetDataRepository.loadByAppWidgetId(appWidgetId) }
-      }
-
-      UnglanceEvent.UpdateMediaInfo -> {
-        _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
-        _layerContext.update { it?.invalidateMediaInfoProvider() ?: layerContextProvider.provide() }
-        _widgetData.update { it ?: _widgetDataRepository.loadByAppWidgetId(appWidgetId) }
-      }
+      UnglanceEvent.UpdateWidget -> processUpdateWidgetEvent(context)
+      is UnglanceEvent.UpdateWidgetOptions -> processUpdateWidgetOptionsEvent(event)
+      UnglanceEvent.UpdateFromAlarm -> processUpdateFromAlarmEvent(context)
+      UnglanceEvent.UpdateMediaInfo -> processUpdateMediaInfo(context)
+      is UnglanceEvent.ProcessClick -> processClickEvent(event, context)
     }
+  }
+
+  private suspend fun processUpdateWidgetEvent(context: Context) {
+    // reload everything
+    _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
+    _layerEvaluator.update { reloadWidgetDataAndClearCache() }
+  }
+
+  private suspend fun processUpdateWidgetOptionsEvent(event: UnglanceEvent.UpdateWidgetOptions) {
+    _widgetSizes.update { event.newOptions.getWidgetSizes() }
+    _layerEvaluator.update { it ?: reloadWidgetDataAndClearCache() }
+  }
+
+  private suspend fun processUpdateFromAlarmEvent(context: Context) {
+    _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
+    _layerEvaluator.update {
+      it?.invalidateOnAlarmProviders(context) ?: reloadWidgetDataAndClearCache()
+    }
+  }
+
+  private suspend fun processUpdateMediaInfo(context: Context) {
+    _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
+    _layerEvaluator.update {
+      it?.invalidateMediaProvider(context, mediaListener) ?: reloadWidgetDataAndClearCache()
+    }
+  }
+
+  private suspend fun processClickEvent(event: UnglanceEvent.ProcessClick, context: Context) {
+    _clickActionProcessor.process(
+      clickActionsJsons = event.clickActions,
+      context = context,
+      afterScripCallback = {
+        _widgetSizes.update { AppWidgetManager.getInstance(context).appWidgetSizes(appWidgetId) }
+        _layerEvaluator.update { reloadWidgetDataAndClearCache() }
+      },
+    )
   }
 
   override suspend fun recreateWithEvents(events: List<Any>): Session {
     Logger.d(tag = TAG) { "recreateWithEvents($appWidgetId): $events" }
-    return AppWidgetSession(appWidgetId).also { newSession ->
-      events.fastForEach { event -> newSession.sendEvent(event) }
-    }
+    val newSession =
+      AppWidgetSession(
+        appWidgetId = appWidgetId,
+        widgetDataRepository = widgetDataRepository,
+        mediaListener = mediaListener,
+        imageLoader = imageLoader,
+        widgetProviderIntent = widgetProviderIntent,
+        layerEvaluatorFactory = layerEvaluatorFactory,
+        scriptableEvaluatorFactory = scriptableEvaluatorFactory,
+      )
+    events.fastForEach { event -> newSession.sendEvent(event) }
+    return newSession
   }
 
   override suspend fun onCompositionError(context: Context, throwable: Throwable) =
@@ -165,6 +217,15 @@ internal class AppWidgetSession(private val appWidgetId: Int) :
 
   suspend fun updateMediaInfo() = sendEvent(UnglanceEvent.UpdateMediaInfo)
 
+  suspend fun updateClickActions(actions: Array<String>) =
+    sendEvent(UnglanceEvent.ProcessClick(actions))
+
   suspend fun updateWidgetOptions(newOption: Bundle) =
     sendEvent(UnglanceEvent.UpdateWidgetOptions(newOption))
+
+  private suspend fun reloadWidgetDataAndClearCache(): LayerEvaluator {
+    val widgetData =
+      widgetDataRepository.loadByAppWidgetId(appWidgetId) ?: error("Widget not found $appWidgetId")
+    return layerEvaluatorFactory.create(layers = widgetData.layers, globals = widgetData.globals)
+  }
 }

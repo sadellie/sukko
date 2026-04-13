@@ -11,8 +11,8 @@ import io.github.sadellie.sukko.core.model.modifier.ColdBorderModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
 import io.github.sadellie.sukko.core.ui.middleShapes
-import io.github.sadellie.sukko.feature.editor.selector.BrushSourceSelectorSheet
-import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.brushsource.BrushSourceSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
 import io.github.sadellie.sukko.feature.editor.selector.ShapeSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_shape
@@ -33,21 +33,22 @@ internal fun ReorderableCollectionItemScope.EditorModifierBorder(
     supportingText = widgetModifier.color.displayValue(),
     state = state,
   ) {
-    val dpSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
+    val widthSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
     ListItem2Compact(
       content = { Text(stringResource(Res.string.editor_modifiers_width)) },
       supportingContent = {
         Text(LocalScriptableDisplay.current.displayString(widgetModifier.width))
       },
       compactListMode = state.compactListMode,
-      onClick = dpSheetState::expand,
+      onClick = widthSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
-      state = dpSheetState,
+    DoubleSelectorSheet(
+      state = widthSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(width = it)) },
       value = widgetModifier.width,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
 
     val sheetColorState = rememberModalBottomSheetState(SheetDetent.Hidden)

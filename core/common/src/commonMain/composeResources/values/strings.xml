@@ -57,6 +57,7 @@
     <string name="core_model_click_action_media_skip_to_next">Skip to next</string>
     <string name="core_model_click_action_media_skip_to_previous">Skip to previous</string>
     <string name="core_model_click_action_open_link">Open link</string>
+    <string name="core_model_click_action_run_script">Run script</string>
     <string name="core_model_content_scale_source_crop">Crop</string>
     <string name="core_model_content_scale_source_fill_bounds">Fill bounds</string>
     <string name="core_model_content_scale_source_fill_height">Fill height</string>
@@ -159,8 +160,6 @@
     <string name="core_model_progress_bar_type_linear">Linear</string>
     <string name="core_model_scriptable_boolean_false" translatable="false">False</string>
     <string name="core_model_scriptable_boolean_true" translatable="false">True</string>
-    <string name="core_model_scriptable_dp" translatable="false">dp</string>
-    <string name="core_model_scriptable_sp" translatable="false">sp</string>
     <string name="core_model_shape_source_arch">Arch</string>
     <string name="core_model_shape_source_circle">Circle</string>
     <string name="core_model_shape_source_rectangle_dp">Rectangle (dp)</string>
@@ -180,6 +179,7 @@
     <string name="core_model_text_overflow_source_visible">Visible</string>
     <string name="core_model_text_style_global">Global</string>
     <string name="core_model_text_style_local">Local</string>
+    <string name="editor_3d_view">3D view</string>
     <string name="editor_click_actions_add_click_action">Add action</string>
     <string name="editor_compact_list">Compact list</string>
     <string name="editor_exit_without_saving_exit_button_label">Exit</string>
@@ -193,11 +193,9 @@
     <string name="editor_globals_list_color">Color</string>
     <string name="editor_globals_list_delete_global">Delete global?</string>
     <string name="editor_globals_list_delete_global_text">Global will become invalid in layers that use it.</string>
-    <string name="editor_globals_list_dp" translatable="false">Dp</string>
     <string name="editor_globals_list_label">Label</string>
     <string name="editor_globals_list_number">Number</string>
     <string name="editor_globals_list_rename_global">Rename global</string>
-    <string name="editor_globals_list_sp" translatable="false">Sp</string>
     <string name="editor_globals_list_string">String</string>
     <string name="editor_globals_list_text_style">Text style</string>
     <string name="editor_grant_permission">Grant permission</string>
@@ -262,31 +260,24 @@
     <string name="editor_selector_app_empty_placeholder_text">There are no apps that can be selected</string>
     <string name="editor_selector_brush_add_color">Add color</string>
     <string name="editor_selector_brush_horizontal">Horizontal</string>
+    <string name="editor_selector_brush_radius">Radius</string>
     <string name="editor_selector_brush_vertical">Vertical</string>
-    <string name="editor_selector_dp_suffix" translatable="false">dp</string>
     <string name="editor_selector_icon_pack">Icon pack</string>
     <string name="editor_selector_input_mode">Type</string>
     <string name="editor_selector_input_mode_fixed">Fixed</string>
     <string name="editor_selector_input_mode_global">Global</string>
     <string name="editor_selector_input_mode_material_you">Material you</string>
     <string name="editor_selector_input_mode_script">Script</string>
-    <string name="editor_selector_script_disable_auto_reload_text">Script will stop being evaluated on input</string>
-    <string name="editor_selector_script_disable_auto_reload_title">Disable auto-reload?</string>
     <string name="editor_selector_script_docs_boolean">Boolean</string>
     <string name="editor_selector_script_docs_number">Number</string>
-    <string name="editor_selector_script_docs_out_of_range_text">Allowed range from %1$s to %2$s</string>
-    <string name="editor_selector_script_docs_out_of_range_title">Value is out of range</string>
     <string name="editor_selector_script_docs_text">Text</string>
-    <string name="editor_selector_script_enable_auto_reload_text">Script will be evaluated on input. This includes network requests.</string>
-    <string name="editor_selector_script_enable_auto_reload_title">Enable auto-reload?</string>
     <string name="editor_selector_script_loading_auto_reload_text">Preparing scripting context</string>
-    <string name="editor_selector_script_loading_no_auto_reload_text">Scripting context is not loaded yet. Try enabling auto-reload.</string>
-    <string name="editor_selector_script_no_errors">No errors</string>
+    <string name="editor_selector_script_no_errors_title">No errors</string>
+    <string name="editor_selector_script_no_errors_text">Script was executed successfully</string>
     <string name="editor_selector_shape_corner_radius">Corner radius</string>
     <string name="editor_selector_shape_inner_radius">Inner radius</string>
     <string name="editor_selector_shape_rounded_corners">Rounded corners</string>
     <string name="editor_selector_shape_vertices_per_radius">Vertices per radius</string>
-    <string name="editor_selector_sp_suffix" translatable="false">sp</string>
     <string name="editor_selector_text_style_align">Align</string>
     <string name="editor_selector_text_style_font">Font</string>
     <string name="editor_selector_text_style_preview">Preview text</string>
@@ -328,8 +319,6 @@
     <string name="icon_pack_editor_delete_text">Icon file will be deleted forever</string>
     <string name="icon_pack_editor_delete_title">Delete icon file?</string>
     <string name="icon_pack_editor_icon_file_name">Icon file name</string>
-    <string name="icon_pack_editor_placeholder_text">This icon pack doesn't have icon files yet</string>
-    <string name="icon_pack_editor_placeholder_title">No icon files</string>
     <string name="icon_pack_editor_rename">Rename icon file</string>
     <string name="icon_packs_editor_delete_text">Icon pack and it's icons will be deleted forever</string>
     <string name="icon_packs_editor_delete_title">Delete icon pack?</string>

@@ -31,6 +31,7 @@ import io.github.sadellie.sukko.resources.common_rename
 import io.github.sadellie.sukko.resources.common_save
 import io.github.sadellie.sukko.resources.common_widget_info
 import io.github.sadellie.sukko.resources.common_widget_name
+import io.github.sadellie.sukko.resources.editor_3d_view
 import io.github.sadellie.sukko.resources.editor_compact_list
 import io.github.sadellie.sukko.resources.editor_force_update
 import io.github.sadellie.sukko.resources.editor_full_screen_list
@@ -56,6 +57,8 @@ internal fun EditorScreenDropDownMenu(
   onCompactListModeClick: (Boolean) -> Unit,
   highlightSelectedLayer: Boolean,
   onHighlightSelectedLayerClick: (Boolean) -> Unit,
+  explodeLayers: Boolean,
+  onExplodeLayerClick: (Boolean) -> Unit,
   widgetName: String?,
 ) {
   val dialogState = rememberSaveable { mutableStateOf<EditorScreenAlertDialogState?>(null) }
@@ -90,6 +93,8 @@ internal fun EditorScreenDropDownMenu(
         onNavigateToWidgetInfo()
         this@DropDownMenuWithFilledTonalButton.closeMenu()
       },
+      explodeLayers = explodeLayers,
+      onExplodeLayerClick = onExplodeLayerClick,
     )
   }
 
@@ -131,6 +136,8 @@ private fun EditorScreenDropDownMenuContent(
   onCompactListModeClick: (Boolean) -> Unit,
   highlightSelectedLayer: Boolean,
   onHighlightSelectedLayerClick: (Boolean) -> Unit,
+  explodeLayers: Boolean,
+  onExplodeLayerClick: (Boolean) -> Unit,
 ) {
   DropdownMenuGroup(shapes = MenuDefaults.groupShape(0, 2)) {
     DropdownMenuItem(
@@ -186,6 +193,13 @@ private fun EditorScreenDropDownMenuContent(
       checked = highlightSelectedLayer,
       onCheckedChange = onHighlightSelectedLayerClick,
       text = { Text(stringResource(Res.string.editor_highlight_selected_layer)) },
+      shapes = MenuDefaults.itemShapes(MenuDefaults.middleItemShape),
+      checkedLeadingIcon = { Icon(Symbols.Check, null) },
+    )
+    DropdownMenuItem(
+      checked = explodeLayers,
+      onCheckedChange = onExplodeLayerClick,
+      text = { Text(stringResource(Res.string.editor_3d_view)) },
       shapes = MenuDefaults.itemShapes(MenuDefaults.trailingItemShape),
       checkedLeadingIcon = { Icon(Symbols.Check, null) },
     )
@@ -214,6 +228,8 @@ private fun PreviewEditorScreenDropDownMenuContent() {
       highlightSelectedLayer = false,
       onHighlightSelectedLayerClick = {},
       onNavigateToWidgetInfo = {},
+      explodeLayers = false,
+      onExplodeLayerClick = {},
     )
   }
 }

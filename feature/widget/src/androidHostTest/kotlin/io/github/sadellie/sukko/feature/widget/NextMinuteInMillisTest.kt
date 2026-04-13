@@ -11,7 +11,7 @@ class NextMinuteInMillisTest {
     val currentTimeMillis = 1750397160000L
     // Fri Jun 20 2025 05:27:00
     val expected = 1750397220000L
-    val actual = nextMinuteStartMillis(currentTimeMillis, 1)
+    val actual = AlarmController.nextMinuteStartMillis(currentTimeMillis, 1)
     assertEquals(expected, actual)
   }
 
@@ -21,7 +21,7 @@ class NextMinuteInMillisTest {
     val currentTimeMillis = 1750397160555L
     // Fri Jun 20 2025 05:27:00
     val expected = 1750397220000L
-    val actual = nextMinuteStartMillis(currentTimeMillis, 1)
+    val actual = AlarmController.nextMinuteStartMillis(currentTimeMillis, 1)
     assertEquals(expected, actual)
   }
 
@@ -31,7 +31,7 @@ class NextMinuteInMillisTest {
     val currentTimeMillis = 1750397219999L
     // Fri Jun 20 2025 05:27:00
     val expected = 1750397220000L
-    val actual = nextMinuteStartMillis(currentTimeMillis, 1)
+    val actual = AlarmController.nextMinuteStartMillis(currentTimeMillis, 1)
     assertEquals(expected, actual)
   }
 
@@ -41,7 +41,7 @@ class NextMinuteInMillisTest {
     // Fri Jun 20 2025 05:27:00
     val currentTimeMillis = 1750397160000L
     val expected = 1750398060000L
-    val actual = nextMinuteStartMillis(currentTimeMillis, 15)
+    val actual = AlarmController.nextMinuteStartMillis(currentTimeMillis, 15)
     assertEquals(expected, actual)
   }
 
@@ -49,7 +49,7 @@ class NextMinuteInMillisTest {
   fun text_currentMinuteStartOfMinutePastMillis15() {
     val currentTimeMillis = 1750397160555L
     val expected = 1750398060000L
-    val actual = nextMinuteStartMillis(currentTimeMillis, 15)
+    val actual = AlarmController.nextMinuteStartMillis(currentTimeMillis, 15)
     assertEquals(expected, actual)
   }
 
@@ -57,7 +57,7 @@ class NextMinuteInMillisTest {
   fun text_currentMinuteNearEndOfMinute15() {
     val currentTimeMillis = 1750397219999L
     val expected = 1750398060000L
-    val actual = nextMinuteStartMillis(currentTimeMillis, 15)
+    val actual = AlarmController.nextMinuteStartMillis(currentTimeMillis, 15)
     assertEquals(expected, actual)
   }
 }

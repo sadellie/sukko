@@ -4,11 +4,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.LayoutCoordinates
 import co.touchlab.kermit.Logger
 import coil3.Bitmap
 import coil3.compose.AsyncImage
@@ -22,7 +21,7 @@ import io.github.sadellie.sukko.core.model.basic.ContentScaleSource
 import io.github.sadellie.sukko.core.model.basic.ImageUriSource
 import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
 import io.github.sadellie.sukko.core.model.basic.ScriptableColor
-import io.github.sadellie.sukko.core.model.basic.ScriptableDp
+import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
 import io.github.sadellie.sukko.core.model.modifier.ColdSizeModifier
 import io.github.sadellie.sukko.core.model.modifier.WidgetModifier
 import io.github.sadellie.sukko.resources.Res
@@ -37,7 +36,7 @@ data class ColdImageLayer(
   override val parentId: Int? = null,
   override val name: String? = null,
   override val widgetModifiers: List<WidgetModifier.Cold> =
-    listOf(ColdSizeModifier(0, ScriptableDp.Fixed(146.dp))),
+    listOf(ColdSizeModifier(0, ScriptableDouble.Fixed(146.0))),
   override val clickActions: List<ClickAction.Cold> = emptyList(),
   override val isEnabled: ScriptableBoolean = ScriptableBoolean.Fixed(true),
   val imageUriSource: ImageUriSource = ImageUriSource.Gallery(null),
@@ -72,23 +71,21 @@ data class EvaluatedImageLayer(
   val tint: Color? = null,
 ) : Layer.Evaluated {
   @Composable
-  override fun Render(
+  override fun BaseRender(
     modifier: Modifier,
     renderOption: RenderOption,
     childrenLayers: List<Layer.Evaluated>,
-    onGloballyPositioned: (Int, Rect) -> Unit,
-    scope: Any,
+    onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   ) {
-    val finalModifier = createModifier(modifier, renderOption, onGloballyPositioned, scope)
     if (image == null) {
-      Spacer(finalModifier)
+      Spacer(modifier)
       return
     }
     val platformContext = LocalPlatformContext.current
     val imageRequest = remember(image) { ImageRequest.Builder(platformContext).data(image).build() }
 
     AsyncImage(
-      modifier = finalModifier,
+      modifier = modifier,
       model = imageRequest,
       imageLoader = LocalImageLoader.current,
       contentScale = contentScale,

@@ -2,8 +2,22 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ScriptableDisplay.kt$ScriptableDisplay$@Composable fun displayString(scriptable: Scriptable&lt;*&gt;?)</ID>
+    <ID>CyclomaticComplexMethod:WidgetModifierEvaluator.kt$WidgetModifierEvaluator$private suspend fun evaluateWidgetModifier( modifier: WidgetModifier.Cold ): WidgetModifier.Evaluated</ID>
+    <ID>LongParameterList:AppWidgetSession.kt$AppWidgetSession$( private val appWidgetId: Int, private val widgetDataRepository: WidgetDataRepository, private val mediaListener: MediaListener, private val imageLoader: ImageLoader, private val widgetProviderIntent: Intent, private val layerEvaluatorFactory: LayerEvaluator.LayerEvaluatorFactory, private val scriptableEvaluatorFactory: ScriptableEvaluator.ScriptableEvaluatorFactory, )</ID>
+    <ID>LongParameterList:EditorScene.kt$( onSave: (isForced: Boolean) -&gt; Unit, onRename: (String) -&gt; Unit, onNavigateToSaveAsPreset: () -&gt; Unit, onNavigateToPresetSelector: () -&gt; Unit, onNavigateToWidgetInfo: () -&gt; Unit, widgetName: String?, isWidgetDataSaved: Boolean, onUpdateWidgetDataSaverState: (WidgetDataSaverState) -&gt; Unit, navigateNotificationListener: () -&gt; Unit, isInFullscreen: Boolean, onFullScreenClick: (Boolean) -&gt; Unit, compactListMode: Boolean, onCompactListModeUpdate: (Boolean) -&gt; Unit, onHighlightSelectedLayerClick: (Boolean) -&gt; Unit, highlightSelectedLayer: Boolean, widgetDataSaverState: WidgetDataSaverState, )</ID>
     <ID>LoopWithTooManyJumpStatements:ProcessRenderResult.kt$for</ID>
-    <ID>ReturnCount:MediaListenerImpl.kt$MediaListenerImpl$private fun MediaMetadata.extractCoverUri(): String?</ID>
+    <ID>MagicNumber:HeightModifier.kt$ColdHeightModifier$72.0</ID>
+    <ID>MagicNumber:ImageLayer.kt$ColdImageLayer$146.0</ID>
+    <ID>MagicNumber:ProgressBarLayer.kt$ColdProgressBarLayer$15.0</ID>
+    <ID>MagicNumber:ProgressBarLayer.kt$ColdProgressBarLayer$4.0</ID>
+    <ID>MagicNumber:SizeModifier.kt$ColdSizeModifier$48.0</ID>
+    <ID>MagicNumber:StepIndicatorLayer.kt$ColdStepIndicatorLayer$8.0</ID>
+    <ID>MagicNumber:TextStyleSource.kt$TextStyleSource.Local$16.0</ID>
+    <ID>MagicNumber:WidthModifier.kt$ColdWidthModifier$72.0</ID>
+    <ID>MatchingDeclarationName:EditorModifierListItem.kt$EditorModifierListItemState</ID>
+    <ID>ReturnCount:ImageProvider.kt$ImageProvider$suspend fun getBitmap( imageUriSource: ImageUriSource, filesDirPath: Path, scriptableEvaluator: ScriptableEvaluator, ): Bitmap?</ID>
     <ID>ReturnCount:WidgetSubscriptionInfoGenerator.kt$private fun isMediaSubscriber(layer: Layer.Cold, allScriptTokens: Set&lt;Token3&gt;): Boolean</ID>
+    <ID>SpreadOperator:BrushSourceEvaluator.kt$BrushSourceEvaluator$(*colorWithStops)</ID>
   </CurrentIssues>
 </SmellBaseline>

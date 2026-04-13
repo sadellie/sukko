@@ -1,6 +1,10 @@
 package io.github.sadellie.sukko.core.fontfiles
 
 import android.content.Context
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import io.github.sadellie.sukko.core.common.CommonExceptions
 import io.github.sadellie.sukko.core.common.fileObserverFlow
 import io.github.sadellie.sukko.core.common.filesPath
 import io.github.sadellie.sukko.core.common.uri
@@ -15,8 +19,9 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 
-internal class FontFileCustomRepositoryImpl(private val context: Context) :
-  FontFileCustomRepository {
+@Inject
+@ContributesBinding(AppScope::class)
+class FontFileCustomRepositoryImpl(private val context: Context) : FontFileCustomRepository {
   @OptIn(ExperimentalCoroutinesApi::class)
   override fun loadAll(): Flow<List<FontFile.Custom>> {
     val fontsDirectory = (context.filesPath / FontFile.Custom.DIR_PATH.toPath()).toFile()
@@ -51,7 +56,7 @@ internal class FontFileCustomRepositoryImpl(private val context: Context) :
       val newPathParent = path.parent
       val newPath: Path = if (newPathParent == null) newName.toPath() else newPathParent / newName
       val destination = newPath.toFile()
-      if (destination.exists()) throw FileAlreadyExistsException(destination)
+      if (destination.exists()) throw CommonExceptions.FileAlreadyExistsException(newPath)
       path.toFile().renameTo(destination)
     }
   }

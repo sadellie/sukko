@@ -12,7 +12,7 @@ plugins {
   alias(libs.plugins.room) apply false
   alias(libs.plugins.serialization) apply false
   alias(libs.plugins.android.multiplatform.library) apply false
-
+  alias(libs.plugins.metro) apply false
   alias(libs.plugins.dev.iurysouza.modulegraph) apply true
   alias(libs.plugins.detekt) apply true
 }
@@ -68,7 +68,7 @@ fun SourceTask.configureDetektCommon() {
     "**/themmo/**", // separate project
     "**/androidx/**", // not mine
     "**/wasmJsMain/**", // planned platform, not used
-    "**/commonTest/**", // tests are allowed to have shenanigans
-    "**/core/script/**", // performance is more important here + readable enough
+    "**/*Test/**", // tests are allowed to have shenanigans
+    "**/data/script/**",
   )
 }

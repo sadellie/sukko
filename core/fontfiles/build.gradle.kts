@@ -1,5 +1,6 @@
 plugins {
   id("sukko.multiplatform.library")
+  id("sukko.metro")
   alias(libs.plugins.compose)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.serialization)
@@ -16,14 +17,9 @@ kotlin {
     implementation(libs.io.github.vinceglb.filekit.core)
     implementation(libs.org.jetbrains.compose.material3.material3)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
-    implementation(project.dependencies.platform(libs.io.insert.koin.koin.bom))
     implementation(project(":core:common"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:ui"))
-  }
-  sourceSets.androidMain.dependencies {
-    implementation(libs.io.insert.koin.koin.core.coroutines)
-    implementation(libs.io.insert.koin.koin.android)
   }
 }
 

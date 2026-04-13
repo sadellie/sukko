@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
 import google.material.design.symbols.Symbols
 import google.material.design.symbols.WidthNormal
 import io.github.sadellie.sukko.core.model.basic.AlignmentSource
@@ -57,18 +57,13 @@ data class EvaluatedRowLayer(
   val alignment: Alignment.Vertical = Alignment.Top,
 ) : Layer.Evaluated {
   @Composable
-  override fun Render(
+  override fun BaseRender(
     modifier: Modifier,
     renderOption: RenderOption,
     childrenLayers: List<Layer.Evaluated>,
-    onGloballyPositioned: (Int, Rect) -> Unit,
-    scope: Any,
+    onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   ) {
-    Row(
-      modifier = createModifier(modifier, renderOption, onGloballyPositioned, scope),
-      horizontalArrangement = arrangement,
-      verticalAlignment = alignment,
-    ) {
+    Row(modifier = modifier, horizontalArrangement = arrangement, verticalAlignment = alignment) {
       NestedRenderer(
         layers = childrenLayers,
         parentId = id,

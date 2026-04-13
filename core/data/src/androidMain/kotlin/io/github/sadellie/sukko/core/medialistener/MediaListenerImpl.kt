@@ -185,7 +185,7 @@ class MediaListenerImpl(
               Logger.d(tag = TAG) { "Update position: ${songInfoFlow.value}" }
             }
           }
-          delay(5_000)
+          delay(POSITION_REFRESH_RATE)
         }
       }
   }
@@ -280,3 +280,4 @@ class MediaListenerImpl(
 
 private const val TAG = "MediaListener"
 private const val PLAYBACK_REFRESH_RATE = 5_000L
+private const val POSITION_REFRESH_RATE = 5_000L

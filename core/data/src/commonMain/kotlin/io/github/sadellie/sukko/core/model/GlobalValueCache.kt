@@ -37,7 +37,7 @@ class GlobalValueCache {
     key: GlobalValue<*>,
     lock: Boolean = true,
     default: suspend () -> V,
-  ): V? {
+  ): V {
     val value =
       when (key) {
         is GlobalValue.GlobalBoolean ->
@@ -45,8 +45,6 @@ class GlobalValueCache {
         is GlobalValue.GlobalColor -> colorCache.getOrPutTyped(key.id, lock) { default() as Color }
         is GlobalValue.GlobalDouble ->
           doubleCache.getOrPutTyped(key.id, lock) { default() as Double }
-        is GlobalValue.GlobalDp -> dpCache.getOrPutTyped(key.id, lock) { default() as Dp }
-        is GlobalValue.GlobalSp -> spCache.getOrPutTyped(key.id, lock) { default() as TextUnit }
         is GlobalValue.GlobalString ->
           stringCache.getOrPutTyped(key.id, lock) { default() as String }
         is GlobalValue.GlobalTextStyle ->
@@ -54,7 +52,7 @@ class GlobalValueCache {
       }
 
     @Suppress("UNCHECKED_CAST")
-    return value as? V
+    return value as V
   }
 }
 

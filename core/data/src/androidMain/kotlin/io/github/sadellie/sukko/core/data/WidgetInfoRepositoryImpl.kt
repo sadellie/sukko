@@ -35,5 +35,4 @@ internal class WidgetInfoRepositoryImpl(private val context: Context) : WidgetIn
 }
 
 private const val WIDGET_INFO_UPDATE_RATE_MS = 5_000L
-private const val MAIN_WIDGET_PROVIDER =
-  "io.github.sadellie.sukko.feature.widget.MainWidgetProvider"
+private const val MAIN_WIDGET_PROVIDER = "io.github.sadellie.sukko.MainWidgetProviderImpl"

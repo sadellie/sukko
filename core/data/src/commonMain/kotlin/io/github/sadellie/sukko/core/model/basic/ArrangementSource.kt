@@ -1,9 +1,7 @@
 package io.github.sadellie.sukko.core.model.basic
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.sadellie.sukko.core.common.DpSerializer
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.core_model_arrangement_bottom
 import io.github.sadellie.sukko.resources.core_model_arrangement_center
@@ -89,32 +87,32 @@ sealed interface ArrangementSource {
   }
 
   @Serializable
-  data class SpacedBy(@Serializable(DpSerializer::class) val space: Dp) : Vertical, Horizontal {
+  data class SpacedBy(val space: ScriptableDouble.Fixed) : Vertical, Horizontal {
     @Transient override val displayName = Res.string.core_model_arrangement_spaced_by
 
-    override fun getArrangement() = Arrangement.spacedBy(space)
+    override fun getArrangement() = Arrangement.spacedBy(space.value.dp)
   }
 
   @Serializable
   data class SpacedByVertical(
-    @Serializable(DpSerializer::class) val space: Dp,
+    val space: ScriptableDouble.Fixed,
     val alignmentSource: AlignmentSource.Vertical,
   ) : Vertical {
     @Transient override val displayName = Res.string.core_model_arrangement_spaced_by_vertical
 
     override fun getArrangement() =
-      Arrangement.spacedBy(space, alignment = alignmentSource.getAlignment())
+      Arrangement.spacedBy(space.value.dp, alignment = alignmentSource.getAlignment())
   }
 
   @Serializable
   data class SpacedByHorizontal(
-    @Serializable(DpSerializer::class) val space: Dp,
+    val space: ScriptableDouble.Fixed,
     val alignmentSource: AlignmentSource.Horizontal,
   ) : Horizontal {
     @Transient override val displayName = Res.string.core_model_arrangement_spaced_by_horizontal
 
     override fun getArrangement() =
-      Arrangement.spacedBy(space, alignment = alignmentSource.getAlignment())
+      Arrangement.spacedBy(space.value.dp, alignment = alignmentSource.getAlignment())
   }
 
   val displayName: StringResource
@@ -128,8 +126,8 @@ sealed interface ArrangementSource {
         SpaceAround,
         SpaceEvenly,
         SpaceBetween,
-        SpacedBy(0.dp),
-        SpacedByVertical(0.dp, AlignmentSource.Top),
+        SpacedBy(ScriptableDouble.Fixed(0.0)),
+        SpacedByVertical(ScriptableDouble.Fixed(0.0), AlignmentSource.Top),
       )
     }
 
@@ -141,8 +139,8 @@ sealed interface ArrangementSource {
         SpaceAround,
         SpaceEvenly,
         SpaceBetween,
-        SpacedBy(0.dp),
-        SpacedByHorizontal(0.dp, AlignmentSource.Start),
+        SpacedBy(ScriptableDouble.Fixed(0.0)),
+        SpacedByHorizontal(ScriptableDouble.Fixed(0.0), AlignmentSource.Start),
       )
     }
   }

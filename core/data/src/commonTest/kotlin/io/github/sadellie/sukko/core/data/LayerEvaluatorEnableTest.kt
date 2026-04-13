@@ -11,7 +11,6 @@ import io.github.sadellie.sukko.core.model.layer.EvaluatedBoxLayer
 import io.github.sadellie.sukko.core.model.layer.EvaluatedColumnLayer
 import io.github.sadellie.sukko.core.model.layer.EvaluatedRowLayer
 import io.github.sadellie.sukko.core.model.layer.Layer
-import io.github.sadellie.sukko.core.model.observeEvaluation
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

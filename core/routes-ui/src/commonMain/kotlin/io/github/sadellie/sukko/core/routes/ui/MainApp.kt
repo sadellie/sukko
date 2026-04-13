@@ -8,8 +8,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import coil3.ImageLoader
@@ -21,8 +23,6 @@ import io.github.sadellie.sukko.core.routes.Navigator
 import io.github.sadellie.themmo.Themmo
 import io.github.sadellie.themmo.rememberThemmoController
 import okio.Path
-import org.koin.compose.navigation3.koinEntryProvider
-import org.koin.core.annotation.KoinExperimentalAPI
 
 @Composable
 fun MainApp(
@@ -31,6 +31,7 @@ fun MainApp(
   imageLoader: ImageLoader,
   filesDirPath: Path,
   backStack: NavBackStack<NavKey>,
+  entries: EntryProviderScope<NavKey>.() -> Unit,
 ) {
   val navigator = remember(backStack) { Navigator(backStack, onLastRoutePop) }
   CompositionLocalProvider(
@@ -40,13 +41,12 @@ fun MainApp(
     LocalNavigator provides navigator,
   ) {
     val themmoController = rememberThemmoController()
-    Themmo(themmoController = themmoController) { MainAppNav() }
+    Themmo(themmoController = themmoController) { MainAppNav(entries) }
   }
 }
 
-@OptIn(KoinExperimentalAPI::class)
 @Composable
-private fun MainAppNav() {
+private fun MainAppNav(entries: EntryProviderScope<NavKey>.() -> Unit) {
   NavDisplay(
     modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
     backStack = LocalNavigator.current.backStack,
@@ -55,6 +55,6 @@ private fun MainAppNav() {
         rememberSaveableStateHolderNavEntryDecorator(),
         rememberViewModelStoreNavEntryDecorator(),
       ),
-    entryProvider = koinEntryProvider(),
+    entryProvider = entryProvider { entries() },
   )
 }

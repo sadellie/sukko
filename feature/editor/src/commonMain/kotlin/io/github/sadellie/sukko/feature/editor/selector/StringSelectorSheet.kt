@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.feature.editor.selector
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -15,40 +14,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.composables.core.ModalBottomSheetState
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
+import io.github.sadellie.sukko.core.model.Globals
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.ScriptableString
 import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
 import io.github.sadellie.sukko.core.ui.SukkoOutlinedTextField
 import io.github.sadellie.sukko.core.ui.hide
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditor
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.SuccessMessage
+import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditorSheetContent
 
 @Composable
 fun StringSelectorSheet(
   state: ModalBottomSheetState,
   onValueSelected: (newValue: ScriptableString) -> Unit,
   value: ScriptableString,
-  globals: List<GlobalValue.GlobalString>,
+  globals: Globals,
 ) {
-  var currentInputMode by rememberSaveable { mutableStateOf(DefaultInputMode2.initialMode(value)) }
+  var currentInputMode by rememberSaveable { mutableStateOf(DefaultInputMode.initialMode(value)) }
 
   SelectorSheetTemplate(
     state = state,
-    inputModes = remember { DefaultInputMode2.entries },
+    inputModes = remember { DefaultInputMode.entries },
     currentInputMode = currentInputMode,
     onInputModeUpdate = { currentInputMode = it },
   ) { currentMode ->
     when (currentMode) {
-      DefaultInputMode2.FIXED ->
+      DefaultInputMode.FIXED ->
         FixedString(onDismiss = state::hide, onConfirm = onValueSelected, initialValue = value)
-      DefaultInputMode2.SCRIPT ->
-        ScriptString(onDismiss = state::hide, onConfirm = onValueSelected, initialValue = value)
-      DefaultInputMode2.GLOBAL ->
-        GlobalString(
+      DefaultInputMode.SCRIPT ->
+        ScriptString(
           onDismiss = state::hide,
           onConfirm = onValueSelected,
           initialValue = value,
           globals = globals,
+        )
+      DefaultInputMode.GLOBAL ->
+        GlobalString(
+          onDismiss = state::hide,
+          onConfirm = onValueSelected,
+          initialValue = value,
+          globals = globals.strings,
         )
     }
   }
@@ -83,25 +87,15 @@ private fun ScriptString(
   onDismiss: () -> Unit,
   onConfirm: (value: ScriptableString.Script) -> Unit,
   initialValue: ScriptableString,
+  globals: Globals,
 ) {
-  val textFieldState =
-    rememberTextFieldState(if (initialValue is ScriptableString.Script) initialValue.script else "")
-  SheetContentWithButtons(
+  ScriptEditorSheetContent(
+    initialInput =
+      remember { if (initialValue is ScriptableString.Script) initialValue.script else "" },
+    globals = globals,
     onDismiss = onDismiss,
-    onConfirm = {
-      val newValue = ScriptableString.Script(textFieldState.text.toString())
-      onConfirm(newValue)
-    },
-    isConfirmButtonEnabled = true,
-  ) {
-    ScriptEditor(
-      modifier = Modifier.fillMaxSize().padding(horizontal = Sizes.large),
-      textFieldState = textFieldState,
-      produceScriptable = { ScriptableString.Script(it) },
-    ) { value ->
-      SuccessMessage(value)
-    }
-  }
+    onConfirm = { onConfirm(ScriptableString.Script(it)) },
+  )
 }
 
 @Composable
@@ -122,7 +116,12 @@ private fun GlobalString(
 @Preview
 @Composable
 private fun PreviewScriptString() {
-  ScriptString(onDismiss = {}, onConfirm = {}, initialValue = ScriptableString.Script("script"))
+  ScriptString(
+    onDismiss = {},
+    onConfirm = {},
+    initialValue = ScriptableString.Script("script"),
+    globals = Globals(),
+  )
 }
 
 @Preview
@@ -138,12 +137,12 @@ private fun PreviewGlobalString() {
           GlobalValue.GlobalString(
             id = 0,
             label = "Item 1",
-            value = ScriptableString.Fixed("fixed text"),
+            initialValue = ScriptableString.Fixed("fixed text"),
           ),
           GlobalValue.GlobalString(
             id = 1,
             label = "Item 2",
-            value = ScriptableString.Script("some script"),
+            initialValue = ScriptableString.Script("some script"),
           ),
         )
       },

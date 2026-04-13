@@ -34,21 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import google.material.design.symbols.Add
 import google.material.design.symbols.Symbols
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
-import io.github.sadellie.sukko.core.common.observe
+import io.github.sadellie.sukko.core.data.script.docs.Docs
+import io.github.sadellie.sukko.core.data.script.docs.DocsItem
+import io.github.sadellie.sukko.core.data.script.docs.MethodParam
+import io.github.sadellie.sukko.core.data.script.docs.ScriptTypeTag
+import io.github.sadellie.sukko.core.data.script.docs.TranslatableString
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
-import io.github.sadellie.sukko.core.script.docs.Docs
-import io.github.sadellie.sukko.core.script.docs.DocsItem
-import io.github.sadellie.sukko.core.script.docs.DocsRepository
-import io.github.sadellie.sukko.core.script.docs.MethodParam
-import io.github.sadellie.sukko.core.script.docs.ScriptTypeTag
-import io.github.sadellie.sukko.core.script.docs.TranslatableString
 import io.github.sadellie.sukko.core.ui.ListHeader
 import io.github.sadellie.sukko.core.ui.ListItem2
 import io.github.sadellie.sukko.core.ui.LoadingBox
@@ -58,14 +54,6 @@ import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_selector_script_docs_boolean
 import io.github.sadellie.sukko.resources.editor_selector_script_docs_number
 import io.github.sadellie.sukko.resources.editor_selector_script_docs_text
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
@@ -284,29 +272,6 @@ private fun ScriptTypeTag.displayName() =
       ScriptTypeTag.BOOL -> Res.string.editor_selector_script_docs_boolean
     }
   )
-
-internal class DocsViewModel(private val repository: DocsRepository) : ViewModel() {
-  val searchTextFieldState = TextFieldState()
-  private val _isLoading = MutableStateFlow(true)
-  private val _results = MutableStateFlow<Docs?>(null)
-  val results: StateFlow<Docs?> = _results.asStateFlow()
-
-  init {
-    viewModelScope.launch {
-      repository.load()
-      _isLoading.update { false }
-    }
-  }
-
-  @OptIn(FlowPreview::class)
-  suspend fun observeSearchQuery(lang: String) {
-    val queryFlow = searchTextFieldState.observe()
-    combine(queryFlow, _isLoading) { query, isLoading ->
-        _results.update { if (isLoading) null else repository.search(query.toString(), lang) }
-      }
-      .collectLatest {}
-  }
-}
 
 @Composable
 @Preview

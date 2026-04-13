@@ -11,7 +11,7 @@ import io.github.sadellie.sukko.core.model.modifier.ColdPaddingEachSideModifier
 import io.github.sadellie.sukko.core.ui.ListItem2Compact
 import io.github.sadellie.sukko.core.ui.expand
 import io.github.sadellie.sukko.core.ui.middleShapes
-import io.github.sadellie.sukko.feature.editor.selector.DpSelectorSheet
+import io.github.sadellie.sukko.feature.editor.selector.DoubleSelectorSheet
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.editor_modifiers_bottom
 import io.github.sadellie.sukko.resources.editor_modifiers_end
@@ -47,12 +47,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
       onClick = startSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
+    DoubleSelectorSheet(
       state = startSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(start = it)) },
       value = widgetModifier.start,
       range = ColdPaddingEachSideModifier.valueRange,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
 
     val endSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
@@ -63,12 +64,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
       onClick = endSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
+    DoubleSelectorSheet(
       state = endSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(end = it)) },
       value = widgetModifier.end,
       range = ColdPaddingEachSideModifier.valueRange,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
 
     val topSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
@@ -79,12 +81,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
       onClick = topSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
+    DoubleSelectorSheet(
       state = topSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(top = it)) },
       value = widgetModifier.top,
       range = ColdPaddingEachSideModifier.valueRange,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
 
     val bottomSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
@@ -95,12 +98,13 @@ internal fun ReorderableCollectionItemScope.EditorModifierPaddingEachSide(
       onClick = bottomSheetState::expand,
       shapes = ListItemDefaults.middleShapes,
     )
-    DpSelectorSheet(
+    DoubleSelectorSheet(
       state = bottomSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(bottom = it)) },
       value = widgetModifier.bottom,
       range = ColdPaddingEachSideModifier.valueRange,
-      globals = state.globals.dps,
+      globals = state.globals,
+      allowFraction = true,
     )
   }
 }

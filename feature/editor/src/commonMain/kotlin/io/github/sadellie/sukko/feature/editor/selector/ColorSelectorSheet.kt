@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,14 +40,12 @@ import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import co.touchlab.kermit.Logger
 import com.composables.core.ModalBottomSheetState
 import io.github.sadellie.sukko.core.common.hexToColor
 import io.github.sadellie.sukko.core.common.toHex
 import io.github.sadellie.sukko.core.designsystem.theme.ListArrangement
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
 import io.github.sadellie.sukko.core.model.Globals
-import io.github.sadellie.sukko.core.model.LayerContext
 import io.github.sadellie.sukko.core.model.basic.GlobalValue
 import io.github.sadellie.sukko.core.model.basic.M3Color
 import io.github.sadellie.sukko.core.model.basic.ScriptableColor
@@ -58,8 +54,7 @@ import io.github.sadellie.sukko.core.ui.SheetContentWithButtons
 import io.github.sadellie.sukko.core.ui.SukkoOutlinedTextField
 import io.github.sadellie.sukko.core.ui.hide
 import io.github.sadellie.sukko.core.ui.listedShape
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditor
-import io.github.sadellie.sukko.feature.editor.selector.scripteditor.SuccessMessage
+import io.github.sadellie.sukko.feature.editor.selector.scripteditor.ScriptEditorSheetContent
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_cancel
 import io.github.sadellie.sukko.resources.common_confirm
@@ -76,7 +71,7 @@ fun ColorSelectorSheet(
   state: ModalBottomSheetState,
   onValueSelected: (newValue: ScriptableColor) -> Unit,
   value: ScriptableColor,
-  globals: List<GlobalValue.GlobalColor>,
+  globals: Globals,
 ) {
   ModalBottomSheet2(state) {
     ColorSelectorSheetContent(
@@ -93,7 +88,7 @@ fun ColorSelectorSheetContent(
   onDismissRequest: () -> Unit,
   onValueSelected: (newValue: ScriptableColor) -> Unit,
   value: ScriptableColor,
-  globals: List<GlobalValue.GlobalColor>,
+  globals: Globals,
   dismissLabel: String = stringResource(Res.string.common_cancel),
   confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
@@ -137,6 +132,7 @@ fun ColorSelectorSheetContent(
           initialValue = value,
           dismissLabel = dismissLabel,
           confirmLabel = confirmLabel,
+          globals = globals,
         )
       ColorInputMode.GLOBAL ->
         GlobalColor(
@@ -145,7 +141,7 @@ fun ColorSelectorSheetContent(
           initialValue = value,
           dismissLabel = dismissLabel,
           confirmLabel = confirmLabel,
-          globals = globals,
+          globals = globals.colors,
         )
     }
   }
@@ -270,27 +266,17 @@ private fun ScriptColor(
   initialValue: ScriptableColor,
   dismissLabel: String,
   confirmLabel: String,
+  globals: Globals,
 ) {
-  val textFieldState =
-    rememberTextFieldState(if (initialValue is ScriptableColor.Script) initialValue.script else "")
-  SheetContentWithButtons(
+  ScriptEditorSheetContent(
+    initialInput =
+      remember { if (initialValue is ScriptableColor.Script) initialValue.script else "" },
+    globals = globals,
     onDismiss = onDismiss,
-    onConfirm = {
-      val newValue = ScriptableColor.Script(textFieldState.text.toString())
-      onConfirm(newValue)
-    },
-    isConfirmButtonEnabled = true,
+    onConfirm = { onConfirm(ScriptableColor.Script(it)) },
     dismissLabel = dismissLabel,
     confirmLabel = confirmLabel,
-  ) {
-    ScriptEditor(
-      modifier = Modifier.fillMaxSize().padding(horizontal = Sizes.large),
-      textFieldState = textFieldState,
-      produceScriptable = { ScriptableColor.Script(it) },
-    ) { value ->
-      SuccessMessage("#${value.toHex()}")
-    }
-  }
+  )
 }
 
 @Composable
@@ -368,24 +354,6 @@ private fun ColorsListItem(
   }
 }
 
-@Composable
-internal fun produceColor(
-  scriptableColor: ScriptableColor,
-  layerContext: LayerContext,
-  globals: Globals,
-) =
-  produceState(initialValue = Color.Unspecified, key1 = scriptableColor) {
-    value =
-      try {
-        scriptableColor.getValue(layerContext, globals)
-      } catch (e: Exception) {
-        Logger.e(throwable = e, tag = TAG) { "Failed to produce color" }
-        Color.Unspecified
-      }
-  }
-
-private const val TAG = "ColorSelectorSheet"
-
 /** longest hex color that can be written. For example: FFABC123 */
 private const val MAX_HEX_COLOR_LENGTH = 8
 
@@ -396,7 +364,7 @@ private fun PreviewColorSelectorSheetContentUnspecified() {
     onDismissRequest = {},
     onValueSelected = {},
     value = ScriptableColor.FixedCustom(Color.Unspecified),
-    globals = emptyList(),
+    globals = Globals(),
   )
 }
 
@@ -407,7 +375,7 @@ private fun PreviewColorSelectorSheetContentFixedCustom() {
     onDismissRequest = {},
     onValueSelected = {},
     value = ScriptableColor.FixedCustom(Color.Red),
-    globals = emptyList(),
+    globals = Globals(),
   )
 }
 
@@ -418,7 +386,7 @@ private fun PreviewColorSelectorSheetContentFixedM3() {
     onDismissRequest = {},
     onValueSelected = {},
     value = ScriptableColor.FixedM3(M3Color.ON_PRIMARY),
-    globals = emptyList(),
+    globals = Globals(),
   )
 }
 
@@ -429,6 +397,9 @@ private fun PreviewColorSelectorSheetContentGlobal() {
     onDismissRequest = {},
     onValueSelected = {},
     value = ScriptableColor.Global(1),
-    globals = List(5) { GlobalValue.GlobalColor(id = it.toLong(), label = "Global $it") },
+    globals =
+      Globals(
+        colors = (List(5) { GlobalValue.GlobalColor(id = it.toLong(), label = "Global $it") })
+      ),
   )
 }

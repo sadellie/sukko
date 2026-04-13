@@ -9,9 +9,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import google.material.design.symbols.Steppers
@@ -21,7 +21,6 @@ import io.github.sadellie.sukko.core.model.basic.M3Color
 import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
 import io.github.sadellie.sukko.core.model.basic.ScriptableColor
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
-import io.github.sadellie.sukko.core.model.basic.ScriptableDp
 import io.github.sadellie.sukko.core.model.basic.ShapeSource
 import io.github.sadellie.sukko.core.model.modifier.WidgetModifier
 import io.github.sadellie.sukko.resources.Res
@@ -41,7 +40,7 @@ data class ColdStepIndicatorLayer(
   val fill: ScriptableBoolean = ScriptableBoolean.Fixed(true),
   val totalSteps: ScriptableDouble = ScriptableDouble.Fixed(DEFAULT_TOTAL_STEPS),
   val currentStep: ScriptableDouble = ScriptableDouble.Fixed(DEFAULT_CURRENT_STEP),
-  val indicatorSize: ScriptableDp = ScriptableDp.Fixed(8.dp),
+  val indicatorSize: ScriptableDouble = ScriptableDouble.Fixed(8.0),
   val activeColor: ScriptableColor = ScriptableColor.FixedM3(M3Color.PRIMARY),
   val inactiveColor: ScriptableColor = ScriptableColor.FixedM3(M3Color.SECONDARY_CONTAINER),
   val shape: ShapeSource = ShapeSource.Circle,
@@ -81,15 +80,14 @@ data class EvaluatedStepIndicatorLayer(
   val shape: Shape = CircleShape,
 ) : Layer.Evaluated {
   @Composable
-  override fun Render(
+  override fun BaseRender(
     modifier: Modifier,
     renderOption: RenderOption,
     childrenLayers: List<Layer.Evaluated>,
-    onGloballyPositioned: (Int, Rect) -> Unit,
-    scope: Any,
+    onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   ) {
     Row(
-      modifier = createModifier(modifier, renderOption, onGloballyPositioned, scope),
+      modifier = modifier,
       horizontalArrangement = Arrangement.SpaceBetween,
       verticalAlignment = Alignment.CenterVertically,
     ) {

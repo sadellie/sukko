@@ -48,7 +48,7 @@ internal fun ReorderableCollectionItemScope.EditorModifierRowWeight(
       value = widgetModifier.weight,
       range = ColdRowWeightModifier.weightRange,
       allowFraction = true,
-      globals = state.globals.doubles,
+      globals = state.globals,
     )
 
     val fillSheetState = rememberModalBottomSheetState(SheetDetent.Hidden)
@@ -63,7 +63,7 @@ internal fun ReorderableCollectionItemScope.EditorModifierRowWeight(
       state = fillSheetState,
       onValueSelected = { onUpdateModifier(widgetModifier.copy(fill = it)) },
       value = widgetModifier.fill,
-      globals = state.globals.booleans,
+      globals = state.globals,
     )
   }
 }

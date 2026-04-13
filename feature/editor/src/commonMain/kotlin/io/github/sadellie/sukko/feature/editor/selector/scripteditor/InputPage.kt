@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,27 +18,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -55,68 +51,64 @@ import google.material.design.symbols.Check
 import google.material.design.symbols.Error
 import google.material.design.symbols.Help
 import google.material.design.symbols.Symbols
-import google.material.design.symbols.Sync
+import io.github.sadellie.sukko.core.data.script.ScriptException
 import io.github.sadellie.sukko.core.designsystem.Preview2
 import io.github.sadellie.sukko.core.designsystem.theme.Sizes
-import io.github.sadellie.sukko.core.script.ScriptException
-import io.github.sadellie.sukko.core.ui.AlertDialogWithText
+import io.github.sadellie.sukko.core.ui.EmptyScreen
+import io.github.sadellie.sukko.core.ui.ListItem2
+import io.github.sadellie.sukko.core.ui.singleShapes
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.common_error
 import io.github.sadellie.sukko.resources.common_loading
-import io.github.sadellie.sukko.resources.editor_selector_script_disable_auto_reload_text
-import io.github.sadellie.sukko.resources.editor_selector_script_disable_auto_reload_title
-import io.github.sadellie.sukko.resources.editor_selector_script_docs_out_of_range_text
-import io.github.sadellie.sukko.resources.editor_selector_script_docs_out_of_range_title
-import io.github.sadellie.sukko.resources.editor_selector_script_enable_auto_reload_text
-import io.github.sadellie.sukko.resources.editor_selector_script_enable_auto_reload_title
 import io.github.sadellie.sukko.resources.editor_selector_script_loading_auto_reload_text
-import io.github.sadellie.sukko.resources.editor_selector_script_loading_no_auto_reload_text
-import io.github.sadellie.sukko.resources.editor_selector_script_no_errors
-import kotlinx.coroutines.launch
+import io.github.sadellie.sukko.resources.editor_selector_script_no_errors_text
+import io.github.sadellie.sukko.resources.editor_selector_script_no_errors_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun <T> InputPage(
+internal fun InputPage(
   modifier: Modifier,
-  textFieldState: TextFieldState,
-  scriptEditorState: ScriptEditorState<T>,
-  onAutoReloadChange: (newValue: Boolean) -> Unit,
   openDocs: () -> Unit,
-  successPreview: @Composable (T) -> Unit,
+  uiState: InputPageUIState?,
+  observeInput: suspend () -> Unit,
 ) {
+  LaunchedEffect(Unit) { observeInput() }
+  if (uiState == null) {
+    EmptyScreen()
+  } else {
+    InputPageContent(modifier = modifier, uiState = uiState, openDocs = openDocs)
+  }
+}
+
+@Composable
+private fun InputPageContent(modifier: Modifier, uiState: InputPageUIState, openDocs: () -> Unit) {
   Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Sizes.large)) {
     Row(
       modifier = Modifier.horizontalScroll(rememberScrollState()).align(Alignment.End),
       horizontalArrangement = Arrangement.spacedBy(Sizes.extraSmall),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      AddImageLinkButton(onAdd = textFieldState::insert)
+      AddImageLinkButton(onAdd = uiState.input::insert)
       DocsButton(openDocs)
-      AutoReloadButton(
-        isAutoReloadEnabled = scriptEditorState.isAutoReloadEnabled,
-        onClick = onAutoReloadChange,
-      )
-      AnimatedContent(targetState = scriptEditorState) { currentState ->
-        when (currentState) {
-          is ScriptEditorState.GenericError ->
-            ErrorMessage(
-              title = "Generic error",
-              verboseText =
-                currentState.throwable.message ?: stringResource(Res.string.common_error),
-            )
-          is ScriptEditorState.ScriptError ->
-            ErrorMessage(
-              title = "Script error",
-              verboseText =
-                currentState.throwable.message ?: stringResource(Res.string.common_error),
-            )
-          is ScriptEditorState.Success<T> -> successPreview(currentState.scriptResult)
-          is ScriptEditorState.Loading<T> -> LoadingMessage(currentState.isAutoReloadEnabled)
-        }
+    }
+    AnimatedContent(targetState = uiState.result) { currentState ->
+      when (currentState) {
+        is ScriptResult.GenericError ->
+          ErrorMessage(
+            title = "Generic error",
+            verboseText = currentState.throwable.message ?: stringResource(Res.string.common_error),
+          )
+        is ScriptResult.ScriptError ->
+          ErrorMessage(
+            title = "Script error",
+            verboseText = currentState.throwable.message ?: stringResource(Res.string.common_error),
+          )
+        is ScriptResult.Success -> SuccessMessage(text = currentState.scriptResult)
+
+        ScriptResult.Loading -> LoadingMessage()
       }
     }
-
-    ScriptTextField(modifier = Modifier.weight(1f).fillMaxSize(), textFieldState = textFieldState)
+    ScriptTextField(modifier = Modifier.weight(1f).fillMaxSize(), textFieldState = uiState.input)
   }
 }
 
@@ -177,46 +169,10 @@ private fun DocsButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun AutoReloadButton(isAutoReloadEnabled: Boolean, onClick: (newValue: Boolean) -> Unit) {
-  var showDialog by rememberSaveable { mutableStateOf(false) }
-  IconToggleButton(
-    modifier =
-      Modifier.size(
-        IconButtonDefaults.smallContainerSize(IconButtonDefaults.IconButtonWidthOption.Uniform)
-      ),
-    checked = isAutoReloadEnabled,
-    onCheckedChange = { showDialog = true },
-  ) {
-    Icon(
-      imageVector = Symbols.Sync,
-      contentDescription = null,
-      modifier = Modifier.size(IconButtonDefaults.smallIconSize),
-    )
-  }
-
-  if (showDialog && isAutoReloadEnabled) {
-    AlertDialogWithText(
-      onDismiss = { showDialog = false },
-      onConfirm = { onClick(false) },
-      title = stringResource(Res.string.editor_selector_script_disable_auto_reload_title),
-      text = stringResource(Res.string.editor_selector_script_disable_auto_reload_text),
-    )
-  }
-  if (showDialog && !isAutoReloadEnabled) {
-    AlertDialogWithText(
-      onDismiss = { showDialog = false },
-      onConfirm = { onClick(true) },
-      title = stringResource(Res.string.editor_selector_script_enable_auto_reload_title),
-      text = stringResource(Res.string.editor_selector_script_enable_auto_reload_text),
-    )
-  }
-}
-
-@Composable
-internal fun SuccessMessage(text: String) {
+internal fun SuccessMessage(text: String?) {
   ExpandableMessage(
-    title = stringResource(Res.string.editor_selector_script_no_errors),
-    text = text,
+    title = stringResource(Res.string.editor_selector_script_no_errors_title),
+    text = text ?: stringResource(Res.string.editor_selector_script_no_errors_text),
     containerColor = MaterialTheme.colorScheme.primaryContainer,
     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     leadingIcon = Symbols.Check,
@@ -224,35 +180,18 @@ internal fun SuccessMessage(text: String) {
 }
 
 @Composable
-private fun LoadingMessage(isAutoReloadEnabled: Boolean) {
+private fun LoadingMessage() {
   ExpandableMessage(
     title = stringResource(Res.string.common_loading),
-    text =
-      stringResource(
-        if (isAutoReloadEnabled) Res.string.editor_selector_script_loading_auto_reload_text
-        else Res.string.editor_selector_script_loading_no_auto_reload_text
-      ),
+    text = stringResource(Res.string.editor_selector_script_loading_auto_reload_text),
     containerColor = Color.Unspecified,
     contentColor = Color.Unspecified,
-    content = {
+    leadingContent = {
       CircularProgressIndicator(
         modifier = Modifier.size(IconButtonDefaults.smallIconSize),
         strokeWidth = 2.dp,
       )
     },
-  )
-}
-
-@Composable
-internal fun <T : Comparable<T>> OutOfRangeErrorMessage(range: ClosedRange<T>) {
-  ErrorMessage(
-    title = stringResource(Res.string.editor_selector_script_docs_out_of_range_title),
-    verboseText =
-      stringResource(
-        Res.string.editor_selector_script_docs_out_of_range_text,
-        range.start.toString(),
-        range.endInclusive.toString(),
-      ),
   )
 }
 
@@ -280,7 +219,7 @@ private fun ExpandableMessage(
     text = text,
     containerColor = containerColor,
     contentColor = contentColor,
-    content = {
+    leadingContent = {
       Icon(
         imageVector = leadingIcon,
         contentDescription = null,
@@ -297,59 +236,59 @@ private fun ExpandableMessage(
   text: String,
   containerColor: Color,
   contentColor: Color,
-  content: @Composable () -> Unit,
+  leadingContent: @Composable () -> Unit,
 ) {
-  val tooltipState = rememberTooltipState(isPersistent = true)
-  val coroutineScope = rememberCoroutineScope()
-  TooltipBox(
-    positionProvider =
-      TooltipDefaults.rememberTooltipPositionProvider(positioning = TooltipAnchorPosition.Below),
-    tooltip = { RichTooltip(title = { Text(text = title) }) { Text(text) } },
-    state = tooltipState,
-  ) {
-    FilledIconButton(
-      modifier =
-        Modifier.size(
-          IconButtonDefaults.smallContainerSize(IconButtonDefaults.IconButtonWidthOption.Uniform)
-        ),
-      onClick = { coroutineScope.launch { tooltipState.show() } },
-      shapes = IconButtonDefaults.shapes(),
-      colors =
-        IconButtonDefaults.iconButtonColors(
-          containerColor = containerColor,
-          contentColor = contentColor,
-        ),
-      content = content,
+  var expandedValue by rememberSaveable { mutableStateOf(false) }
+  val interactionSource = remember { MutableInteractionSource() }
+  AnimatedContent(expandedValue) { isExpanded ->
+    ListItem2(
+      interactionSource = interactionSource,
+      onClick = { expandedValue = !isExpanded },
+      shapes = ListItemDefaults.singleShapes,
+      leadingContent = leadingContent,
+      overlineContent = { Text(title) },
+      content = {
+        Text(
+          text = text,
+          maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+          overflow = TextOverflow.Ellipsis,
+          onTextLayout = { it.hasVisualOverflow },
+        )
+      },
+      colors = ListItemDefaults.colors(containerColor = containerColor, contentColor = contentColor),
     )
   }
 }
+
+internal data class InputPageUIState(val input: TextFieldState, val result: ScriptResult)
 
 @Composable
 @Preview
 private fun PreviewInputPageContent(
-  @PreviewParameter(ScriptEditorPreviewCollection::class)
-  scriptEditorState: ScriptEditorState<String>
+  @PreviewParameter(ScriptEditorPreviewCollection::class) scriptResult: ScriptResult
 ) = Preview2 {
   Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-    InputPage(
+    InputPageContent(
       modifier = Modifier.height(400.dp).fillMaxWidth().padding(Sizes.large),
-      scriptEditorState = scriptEditorState,
-      onAutoReloadChange = {},
-      textFieldState = rememberTextFieldState("this is a test\nsecond line"),
       openDocs = {},
-    ) {
-      SuccessMessage(it)
-    }
+      uiState =
+        remember {
+          InputPageUIState(
+            input = TextFieldState("this is a test\nsecond line"),
+            result = scriptResult,
+          )
+        },
+    )
   }
 }
 
 private class ScriptEditorPreviewCollection(
-  override val values: Sequence<ScriptEditorState<String>> =
+  override val values: Sequence<ScriptResult> =
     sequenceOf(
-      ScriptEditorState.Loading(false),
-      ScriptEditorState.Loading(true),
-      ScriptEditorState.GenericError(IndexOutOfBoundsException("Out of bound"), false),
-      ScriptEditorState.ScriptError(ScriptException.VariableNameClash("test"), false),
-      ScriptEditorState.Success("Test value (OK)", false),
+      ScriptResult.Loading,
+      ScriptResult.GenericError(IndexOutOfBoundsException("Out of bounds")),
+      ScriptResult.ScriptError(ScriptException.VariableNameClash("test")),
+      ScriptResult.Success("Test value (OK)"),
+      ScriptResult.Success(null),
     )
-) : PreviewParameterProvider<ScriptEditorState<String>?>
+) : PreviewParameterProvider<ScriptResult>

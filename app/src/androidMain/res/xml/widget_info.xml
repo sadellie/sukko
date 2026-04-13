@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="io.github.sadellie.sukko.ReconfigureActivity"
+    android:initialLayout="@layout/default_initial_layout"
+    android:minWidth="24dp"
+    android:minHeight="24dp"
+    android:previewLayout="@layout/main_widget_preview"
+    android:resizeMode="vertical|horizontal"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable|configuration_optional" />

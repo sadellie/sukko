@@ -238,10 +238,10 @@ private fun PreviewEditorControlsAtRoot() = Preview2 {
     viewerState =
       ViewerState(
         currentLayer = null,
+        highlightSelectedLayer = false,
         parentLayer = null,
         breadcrumbs = emptyList(),
         loadedLayers = List(3) { ColdTextLayer(it) },
-        highlightSelectedLayer = false,
       ),
     globals = Globals(),
   )
@@ -258,6 +258,7 @@ private fun PreviewEditorControlsInLayer() = Preview2 {
     viewerState =
       ViewerState(
         currentLayer = ColdRowLayer(2, 1),
+        highlightSelectedLayer = true,
         parentLayer = null,
         breadcrumbs = listOf(ColdColumnLayer(0, null), ColdColumnLayer(1, 0), ColdTextLayer(2, 1)),
         loadedLayers =
@@ -277,7 +278,6 @@ private fun PreviewEditorControlsInLayer() = Preview2 {
             ColdTextLayer(12, 1),
             ColdTextLayer(13, 1),
           ),
-        highlightSelectedLayer = true,
       ),
     globals =
       Globals(
@@ -286,12 +286,12 @@ private fun PreviewEditorControlsInLayer() = Preview2 {
             GlobalValue.GlobalString(
               id = 0,
               label = "Item 1",
-              value = ScriptableString.Fixed("fixed text"),
+              initialValue = ScriptableString.Fixed("fixed text"),
             ),
             GlobalValue.GlobalString(
               id = 1,
               label = "Item 2",
-              value = ScriptableString.Script("some script"),
+              initialValue = ScriptableString.Script("some script"),
             ),
           )
       ),

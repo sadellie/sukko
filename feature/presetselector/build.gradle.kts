@@ -1,5 +1,6 @@
 plugins {
   id("sukko.multiplatform.library")
+  id("sukko.metro")
   alias(libs.plugins.compose)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.serialization)
@@ -11,12 +12,11 @@ kotlin {
     implementation(libs.androidx.navigation3.navigation3.runtime)
     implementation(libs.com.composables.core)
     implementation(libs.com.squareup.okio.okio)
-    implementation(libs.io.insert.koin.koin.compose.navigation3)
-    implementation(libs.io.insert.koin.koin.compose.viewmodel)
     implementation(libs.org.jetbrains.compose.components.components.resources)
     implementation(libs.org.jetbrains.compose.material3.material3)
     implementation(libs.org.jetbrains.compose.ui.ui)
     implementation(libs.org.jetbrains.compose.ui.ui.tooling.preview)
+    implementation(libs.dev.zacsweers.metro.metrox.viewmodel.compose)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
     implementation(project(":core:common"))
     implementation(project(":core:data"))
@@ -24,11 +24,6 @@ kotlin {
     implementation(project(":core:routes"))
     implementation(project(":core:ui"))
     implementation(project(":material-symbols"))
-    implementation(project.dependencies.platform(libs.io.insert.koin.koin.bom))
-  }
-  sourceSets.androidMain.dependencies {
-    implementation(libs.io.insert.koin.koin.core.coroutines)
-    implementation(libs.io.insert.koin.koin.android)
   }
   sourceSets.commonTest.dependencies {}
 }

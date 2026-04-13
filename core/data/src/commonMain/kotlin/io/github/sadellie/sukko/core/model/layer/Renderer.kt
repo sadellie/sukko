@@ -8,10 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +27,7 @@ fun Renderer(
   modifier: Modifier,
   renderOption: RenderOption,
   layers: List<Layer.Evaluated>,
-  onGloballyPositioned: (Int, Rect) -> Unit = { _, _ -> },
+  onGloballyPositioned: (Int, LayoutCoordinates) -> Unit = { _, _ -> },
 ) {
   Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
     NestedRenderer(layers, renderOption, null, onGloballyPositioned, this)
@@ -39,7 +39,7 @@ internal fun NestedRenderer(
   layers: List<Layer.Evaluated>,
   renderOption: RenderOption,
   parentId: Int?,
-  onGloballyPositioned: (Int, Rect) -> Unit,
+  onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   scope: Any,
 ) {
   val layersToRender = remember(layers, parentId) { layers.filter { it.parentId == parentId } }

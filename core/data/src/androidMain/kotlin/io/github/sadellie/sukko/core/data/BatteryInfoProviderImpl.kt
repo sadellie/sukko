@@ -3,10 +3,9 @@ package io.github.sadellie.sukko.core.data
 import android.content.Context
 import android.os.BatteryManager
 import android.os.PowerManager
-import io.github.sadellie.sukko.core.model.provider.BatteryInfoProvider
 import kotlin.time.Duration.Companion.milliseconds
 
-class BatteryInfoProviderImpl(context: Context) : BatteryInfoProvider {
+internal class BatteryInfoProviderImpl(context: Context) : BatteryInfoProvider {
   private val batteryManager by lazy {
     context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
   }

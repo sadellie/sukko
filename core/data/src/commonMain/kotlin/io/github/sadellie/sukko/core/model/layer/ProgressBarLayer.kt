@@ -4,8 +4,8 @@ import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import google.material.design.symbols.LineEnd
@@ -15,7 +15,6 @@ import io.github.sadellie.sukko.core.model.basic.M3Color
 import io.github.sadellie.sukko.core.model.basic.ScriptableBoolean
 import io.github.sadellie.sukko.core.model.basic.ScriptableColor
 import io.github.sadellie.sukko.core.model.basic.ScriptableDouble
-import io.github.sadellie.sukko.core.model.basic.ScriptableDp
 import io.github.sadellie.sukko.core.model.modifier.WidgetModifier
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.core_model_layer_progress_bar
@@ -38,9 +37,9 @@ data class ColdProgressBarLayer(
   val progressBarType: ProgressBarType = ProgressBarType.LINEAR,
   val color: ScriptableColor = ScriptableColor.FixedM3(M3Color.PRIMARY),
   val trackColor: ScriptableColor = ScriptableColor.FixedM3(M3Color.SECONDARY_CONTAINER),
-  val gapSize: ScriptableDp = ScriptableDp.Fixed(4.dp),
+  val gapSize: ScriptableDouble = ScriptableDouble.Fixed(4.0),
   val amplitude: ScriptableDouble = ScriptableDouble.Fixed(1.0),
-  val waveLength: ScriptableDp = ScriptableDp.Fixed(15.dp),
+  val waveLength: ScriptableDouble = ScriptableDouble.Fixed(15.0),
 ) : Layer.Cold {
   @Transient override val displayName = Res.string.core_model_layer_progress_bar
   @Transient override val displayDescription = Res.string.core_model_layer_progress_bar_description
@@ -67,8 +66,8 @@ data class ColdProgressBarLayer(
 data class EvaluatedProgressBarLayer(
   override val id: Int,
   override val parentId: Int? = null,
-  override val name: String? =null,
-  override val widgetModifiers: List<WidgetModifier.Evaluated> =emptyList(),
+  override val name: String? = null,
+  override val widgetModifiers: List<WidgetModifier.Evaluated> = emptyList(),
   override val clickActions: List<ClickAction.Evaluated> = emptyList(),
   val progress: Float = 0.5f,
   val progressBarType: ProgressBarType = ProgressBarType.LINEAR,
@@ -79,19 +78,17 @@ data class EvaluatedProgressBarLayer(
   val waveLength: Dp = 15.dp,
 ) : Layer.Evaluated {
   @Composable
-  override fun Render(
+  override fun BaseRender(
     modifier: Modifier,
     renderOption: RenderOption,
     childrenLayers: List<Layer.Evaluated>,
-    onGloballyPositioned: (Int, Rect) -> Unit,
-    scope: Any,
+    onGloballyPositioned: (Int, LayoutCoordinates) -> Unit,
   ) {
-    val finalModifier = createModifier(modifier, renderOption, onGloballyPositioned, scope)
     when (progressBarType) {
       ProgressBarType.LINEAR ->
         LinearWavyProgressIndicator(
           progress = { progress },
-          modifier = finalModifier,
+          modifier = modifier,
           color = color,
           trackColor = trackColor,
           gapSize = gapSize,
@@ -101,7 +98,7 @@ data class EvaluatedProgressBarLayer(
         )
       ProgressBarType.CIRCULAR ->
         CircularWavyProgressIndicator(
-          modifier = finalModifier,
+          modifier = modifier,
           progress = { progress },
           color = color,
           trackColor = trackColor,

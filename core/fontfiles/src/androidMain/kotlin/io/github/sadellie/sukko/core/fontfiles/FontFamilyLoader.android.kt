@@ -6,6 +6,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.toFontFamily
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.sadellie.sukko.core.designsystem.LocalFilesDirPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -14,7 +17,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okio.Path
 
-actual class FontFamilyLoader {
+@SingleIn(AppScope::class)
+@Inject
+actual class FontFamilyLoader actual constructor() {
   private val cache = mutableMapOf<FontFile, FontFamily>()
   private val mutex = Mutex()
 

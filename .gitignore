@@ -13,3 +13,4 @@ build/
 /internals
 /fake/public
 /detekt/report.*
+.venv

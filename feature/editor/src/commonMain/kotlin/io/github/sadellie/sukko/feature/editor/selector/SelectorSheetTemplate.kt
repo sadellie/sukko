@@ -146,7 +146,8 @@ internal interface InputMode {
 
 internal enum class DefaultInputMode(override val displayName: StringResource) : InputMode {
   FIXED(displayName = Res.string.editor_selector_input_mode_fixed),
-  SCRIPT(displayName = Res.string.editor_selector_input_mode_script);
+  SCRIPT(displayName = Res.string.editor_selector_input_mode_script),
+  GLOBAL(displayName = Res.string.editor_selector_input_mode_global);
 
   companion object {
     /**
@@ -155,32 +156,12 @@ internal enum class DefaultInputMode(override val displayName: StringResource) :
      * @param scriptable Initial value when opening selector
      * @return Initial [DefaultInputMode] for [scriptable]
      */
-    fun initialMode(scriptable: Scriptable<*>) =
-      when (scriptable) {
-        is Scriptable.Script<*> -> SCRIPT
-        is Scriptable.Fixed<*, *> -> FIXED
-        else -> FIXED
-      }
-  }
-}
-
-internal enum class DefaultInputMode2(override val displayName: StringResource) : InputMode {
-  FIXED(displayName = Res.string.editor_selector_input_mode_fixed),
-  SCRIPT(displayName = Res.string.editor_selector_input_mode_script),
-  GLOBAL(displayName = Res.string.editor_selector_input_mode_global);
-
-  companion object {
-    /**
-     * Select appropriate [DefaultInputMode2] based on [scriptable]
-     *
-     * @param scriptable Initial value when opening selector
-     * @return Initial [DefaultInputMode2] for [scriptable]
-     */
-    fun initialMode(scriptable: Scriptable<*>) =
+    fun initialMode(scriptable: Scriptable<*>?) =
       when (scriptable) {
         is Scriptable.Script<*> -> SCRIPT
         is Scriptable.Fixed<*, *> -> FIXED
         is Scriptable.Global<*> -> GLOBAL
+        else -> FIXED
       }
   }
 }

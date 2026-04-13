@@ -12,6 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
 import io.github.sadellie.sukko.core.common.stateIn
 import io.github.sadellie.sukko.core.designsystem.Preview2
@@ -28,8 +36,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 internal fun FontFileSelectorSheetContent(
@@ -39,7 +45,10 @@ internal fun FontFileSelectorSheetContent(
   dismissLabel: String = stringResource(Res.string.common_cancel),
   confirmLabel: String = stringResource(Res.string.common_confirm),
 ) {
-  val viewModel = koinViewModel<FontFileSelectorViewModel> { parametersOf(value) }
+  val viewModel =
+    assistedMetroViewModel<FontFileSelectorViewModel, FontFileSelectorViewModel.Factory> {
+      create(value)
+    }
   val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value
   SheetContentWithButtons(
     onDismiss = onDismissRequest,
@@ -75,8 +84,9 @@ private fun FontFileSelectorSheetInnerContent(
   }
 }
 
-internal class FontFileSelectorViewModel(
-  initialValue: FontFile?,
+@AssistedInject
+class FontFileSelectorViewModel(
+  @Assisted initialValue: FontFile?,
   fontFileCustomRepository: FontFileCustomRepository,
 ) : ViewModel() {
   private val _fontFiles = fontFileCustomRepository.loadAll().stateIn(viewModelScope, null)
@@ -89,6 +99,13 @@ internal class FontFileSelectorViewModel(
       .stateIn(viewModelScope, FontFileSelectorUIState(null, initialValue))
 
   fun selectFontFile(fontFile: FontFile) = _selectedFontFile.update { fontFile }
+
+  @AssistedFactory
+  @ManualViewModelAssistedFactoryKey
+  @ContributesIntoMap(AppScope::class)
+  fun interface Factory : ManualViewModelAssistedFactory {
+    fun create(initialValue: FontFile?): FontFileSelectorViewModel
+  }
 }
 
 internal data class FontFileSelectorUIState(

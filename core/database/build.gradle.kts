@@ -1,5 +1,6 @@
 plugins {
   id("sukko.multiplatform.library")
+  id("sukko.metro")
   alias(libs.plugins.ksp)
   alias(libs.plugins.room)
 }
@@ -9,9 +10,6 @@ kotlin {
   sourceSets.androidMain.dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
-    implementation(project.dependencies.platform(libs.io.insert.koin.koin.bom))
-    implementation(libs.io.insert.koin.koin.core.coroutines)
-    implementation(libs.io.insert.koin.koin.android)
     implementation(project(":core:common"))
   }
   sourceSets.commonTest.dependencies { implementation(libs.kotlin.test) }

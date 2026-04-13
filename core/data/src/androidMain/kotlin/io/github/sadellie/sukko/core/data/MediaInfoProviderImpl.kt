@@ -5,15 +5,10 @@ import android.media.AudioManager
 import android.media.session.PlaybackState
 import io.github.sadellie.sukko.core.common.getAppLabel
 import io.github.sadellie.sukko.core.medialistener.MediaListener
-import io.github.sadellie.sukko.core.model.provider.MediaInfoProvider
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-class MediaInfoProviderImpl(context: Context) : MediaInfoProvider, KoinComponent {
-  private val mediaInfo by lazy {
-    val mediaListener: MediaListener by inject()
-    mediaListener.getMediaInfo()
-  }
+internal class MediaInfoProviderImpl(context: Context, private val mediaListener: MediaListener) :
+  MediaInfoProvider {
+  private val mediaInfo by lazy { mediaListener.getMediaInfo() }
   private val audioManager: AudioManager by lazy {
     context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
   }

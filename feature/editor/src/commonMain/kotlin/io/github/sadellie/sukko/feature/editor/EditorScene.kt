@@ -50,6 +50,9 @@ import androidx.compose.ui.unit.sp
 import co.touchlab.kermit.Logger
 import google.material.design.symbols.Save
 import google.material.design.symbols.Symbols
+import io.github.pingpongboss.explodedlayers.ExperimentalExplodedLayersApi
+import io.github.pingpongboss.explodedlayers.ExplodedLayersState
+import io.github.pingpongboss.explodedlayers.rememberExplodedLayersState
 import io.github.sadellie.sukko.core.common.collectAsStateWithLifecycleKMP
 import io.github.sadellie.sukko.core.designsystem.LocalWindowSize
 import io.github.sadellie.sukko.core.designsystem.PreviewScreenSizesContainer
@@ -95,6 +98,7 @@ internal fun EditorScene(
   viewModel: EditorViewModel,
 ) {
   LaunchedEffect(Unit) { viewModel.onUpdateWidgetSize() }
+  LaunchedEffect(Unit) { viewModel.periodicLayerRefresh() }
 
   when (val uiState = viewModel.uiState.collectAsStateWithLifecycleKMP().value) {
     null -> LoadingScaffoldWithTopAppBar(onNavigateUp = onNavigateUp, disableBack = false)
@@ -116,7 +120,7 @@ internal fun EditorScene(
   }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalExplodedLayersApi::class)
 @Composable
 internal fun EditorScreen(
   uiState: EditorUIState,
@@ -137,6 +141,9 @@ internal fun EditorScreen(
   var showOnLeaveUnsaved by rememberSaveable { mutableStateOf(false) }
   val graphicsLayer = rememberGraphicsLayer()
   val coroutineScope = rememberCoroutineScope()
+  var explode by rememberSaveable { mutableStateOf(false) }
+  val explodedLayersState = rememberExplodedLayersState(interactive = true, initialSpread = 0f)
+  LaunchedEffect(explode) { explodedLayersState.explode(explode) }
 
   fun navBack() = if (!uiState.isWidgetDataSaved) showOnLeaveUnsaved = true else onNavigateUp()
 
@@ -187,6 +194,8 @@ internal fun EditorScreen(
         onHighlightSelectedLayerClick = onHighlightSelectedLayerClick,
         highlightSelectedLayer = uiState.viewerState.highlightSelectedLayer,
         onNavigateToWidgetInfo = onNavigateToWidgetInfo,
+        explodeLayers = explode,
+        onExplodeLayerClick = { explode = it },
       )
     },
   ) { padding ->
@@ -198,6 +207,7 @@ internal fun EditorScreen(
       onEvent = onEvent,
       compactListMode = compactListMode,
       graphicsLayer = graphicsLayer,
+      explodedLayersState = explodedLayersState,
     )
   }
 
@@ -222,6 +232,7 @@ private fun EditorScreenContent(
   onEvent: (EditorEvent) -> Unit,
   compactListMode: Boolean,
   graphicsLayer: GraphicsLayer,
+  explodedLayersState: ExplodedLayersState,
 ) {
   EditorScreenContentResponsive(
     modifier = modifier,
@@ -232,6 +243,7 @@ private fun EditorScreenContent(
         canvasSize = uiState.canvasSize,
         graphicsLayer = graphicsLayer,
         renderOption = uiState.viewerState.asRenderOptions(),
+        explodedLayersState = explodedLayersState,
       )
     },
     secondContent = {
@@ -293,6 +305,8 @@ private fun EditorScreenTopBarActions(
   onHighlightSelectedLayerClick: (Boolean) -> Unit,
   highlightSelectedLayer: Boolean,
   widgetDataSaverState: WidgetDataSaverState,
+  explodeLayers: Boolean,
+  onExplodeLayerClick: (Boolean) -> Unit,
 ) {
   val isSaveEnabled =
     remember(isWidgetDataSaved, widgetDataSaverState) {
@@ -329,6 +343,8 @@ private fun EditorScreenTopBarActions(
     onHighlightSelectedLayerClick = onHighlightSelectedLayerClick,
     highlightSelectedLayer = highlightSelectedLayer,
     onNavigateToWidgetInfo = onNavigateToWidgetInfo,
+    explodeLayers = explodeLayers,
+    onExplodeLayerClick = onExplodeLayerClick,
   )
 
   if (widgetDataSaverState is WidgetDataSaverState.MissingNotificationListener) {
@@ -344,6 +360,12 @@ private fun EditorScreenTopBarActions(
   }
 }
 
+private fun ExplodedLayersState.explode(value: Boolean) {
+  this.spread = if (value) EXPLODED_LAYER_SPREAD_ON else EXPLODED_LAYER_SPREAD_OFF
+}
+
+private const val EXPLODED_LAYER_SPREAD_ON = 0.9f
+private const val EXPLODED_LAYER_SPREAD_OFF = 0f
 private const val TAG = "EditorScene"
 
 @Composable
@@ -405,6 +427,7 @@ private fun PreviewEditorScreen() {
         viewerState =
           ViewerState(
             currentLayer = ColdTextLayer(0, null),
+            highlightSelectedLayer = true,
             parentLayer = null,
             breadcrumbs = List(7) { ColdColumnLayer(it, null) },
             loadedLayers =
@@ -428,7 +451,6 @@ private fun PreviewEditorScreen() {
                 ColdTextLayer(id = 5, parentId = 0, text = ScriptableString.Fixed("text")),
                 ColdTextLayer(id = 6, parentId = 0, text = ScriptableString.Fixed("text")),
               ),
-            highlightSelectedLayer = true,
           ),
       ),
     onNavigateUp = {},
@@ -480,6 +502,7 @@ private fun PreviewEditorScreenSizes(@PreviewParameter(PreviewCollection::class)
           viewerState =
             ViewerState(
               currentLayer = ColdTextLayer(2, 1),
+              highlightSelectedLayer = true,
               parentLayer = null,
               breadcrumbs =
                 listOf(ColdColumnLayer(0, null), ColdColumnLayer(1, 0), ColdTextLayer(2, 1)),
@@ -500,7 +523,6 @@ private fun PreviewEditorScreenSizes(@PreviewParameter(PreviewCollection::class)
                   ),
                   ColdTextLayer(id = 1, parentId = 0, text = ScriptableString.Fixed("text")),
                 ),
-              highlightSelectedLayer = true,
             ),
         ),
       onNavigateUp = {},

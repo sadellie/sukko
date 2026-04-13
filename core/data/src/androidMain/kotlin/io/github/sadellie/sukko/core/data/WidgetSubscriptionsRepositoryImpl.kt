@@ -10,7 +10,7 @@ import io.github.sadellie.sukko.core.model.WidgetSubscriptionInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class WidgetSubscriptionsRepositoryImpl(context: Context) : WidgetSubscriptionsRepository {
+internal class WidgetSubscriptionsRepositoryImpl(context: Context) : WidgetSubscriptionsRepository {
   companion object {
     private const val PREFS_FILE_NAME = "widget_subscriptions"
   }

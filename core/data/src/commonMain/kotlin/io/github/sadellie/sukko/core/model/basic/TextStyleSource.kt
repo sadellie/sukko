@@ -1,6 +1,5 @@
 package io.github.sadellie.sukko.core.model.basic
 
-import androidx.compose.ui.unit.sp
 import io.github.sadellie.sukko.core.fontfiles.FontFile
 import io.github.sadellie.sukko.resources.Res
 import io.github.sadellie.sukko.resources.core_model_text_style_global
@@ -12,7 +11,7 @@ import org.jetbrains.compose.resources.StringResource
 @Serializable
 sealed interface TextStyleSource {
   companion object {
-    val fontSizeRange by lazy { 0f..1_000f }
+    val fontSizeRange by lazy { 0.0..1_000.0 }
     val fontWeightRange by lazy { 1.0..1000.0 }
   }
 
@@ -20,7 +19,7 @@ sealed interface TextStyleSource {
 
   @Serializable
   data class Local(
-    val fontSize: ScriptableSp = ScriptableSp.Fixed(16.sp),
+    val fontSize: ScriptableDouble = ScriptableDouble.Fixed(16.0),
     val fontFile: FontFile = FontFile.System,
     val fontStyle: FontStyleSource = FontStyleSource.Normal,
     val fontWeight: ScriptableDouble = ScriptableDouble.Fixed(NORMAL_FONT_WEIGHT),
